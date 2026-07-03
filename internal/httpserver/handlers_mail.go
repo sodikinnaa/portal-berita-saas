@@ -897,7 +897,7 @@ export default {
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "logs": logs})
 		return
 	}
-	_, _ = pMetadata.Write([]byte(`{"main_module": "index.js"}`))
+	_, _ = pMetadata.Write([]byte(`{"main_module": "index.js", "observability": {"enabled": true, "head_sampling_rate": 1, "logs": {"enabled": true, "head_sampling_rate": 1, "persist": true, "invocation_logs": true}}}`))
 
 	// Part 2: index.js
 	hIndex := make(textproto.MIMEHeader)

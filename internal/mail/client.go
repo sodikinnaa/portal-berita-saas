@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/smtp"
@@ -431,12 +432,15 @@ func (c *Client) sendCloudflare(ctx context.Context, msg Message) error {
 	httpClient := http.Client{Timeout: 15 * time.Second}
 	resp, err := httpClient.Do(req)
 	if err != nil {
+		log.Printf("[Cloudflare Send Error] Gagal melakukan request HTTP: %v", err)
 		return fmt.Errorf("failed to make HTTP call to Cloudflare Worker: %w", err)
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, _ := io.ReadAll(resp.Body)
+	log.Printf("[Cloudflare Worker Response] Status: %d, Body: %s", resp.StatusCode, string(bodyBytes))
+
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		bodyBytes, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("cloudflare Worker returned status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 

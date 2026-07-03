@@ -684,7 +684,7 @@ func (s *Server) deployCloudflareWorkerHandler(w http.ResponseWriter, r *http.Re
 			if p.Username != "" {
 				proxyUserMsg = p.Username
 			}
-			logs = append(logs, fmt.Sprintf("[%s] [INFO] Menggunakan Proxy: %s:%d (User: %s)", time.Now().Format("15:04:05"), p.IP, p.Port, proxyUserMsg))
+			logs = append(logs, fmt.Sprintf("[%s] [proxy] configure (Using Proxy: %s:%d User: %s)", time.Now().Format("15:04:05"), p.IP, p.Port, proxyUserMsg))
 			
 			var baseTransport *http.Transport
 			if strings.HasPrefix(p.Protocol, "socks5") {
@@ -735,11 +735,11 @@ func (s *Server) deployCloudflareWorkerHandler(w http.ResponseWriter, r *http.Re
 		}
 		
 		if client == nil {
-			logs = append(logs, fmt.Sprintf("[%s] [INFO] Tidak ada proxy aktif, menggunakan koneksi Direct...", time.Now().Format("15:04:05")))
+			logs = append(logs, fmt.Sprintf("[%s] [proxy] not configure (Using Direct Connection)", time.Now().Format("15:04:05")))
 			client = &http.Client{Timeout: 20 * time.Second}
 		}
 	} else {
-		logs = append(logs, fmt.Sprintf("[%s] [INFO] Menggunakan koneksi Direct (tanpa proxy)...", time.Now().Format("15:04:05")))
+		logs = append(logs, fmt.Sprintf("[%s] [proxy] not configure (Using Direct Connection)", time.Now().Format("15:04:05")))
 		client = &http.Client{Timeout: 20 * time.Second}
 	}
 

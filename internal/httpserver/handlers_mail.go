@@ -898,7 +898,7 @@ export default {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    if (request.method === "POST" && (url.pathname === "/send" || url.pathname === "/send/")) {
+    if (request.method === "POST" && (url.pathname.endsWith("/send") || url.pathname.endsWith("/send/"))) {
       try {
         const body = await request.json();
         
@@ -926,7 +926,7 @@ export default {
       }
     }
 
-    if (request.method === "POST" && (url.pathname === "/ai/draft" || url.pathname === "/ai/draft/")) {
+    if (request.method === "POST" && (url.pathname.endsWith("/ai/draft") || url.pathname.endsWith("/ai/draft/"))) {
       try {
         const body = await request.json();
         if (!env.AI) {
@@ -950,7 +950,7 @@ export default {
       }
     }
 
-    if (request.method === "POST" && (url.pathname === "/ai/summary" || url.pathname === "/ai/summary/")) {
+    if (request.method === "POST" && (url.pathname.endsWith("/ai/summary") || url.pathname.endsWith("/ai/summary/"))) {
       try {
         const body = await request.json();
         if (!env.AI) {

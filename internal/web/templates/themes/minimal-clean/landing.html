@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }} - Portal Berita Digital Premium</title>
+        <meta name="description" content="{{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Portal Berita Terkini & Terpercaya{{ end }} - {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}Portal berita modern terpercaya.{{ end }}" />
+        
+        <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+        <style>
+            :root {
+                --red: #2a4d7c;
+                --red-hover: #1b355a;
+                --dark-bg: #090d16;
+                --dark-card: #131926;
+                --text-main: #0f172a;
+                --text-muted: #64748b;
+                --border-color: #e2e8f0;
+                --font-display: "Playfair Display", Georgia, serif;
+                --font-body: "Source Sans 3", sans-serif;
+                --font-serif: "Playfair Display", serif;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: var(--font-body);
+                color: var(--text-main);
+                background-color: #ffffff;
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+                transition: all 0.25s ease;
+            }
+
+            /* ── TOP BAR ── */
+            .topbar {
+                background: #000000;
+                color: #94a3b8;
+                font-size: 12px;
+                padding: 8px 0;
+                border-bottom: 1px solid #1e293b;
+            }
+            .topbar-inner {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .topbar-left {
+                display: flex;
+                gap: 20px;
+            }
+            .topbar-right {
+                display: flex;
+                gap: 20px;
+            }
+            .topbar-right a:hover {
+                color: #ffffff;
+            }
+
+            /* ── HEADER & NAVBAR ── */
+            .navbar-landing {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid var(--border-color);
+                padding: 16px 0;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+            .navbar-container {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .brand {
+                font-family: var(--font-display);
+                font-size: 24px;
+                font-weight: 900;
+                color: #0f172a;
+                letter-spacing: -0.5px;
+            }
+            .brand span {
+                color: var(--red);
+            }
+            .nav-menu {
+                display: flex;
+                gap: 32px;
+                align-items: center;
+            }
+            .nav-link-item {
+                font-family: var(--font-display);
+                font-weight: 600;
+                font-size: 14px;
+                color: #334155;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .nav-link-item:hover {
+                color: var(--red);
+            }
+            .cta-btn {
+                background-color: var(--red);
+                color: #ffffff;
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 14px;
+                padding: 10px 24px;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(230, 51, 41, 0.2);
+            }
+            .cta-btn:hover {
+                background-color: var(--red-hover);
+                color: #ffffff;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(230, 51, 41, 0.3);
+            }
+
+            /* ── MOBILE NAV TOGGLE (BURGER) ── */
+            .mobile-nav-toggle {
+                display: none;
+                flex-direction: column;
+                justify-content: space-between;
+                width: 24px;
+                height: 18px;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                z-index: 1001;
+            }
+            .mobile-nav-toggle .bar {
+                width: 100%;
+                height: 2px;
+                background-color: var(--text-main);
+                border-radius: 2px;
+                transition: all 0.3s ease;
+            }
+
+            /* ── HERO SECTION ── */
+            .hero {
+                background-color: var(--dark-bg);
+                background-image: radial-gradient(circle at 80% 20%, rgba(230, 51, 41, 0.12) 0%, transparent 50%),
+                                  radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+                color: #ffffff;
+                padding: 100px 0 120px 0;
+                position: relative;
+                overflow: hidden;
+            }
+            .hero::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm20 20h20v20H20V20z' fill='%23ffffff' fill-opacity='.008' fill-rule='evenodd'/%3E%3C/svg%3E");
+                pointer-events: none;
+            }
+            .hero-container {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+            .hero-tag {
+                display: inline-block;
+                background: rgba(230, 51, 41, 0.15);
+                border: 1px solid rgba(230, 51, 41, 0.3);
+                color: #ff8a84;
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                padding: 6px 16px;
+                border-radius: 50px;
+                margin-bottom: 24px;
+            }
+            .hero-title {
+                font-family: var(--font-display);
+                font-size: 56px;
+                font-weight: 800;
+                line-height: 1.15;
+                letter-spacing: -1.5px;
+                margin-bottom: 24px;
+            }
+            .hero-title span {
+                background: linear-gradient(135deg, #ffffff 30%, #ffc5c2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .hero-desc {
+                font-size: 18px;
+                color: #94a3b8;
+                max-width: 600px;
+                margin-bottom: 40px;
+                line-height: 1.7;
+            }
+            .hero-buttons {
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+            .btn-hero-primary {
+                background-color: var(--red);
+                color: #ffffff;
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 16px;
+                padding: 14px 32px;
+                border-radius: 6px;
+                box-shadow: 0 4px 14px rgba(230, 51, 41, 0.3);
+            }
+            .btn-hero-primary:hover {
+                background-color: var(--red-hover);
+                color: #ffffff;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(230, 51, 41, 0.4);
+            }
+            .btn-hero-secondary {
+                background-color: transparent;
+                color: #ffffff;
+                font-family: var(--font-display);
+                font-weight: 600;
+                font-size: 16px;
+                padding: 14px 32px;
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .btn-hero-secondary:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+                border-color: #ffffff;
+                transform: translateY(-2px);
+            }
+
+            /* Mockup Rendering */
+            .hero-mockup {
+                background: var(--dark-card);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+                position: relative;
+            }
+            .mock-header {
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-bottom: 12px;
+                margin-bottom: 16px;
+                font-size: 11px;
+                color: #64748b;
+            }
+            .mock-title {
+                font-family: var(--font-serif);
+                font-size: 24px;
+                font-weight: 900;
+                color: #ffffff;
+                margin-bottom: 8px;
+                line-height: 1.3;
+            }
+            .mock-excerpt {
+                font-size: 13px;
+                color: #94a3b8;
+                line-height: 1.6;
+            }
+            .mock-img {
+                height: 200px;
+                background-size: cover;
+                background-position: center;
+                border-radius: 6px;
+                margin-bottom: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            /* ── FEATURES SECTION ── */
+            .features {
+                padding: 100px 0;
+                background: #f8fafc;
+            }
+            .sec-header {
+                text-align: center;
+                max-width: 600px;
+                margin: 0 auto 60px auto;
+            }
+            .sec-eyebrow {
+                color: var(--red);
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 12px;
+            }
+            .sec-title {
+                font-family: var(--font-display);
+                font-size: 36px;
+                font-weight: 800;
+                color: #0f172a;
+            }
+            .feature-card {
+                background: #ffffff;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 40px 30px;
+                height: 100%;
+                transition: all 0.3s ease;
+            }
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+                border-color: #cbd5e1;
+            }
+            .feature-icon {
+                width: 48px;
+                height: 48px;
+                background: rgba(230, 51, 41, 0.08);
+                color: var(--red);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                margin-bottom: 24px;
+                font-weight: bold;
+            }
+            .feature-card h3 {
+                font-family: var(--font-display);
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 16px;
+                color: #0f172a;
+            }
+            .feature-card p {
+                color: var(--text-muted);
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            /* ── NEWS SECTION ── */
+            .latest-news {
+                padding: 100px 0;
+            }
+            .news-card {
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                overflow: hidden;
+                background: #ffffff;
+                height: 100%;
+                transition: all 0.3s ease;
+            }
+            .news-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 35px rgba(0, 0, 0, 0.07);
+                border-color: #cbd5e1;
+            }
+            .news-img-wrapper {
+                height: 220px;
+                overflow: hidden;
+                position: relative;
+            }
+            .news-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+            .news-card:hover .news-img {
+                transform: scale(1.05);
+            }
+            .news-tag {
+                position: absolute;
+                top: 16px;
+                left: 16px;
+                background-color: var(--red);
+                color: #ffffff;
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 4px 12px;
+                border-radius: 4px;
+            }
+            .news-content {
+                padding: 24px;
+            }
+            .news-meta {
+                font-size: 12px;
+                color: var(--text-muted);
+                margin-bottom: 12px;
+                display: flex;
+                gap: 12px;
+            }
+            .news-title {
+                font-family: var(--font-display);
+                font-size: 18px;
+                font-weight: 700;
+                color: #0f172a;
+                margin-bottom: 12px;
+                line-height: 1.4;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .news-excerpt {
+                font-size: 13px;
+                color: var(--text-muted);
+                line-height: 1.6;
+                margin-bottom: 20px;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .news-link {
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 13px;
+                color: var(--red);
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .news-link:hover {
+                color: var(--red-hover);
+                gap: 10px;
+            }
+
+            /* ── NEWSLETTER SECTION ── */
+            .newsletter {
+                background: linear-gradient(135deg, #131926 0%, #090d16 100%);
+                color: #ffffff;
+                padding: 80px 0;
+                text-align: center;
+                position: relative;
+            }
+            .newsletter-container {
+                max-width: 650px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+            .newsletter h2 {
+                font-family: var(--font-display);
+                font-size: 32px;
+                font-weight: 800;
+                margin-bottom: 16px;
+            }
+            .newsletter p {
+                color: #94a3b8;
+                font-size: 15px;
+                margin-bottom: 32px;
+            }
+            .newsletter-form {
+                display: flex;
+                gap: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 6px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .newsletter-input {
+                flex: 1;
+                background: transparent;
+                border: none;
+                padding: 12px 16px;
+                color: #ffffff;
+                font-size: 14px;
+                outline: none;
+            }
+            .newsletter-input::placeholder {
+                color: #64748b;
+            }
+            .newsletter-btn {
+                background-color: var(--red);
+                color: #ffffff;
+                border: none;
+                padding: 0 24px;
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 14px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .newsletter-btn:hover {
+                background-color: var(--red-hover);
+            }
+
+            /* ── FOOTER ── */
+            .footer-landing {
+                background-color: #090d16;
+                color: #64748b;
+                padding: 80px 0 40px 0;
+                border-top: 1px solid #1e293b;
+                font-size: 13px;
+            }
+            .footer-brand {
+                font-family: var(--font-display);
+                font-size: 20px;
+                font-weight: 900;
+                color: #ffffff;
+                margin-bottom: 16px;
+            }
+            .footer-brand span {
+                color: var(--red);
+            }
+            .footer-desc {
+                line-height: 1.6;
+                margin-bottom: 24px;
+                max-width: 300px;
+            }
+            .footer-col-title {
+                color: #ffffff;
+                font-family: var(--font-display);
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 12px;
+                letter-spacing: 1px;
+                margin-bottom: 20px;
+            }
+            .footer-links {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            .footer-links li {
+                margin-bottom: 12px;
+            }
+            .footer-links a:hover {
+                color: #ffffff;
+            }
+            .footer-bottom {
+                border-top: 1px solid #1e293b;
+                padding-top: 30px;
+                margin-top: 60px;
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 16px;
+                font-size: 12px;
+            }
+
+            @media (max-width: 991px) {
+                .hero {
+                    padding: 60px 0 80px 0;
+                    text-align: center;
+                }
+                .hero-title {
+                    font-size: 42px;
+                }
+                .hero-desc {
+                    margin: 0 auto 32px auto;
+                }
+                .hero-buttons {
+                    justify-content: center;
+                }
+                .hero-mockup {
+                    margin-top: 50px;
+                    text-align: left;
+                }
+                .mobile-nav-toggle {
+                    display: flex;
+                }
+                
+                /* Transform to X when active */
+                .mobile-nav-toggle.active .bar:nth-child(1) {
+                    transform: translateY(8px) rotate(45deg);
+                }
+                .mobile-nav-toggle.active .bar:nth-child(2) {
+                    opacity: 0;
+                }
+                .mobile-nav-toggle.active .bar:nth-child(3) {
+                    transform: translateY(-8px) rotate(-45deg);
+                }
+
+                .nav-menu {
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    background: rgba(255, 255, 255, 0.98);
+                    backdrop-filter: blur(10px);
+                    border-bottom: 1px solid var(--border-color);
+                    flex-direction: column;
+                    padding: 24px;
+                    gap: 16px;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+                    z-index: 999;
+                    opacity: 0;
+                    transform: translateY(-10px);
+                    transition: opacity 0.3s ease, transform 0.3s ease;
+                    pointer-events: none;
+                }
+
+                .nav-menu.active {
+                    display: flex;
+                    opacity: 1;
+                    transform: translateY(0);
+                    pointer-events: auto;
+                }
+
+                .nav-link-item {
+                    width: 100%;
+                    text-align: center;
+                    padding: 8px 0;
+                }
+
+                .cta-btn {
+                    width: 100%;
+                    text-align: center;
+                    margin-top: 8px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="topbar">
+            <div class="topbar-inner">
+                <div class="topbar-left">
+                    <span class="topbar-date" id="topbar-date">Selasa, 16 Juni 2026</span>
+                    <span class="topbar-weather" id="topbar-weather">32°C Jakarta</span>
+                </div>
+                <div class="topbar-right">
+                    <a href="/portal">Beranda Portal</a>
+                    <a href="/tentang">Tentang</a>
+                    <a href="/kontak">Kontak</a>
+                    <a href="/iklan">Iklan</a>
+                    <a href="/privasi">Privasi</a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navbar-landing">
+            <div class="navbar-container">
+                <a href="/" class="brand">
+                    {{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}
+                </a>
+                
+                <!-- Burger Button for Mobile -->
+                <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Menu Toggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+
+                <div class="nav-menu" id="navMenu">
+                    <a href="/portal" class="nav-link-item">Portal Berita</a>
+                    <a href="/tentang" class="nav-link-item">Tentang Kami</a>
+                    <a href="/kontak" class="nav-link-item">Kontak</a>
+                    <a href="/iklan" class="nav-link-item">Iklan</a>
+                    <a href="/privasi" class="nav-link-item">Privasi</a>
+                    <a href="/portal" class="cta-btn">Mulai Membaca</a>
+                </div>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <span class="hero-tag">Jurnalisme Era Digital</span>
+                        <h1 class="hero-title">
+                            <span>Informasi Terpercaya</span><br />
+                            Cepat &amp; Mendalam
+                        </h1>
+                        <p class="hero-desc">
+                            Selamat datang di {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}. 
+                            Kami menyajikan berita terkini, ulasan mendalam, dan analisis berimbang dari seluruh dunia, diperkuat teknologi asisten kecerdasan buatan (AI) untuk menghadirkan jurnalisme masa depan yang efisien dan berkualitas.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="/portal" class="btn btn-hero-primary">Baca Berita Sekarang</a>
+                            <a href="/tentang" class="btn btn-hero-secondary">Mengenal Kami</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        {{if .LatestArticles}}
+                        {{with index .LatestArticles 0}}
+                        <div class="hero-mockup">
+                            <span class="mock-header">
+                                <span>FEATURED ARTICLE</span>
+                                <span>{{formatDate .PublishedAt}}</span>
+                            </span>
+                            {{if .HeroImageURL}}
+                            <div class="mock-img" style="background-image: url('{{proxyURL .HeroImageURL}}')"></div>
+                            {{else}}
+                            <div class="mock-img" style="background-color: #1e293b"></div>
+                            {{end}}
+                            <h3 class="mock-title"><a href="/artikel/{{.Slug}}">{{.Title}}</a></h3>
+                            <p class="mock-excerpt">{{.Excerpt}}</p>
+                            <a href="/artikel/{{.Slug}}" class="news-link" style="margin-top: 16px;">Baca Selengkapnya &rarr;</a>
+                        </div>
+                        {{end}}
+                        {{else}}
+                        <div class="hero-mockup">
+                            <span class="mock-header">
+                                <span>PORTAL UTAMA</span>
+                                <span>2026</span>
+                            </span>
+                            <div class="mock-img" style="background-image: linear-gradient(135deg, #1e293b, #0f172a)"></div>
+                            <h3 class="mock-title">Selamat Datang di Portal Berita Kami</h3>
+                            <p class="mock-excerpt">Mulailah menjelajahi berbagai kategori berita terbaru mulai dari Politik, Ekonomi, Hiburan, Teknologi, hingga Gaya Hidup.</p>
+                            <a href="/portal" class="news-link" style="margin-top: 16px;">Masuk ke Portal &rarr;</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <div class="sec-header">
+                    <span class="sec-eyebrow">Keunggulan Kami</span>
+                    <h2 class="sec-title">Mengapa Membaca di {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}?</h2>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">✓</div>
+                            <h3>Jurnalisme Terintegritas</h3>
+                            <p>Seluruh konten berita diproses melalui verifikasi ketat dan ditulis oleh jurnalis profesional untuk menjamin kredibilitas dan akurasi informasi.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">🤖</div>
+                            <h3>Asisten AI Cerdas</h3>
+                            <p>Dilengkapi fitur rewrite bertenaga kecerdasan buatan untuk menyajikan rangkuman berita yang padat, berimbang, dan menghemat waktu berharga Anda.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <h3>Akses Premium &amp; Cepat</h3>
+                            <p>Nikmati pengalaman membaca yang nyaman dan responsif tanpa iklan yang mengganggu di perangkat desktop maupun smartphone Anda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="latest-news">
+            <div class="container">
+                <div class="sec-header">
+                    <span class="sec-eyebrow">Kabar Terkini</span>
+                    <h2 class="sec-title">Rilisan Berita Terbaru</h2>
+                </div>
+                <div class="row g-4">
+                    {{range .LatestArticles}}
+                    <div class="col-md-4">
+                        <div class="news-card">
+                            <div class="news-img-wrapper">
+                                {{if .HeroImageURL}}
+                                <img class="news-img" src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" />
+                                {{else}}
+                                <div class="news-img" style="background: #e2e8f0"></div>
+                                {{end}}
+                                <span class="news-tag">{{.Category}}</span>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span>{{formatDate .PublishedAt}}</span>
+                                    <span>•</span>
+                                    <span>{{readTime .Content}}</span>
+                                </div>
+                                <h3 class="news-title"><a href="/artikel/{{.Slug}}">{{.Title}}</a></h3>
+                                <p class="news-excerpt">{{.Excerpt}}</p>
+                                <a href="/artikel/{{.Slug}}" class="news-link">Baca Berita &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">Belum ada berita yang diterbitkan saat ini.</p>
+                    </div>
+                    {{end}}
+                </div>
+                <div class="text-center style" style="margin-top: 48px;">
+                    <a href="/portal" class="btn btn-hero-primary">Lihat Seluruh Berita</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="newsletter">
+            <div class="newsletter-container">
+                <h2>Tetap Dapatkan Informasi Terkini</h2>
+                <p>Berlangganan buletin kami secara gratis untuk menerima pemberitahuan berita penting dan terpopuler langsung di kotak masuk email Anda setiap pagi.</p>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Terima kasih telah berlangganan!'); this.reset();">
+                    <input class="newsletter-input" type="email" placeholder="Masukkan alamat email Anda" required />
+                    <button class="newsletter-btn" type="submit">Berlangganan</button>
+                </form>
+            </div>
+        </section>
+
+        <footer class="footer-landing">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="footer-brand">
+                            {{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}
+                        </div>
+                        <p class="footer-desc">
+                            {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}NewsPaper adalah portal berita terpercaya yang menyajikan informasi terkini, mendalam, dan berimbang dari seluruh penjuru dunia. Kami berkomitmen pada jurnalisme berkualitas tinggi sejak 2005.{{ end }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 col-lg-2 offset-lg-2">
+                        <div class="footer-col-title">Navigasi</div>
+                        <ul class="footer-links">
+                            <li><a href="/portal">Portal Utama</a></li>
+                            <li><a href="/artikel">Semua Artikel</a></li>
+                            <li><a href="/login">Masuk Editor</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <div class="footer-col-title">Informasi</div>
+                        <ul class="footer-links">
+                            <li><a href="/tentang">Tentang Kami</a></li>
+                            <li><a href="/kontak">Hubungi Kami</a></li>
+                            <li><a href="/iklan">Kerja Sama Iklan</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <div class="footer-col-title">Kebijakan</div>
+                        <ul class="footer-links">
+                            <li><a href="/privasi">Kebijakan Privasi</a></li>
+                            <li><a href="/portal">Ketentuan Layanan</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div>© 2026 {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}. Hak cipta dilindungi.</div>
+                    <div>Dibuat dengan ❤ untuk pembaca setia.</div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Auto Date and Weather Location Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // 1. Update Date automatically in Indonesian
+                const dateElement = document.getElementById("topbar-date");
+                if (dateElement) {
+                    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                    const today = new Date();
+                    const formattedDate = today.toLocaleDateString('id-ID', options);
+                    dateElement.innerHTML = formattedDate;
+                }
+
+                // 2. Update Location & Weather automatically
+                const weatherElement = document.getElementById("topbar-weather");
+                if (weatherElement) {
+                    fetch('/api/v1/proxy-image?url=https://ipapi.co/json/')
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to fetch location");
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data && data.city && data.latitude && data.longitude) {
+                                const city = data.city;
+                                const lat = data.latitude;
+                                const lon = data.longitude;
+                                return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Failed to fetch weather");
+                                        return res.json();
+                                    })
+                                    .then(weatherData => {
+                                        if (weatherData && weatherData.current_weather) {
+                                            const temp = Math.round(weatherData.current_weather.temperature);
+                                            weatherElement.innerHTML = `${temp}°C ${city}`;
+                                        }
+                                    });
+                            }
+                        })
+                        .catch(err => {
+                            console.warn("Weather/Location fetch error, keeping default:", err);
+                        });
+                }
+            });
+        </script>
+
+        <!-- Mobile Navigation Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const toggle = document.getElementById("mobileNavToggle");
+                const menu = document.getElementById("navMenu");
+
+                if (toggle && menu) {
+                    toggle.addEventListener("click", function() {
+                        toggle.classList.toggle("active");
+                        menu.classList.toggle("active");
+                    });
+
+                    // Close menu when clicking a link
+                    const links = menu.querySelectorAll("a");
+                    links.forEach(link => {
+                        link.addEventListener("click", function() {
+                            toggle.classList.remove("active");
+                            menu.classList.remove("active");
+                        });
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>

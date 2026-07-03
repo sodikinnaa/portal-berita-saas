@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{.Title}} - NewsPaper CMS</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="/assets/global.css" />
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Editorial</p>
+                        <h1>{{.Title}}</h1>
+                        <p>Nama kategori akan muncul sebagai pilihan dropdown di form artikel.</p>
+                    </div>
+                    <a class="btn btn-secondary" href="/dashboard/categories">Kembali</a>
+                </header>
+
+                <section class="dashboard-panel category-form-panel">
+                    <form class="category-form-card" method="post" action="{{.Action}}">
+                        {{if .Error}}
+                        <div class="alert alert-error" role="alert">{{.Error}}</div>
+                        {{end}}
+
+                        <div class="form-grid two">
+                            <div class="form-field">
+                                <label for="name">Nama Kategori</label>
+                                <input id="name" name="name" value="{{.Category.Name}}" placeholder="Contoh: Ekonomi" required />
+                            </div>
+                            <div class="form-field">
+                                <label for="slug">Slug</label>
+                                <input id="slug" name="slug" value="{{.Category.Slug}}" placeholder="otomatis-dari-nama" />
+                                <small>Kosongkan untuk membuat slug otomatis.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-field" style="margin-top: 20px; margin-bottom: 20px;">
+                            <label>Navigasi Utama</label>
+                            <div class="form-options">
+                                <label class="check-card">
+                                    <input
+                                        type="checkbox"
+                                        name="show_in_navbar"
+                                        value="true"
+                                        {{if .Category.ShowInNavbar}}checked{{end}}
+                                    />
+                                    <span>
+                                        <strong>Tampilkan di Navbar</strong>
+                                        <span>Aktifkan untuk menampilkan kategori ini sebagai menu navigasi di bagian atas situs portal berita.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="editor-actions">
+                            <button class="btn btn-primary" type="submit">Simpan Kategori</button>
+                            <a class="btn btn-secondary" href="/dashboard/categories">Batal</a>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
+    </body>
+</html>

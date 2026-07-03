@@ -1,0 +1,2 @@
+ALTER TABLE proxies ADD COLUMN IF NOT EXISTS bytes_sent bigint NOT NULL DEFAULT 0;
+ALTER TABLE proxies ADD COLUMN IF NOT EXISTS bytes_received bigint NOT NULL DEFAULT 0;

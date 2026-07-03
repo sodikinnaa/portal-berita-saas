@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Artikel Terbaru - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}</title>
+
+        {{template "cdn_styles" .}}
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+        <style>
+            :root {
+                --red: #e63329;
+                --red-hover: #c02d24;
+                --dark: #111111;
+                --border: #e5e5e5;
+                --font-display: "Poppins", sans-serif;
+                --font-heading: "Poppins", sans-serif;
+                --font-body: "Source Sans 3", sans-serif;
+            }
+
+            body {
+                font-family: var(--font-body);
+                color: var(--dark);
+                background-color: #fcfcfc;
+                overflow-x: hidden;
+            }
+
+            .bg-brand-red {
+                background-color: var(--red) !important;
+            }
+
+            .text-brand-red {
+                color: var(--red) !important;
+            }
+
+            .border-brand-red {
+                border-color: var(--red) !important;
+            }
+
+            /* Logo & Branding */
+            .logo-text {
+                font-family: var(--font-display);
+                font-weight: 900;
+                font-size: 34px;
+                letter-spacing: -1px;
+                line-height: 1;
+                color: var(--dark);
+            }
+
+            .logo-text span {
+                color: var(--red);
+            }
+
+            .logo-sub {
+                font-size: 9px;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: #6c757d;
+                margin-top: 4px;
+            }
+
+            /* Article Cards */
+            .post-card {
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                background: #fff;
+                transition: all 0.2s ease-in-out;
+                overflow: hidden;
+            }
+
+            .post-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(17, 17, 17, 0.06);
+                border-color: var(--red);
+            }
+
+            .post-thumb-container {
+                position: relative;
+                overflow: hidden;
+                display: block;
+                border-radius: 8px;
+            }
+
+            .post-thumb-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s ease;
+            }
+
+            .post-card:hover .post-thumb-img {
+                transform: scale(1.04);
+            }
+
+            .post-title-link {
+                color: var(--dark);
+                font-family: var(--font-display);
+                font-weight: 700;
+                line-height: 1.3;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+            .post-title-link:hover {
+                color: var(--red);
+            }
+
+            /* Category scroll pills */
+            .category-scroll {
+                display: flex;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .category-scroll::-webkit-scrollbar {
+                display: none;
+            }
+
+            .category-pill {
+                flex: 0 0 auto;
+                white-space: nowrap;
+                padding: 8px 16px;
+                border: 1px solid var(--border);
+                border-radius: 999px;
+                font-size: 13px;
+                font-family: var(--font-heading);
+                font-weight: 600;
+                color: #495057;
+                background: #fff;
+                transition: all 0.2s;
+                margin-right: 8px;
+            }
+
+            .category-pill.active {
+                background: var(--red);
+                color: #fff;
+                border-color: var(--red);
+            }
+
+            .category-pill:hover:not(.active) {
+                border-color: var(--red);
+                color: var(--red);
+            }
+
+            /* Sidebar widgets */
+            .sidebar-widget {
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 24px;
+            }
+
+            .widget-title {
+                font-family: var(--font-heading);
+                font-weight: 700;
+                font-size: 15px;
+                border-left: 3px solid var(--red);
+                padding-left: 10px;
+                margin-bottom: 16px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Gradients for image placeholders */
+            .img-placeholder {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 14px;
+                color: #fff;
+                font-family: var(--font-display);
+                font-weight: 700;
+                text-transform: uppercase;
+                overflow: hidden;
+            }
+
+            .placeholder-text-large { font-size: 16px; line-height: 1.3; }
+            .placeholder-text-medium { font-size: 12px; line-height: 1.3; }
+            .placeholder-text-small { font-size: 10px; line-height: 1.2; }
+            .placeholder-text { font-size: 11px; line-height: 1.2; }
+
+            .ph-1 { background: linear-gradient(135deg, #ff8a00, #da1b60); }
+            .ph-2 { background: linear-gradient(135deg, #11998e, #38ef7d); }
+            .ph-3 { background: linear-gradient(135deg, #3f51b5, #2196f3); }
+            .ph-4 { background: linear-gradient(135deg, #ff9800, #ffc107); }
+            .ph-5 { background: linear-gradient(135deg, #4caf50, #8bc34a); }
+            .ph-6 { background: linear-gradient(135deg, #e91e63, #9c27b0); }
+            .ph-7 { background: linear-gradient(135deg, #f44336, #ff5722); }
+            .ph-8 { background: linear-gradient(135deg, #009688, #4db6ac); }
+            .ph-9 { background: linear-gradient(135deg, #607d8b, #90a4ae); }
+            .ph-10 { background: linear-gradient(135deg, #795548, #a1887f); }
+            .ph-11 { background: linear-gradient(135deg, #26c6da, #00acc1); }
+            .ph-12 { background: linear-gradient(135deg, #66bb6a, #43a047); }
+            
+            .text-truncate-3 {
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .text-truncate-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .hover-red:hover {
+                color: var(--red) !important;
+            }
+
+            /* ── BREAKING TICKER ── */
+            .ticker {
+                background: var(--red);
+                color: #fff;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .ticker-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 16px;
+                display: flex;
+                align-items: center;
+            }
+
+            .ticker-label {
+                background: rgba(0, 0, 0, 0.25);
+                font-family: var(--font-heading);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                padding: 7px 14px;
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+
+            .ticker-track {
+                overflow: hidden;
+                flex: 1;
+                padding: 0 12px;
+            }
+
+            .ticker-content {
+                display: flex;
+                gap: 60px;
+                animation: ticker 28s linear infinite;
+                white-space: nowrap;
+            }
+
+            .ticker-content span {
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .ticker-content span::before {
+                content: "● ";
+                opacity: 0.5;
+            }
+
+            @keyframes ticker {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .ticker-label {
+                    padding: 7px 10px;
+                    font-size: 10px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- TOP BAR -->
+        <div class="bg-dark py-1 border-bottom border-secondary d-none d-lg-block" style="font-size: 11px;">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="text-white-50">
+                    <span class="me-3" id="topbar-date">Selasa, 16 Juni 2026</span>
+                    <span id="topbar-weather">32°C Jakarta</span>
+                </div>
+                <div class="d-flex gap-3">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="text-white-50 text-decoration-none hover-red">Beranda</a>
+                    <a href="/tentang" class="text-white-50 text-decoration-none hover-red">Tentang</a>
+                    <a href="/kontak" class="text-white-50 text-decoration-none hover-red">Kontak</a>
+                    <a href="/iklan" class="text-white-50 text-decoration-none hover-red">Iklan</a>
+                    <a href="/privasi" class="text-white-50 text-decoration-none hover-red">Privasi</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <header class="py-3 bg-white border-bottom">
+            <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="logo">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="text-decoration-none">
+                        <div class="logo-text">{{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}</div>
+                        <div class="logo-sub">{{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Berita Terkini &amp; Terpercaya{{ end }}</div>
+                    </a>
+                </div>
+
+                <!-- Ad Banner (Desktop only) -->
+                <div class="header-ad d-none d-lg-flex bg-dark text-white rounded position-relative align-items-center justify-content-center flex-column px-4 py-2" style="width: 480px; height: 80px; overflow: hidden; background: linear-gradient(135deg, #1a1a2e, #16213e); border: 1px solid rgba(255,255,255,0.1); max-width: 480px;">
+                    <span class="position-absolute top-0 end-0 bg-secondary text-white px-2 py-0.5" style="font-size: 8px; border-bottom-left-radius: 4px; opacity: 0.8;">AD</span>
+                    <small class="text-white-50 text-uppercase" style="font-size: 10px; letter-spacing: 2px; line-height: 1;">Advertisement</small>
+                    <strong class="fw-bold my-1" style="font-size: 16px; color: #f9ca24; line-height: 1.2;">Daftar Sekarang — Gratis 30 Hari</strong>
+                    <small class="text-white-50" style="font-size: 11px; line-height: 1;">Akses premium tanpa batas</small>
+                </div>
+
+                <div>
+                    <a class="btn btn-outline-danger btn-sm px-4 fw-bold rounded-pill" href="/login">Masuk</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAV -->
+        {{template "navbar" dict "Categories" .Categories "Settings" .Settings "CategoryFilter" .CategoryFilter "IsAllArticles" true}}
+
+        <!-- TICKER -->
+        <div class="ticker">
+            <div class="ticker-inner">
+                <div class="ticker-label">BERITA TERKINI</div>
+                <div class="ticker-track">
+                    <div class="ticker-content">
+                        {{range .Popular}}
+                        <span>{{.Title}}</span>
+                        {{else}}
+                        <span>Artikel populer akan tampil di sini</span>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <main class="container py-4">
+            <div class="row g-4">
+                <!-- CONTENT -->
+                <div class="col-lg-8">
+                    <!-- Section Label -->
+                    <div class="d-flex align-items-center border-bottom pb-2 mb-3">
+                        <span class="bg-brand-red text-white fw-bold px-3 py-1 uppercase" style="font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">
+                            {{if .CategoryFilter}}{{.CategoryFilter}}{{else}}SEMUA ARTIKEL{{end}}
+                        </span>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <h1 class="fw-bold h2 mb-1" style="font-family: var(--font-display);">{{.Total}} artikel tersedia</h1>
+                        <p class="text-muted small mb-0">{{if .SearchQuery}}Hasil pencarian untuk "{{.SearchQuery}}"{{else}}Diurutkan dari yang terbaru{{end}}</p>
+                    </div>
+
+                    <!-- Search Form -->
+                    <form method="get" action="/artikel" class="mb-3">
+                        {{if .CategoryFilter}}<input type="hidden" name="category" value="{{.CategoryFilter}}" />{{end}}
+                        <div class="input-group">
+                            <input name="q" value="{{.SearchQuery}}" placeholder="Cari artikel berdasarkan judul, ringkasan, atau isi..." class="form-control py-2 px-3 border-secondary-subtle" style="font-size: 14px; outline: none;" />
+                            <button type="submit" class="btn btn-danger px-4 fw-bold bg-brand-red">
+                                <span class="d-none d-sm-inline">Cari</span>
+                                <span class="d-inline d-sm-none">🔍</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Category Pills -->
+                    <div class="category-scroll mb-4 py-1">
+                        <a href="/artikel{{if .SearchQuery}}?q={{urlquery .SearchQuery}}{{end}}" class="category-pill {{if not .CategoryFilter}}active{{end}} text-decoration-none">Semua</a>
+                        {{range .Categories}}
+                        <a href="/artikel?category={{urlquery .Name}}{{if $.SearchQuery}}&q={{urlquery $.SearchQuery}}{{end}}" class="category-pill {{if eq $.CategoryFilter .Name}}active{{end}} text-decoration-none">{{.Name}}</a>
+                        {{end}}
+                    </div>
+
+                    <!-- Article List -->
+                    <div class="d-flex flex-column gap-4">
+                        {{range .Articles}}
+                        <article class="post-card p-3">
+                            <div class="row g-3">
+                                <!-- Thumbnail -->
+                                <div class="col-sm-4">
+                                    <a href="/artikel/{{.Article.Slug}}" class="post-thumb-container" style="aspect-ratio: 16 / 10;">
+                                        {{if .Article.HeroImageURL}}
+                                        <img src="{{proxyURL .Article.HeroImageURL}}" alt="{{.Article.Title}}" class="post-thumb-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
+                                        <div class="ph-1 img-placeholder post-thumb-fallback w-100 h-100"></div>
+                                        {{else}}
+                                        <div class="ph-1 img-placeholder w-100 h-100"></div>
+                                        {{end}}
+                                    </a>
+                                </div>
+                                <!-- Details -->
+                                <div class="col-sm-8 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-danger-subtle text-danger fw-bold rounded-1" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">{{.Article.Category}}</span>
+                                        </div>
+                                        <h2 class="h5 fw-bold mb-2">
+                                            <a href="/artikel/{{.Article.Slug}}" class="post-title-link">{{.Article.Title}}</a>
+                                        </h2>
+                                        <p class="text-muted small mb-3 text-truncate-3" style="font-size: 13px; line-height: 1.5;">{{.Article.Excerpt}}</p>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between border-top pt-2 mt-auto text-secondary" style="font-size: 11px;">
+                                        <span>📅 {{formatDate .Article.PublishedAt}}</span>
+                                        <span>✍ Oleh <strong>{{.AuthorName}}</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                        {{else}}
+                        <div class="text-center py-5 border border-dashed rounded-3 bg-white px-3">
+                            <h3 class="fw-bold h5 mb-2">{{if or .CategoryFilter .SearchQuery}}Tidak ada artikel ditemukan{{else}}Belum ada artikel terbit{{end}}</h3>
+                            <p class="text-muted small mb-0">{{if or .CategoryFilter .SearchQuery}}Coba ubah filter atau kata kunci pencarian Anda.{{else}}Artikel yang sudah dipublikasikan akan tampil di halaman ini.{{end}}</p>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    <!-- Pagination -->
+                    {{if gt .TotalPages 1}}
+                    <nav class="d-flex justify-content-center mt-4">
+                        <ul class="pagination pagination-sm">
+                            {{if .HasPrev}}
+                            <li class="page-item">
+                                <a class="page-link text-dark" href="?page={{.PrevPage}}{{if $.CategoryFilter}}&category={{urlquery $.CategoryFilter}}{{end}}{{if $.SearchQuery}}&q={{urlquery $.SearchQuery}}{{end}}">← Prev</a>
+                            </li>
+                            {{end}}
+
+                            {{range .Pages}}
+                            {{if eq . -1}}
+                            <li class="page-item disabled">
+                                <span class="page-link text-muted bg-light">...</span>
+                            </li>
+                            {{else}}
+                            <li class="page-item {{if eq . $.Page}}active{{end}}">
+                                <a class="page-link {{if eq . $.Page}}bg-danger border-danger text-white{{else}}text-dark{{end}}" href="?page={{.}}{{if $.CategoryFilter}}&category={{urlquery $.CategoryFilter}}{{end}}{{if $.SearchQuery}}&q={{urlquery $.SearchQuery}}{{end}}">{{.}}</a>
+                            </li>
+                            {{end}}
+                            {{end}}
+
+                            {{if .HasNext}}
+                            <li class="page-item">
+                                <a class="page-link text-dark" href="?page={{.NextPage}}{{if $.CategoryFilter}}&category={{urlquery $.CategoryFilter}}{{end}}{{if $.SearchQuery}}&q={{urlquery $.SearchQuery}}{{end}}">Next →</a>
+                            </li>
+                            {{end}}
+                        </ul>
+                    </nav>
+                    {{end}}
+                </div>
+
+                <!-- SIDEBAR -->
+                <div class="col-lg-4">
+                    <!-- Social Counts -->
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Ikuti Kami</h3>
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{{index .Settings "social_facebook_url"}}" target="_blank" class="d-flex align-items-center justify-content-between text-white px-3 py-2 rounded-1 text-decoration-none hover-red" style="background-color: #1877f2; font-size: 12px; font-weight: 600;">
+                                <span>👍 Facebook</span><span>{{index .Settings "social_facebook_count"}}</span>
+                            </a>
+                            <a href="{{index .Settings "social_twitter_url"}}" target="_blank" class="d-flex align-items-center justify-content-between text-white px-3 py-2 rounded-1 text-decoration-none hover-red" style="background-color: #1da1f2; font-size: 12px; font-weight: 600;">
+                                <span>🐦 Twitter / X</span><span>{{index .Settings "social_twitter_count"}}</span>
+                            </a>
+                            <a href="{{index .Settings "social_youtube_url"}}" target="_blank" class="d-flex align-items-center justify-content-between text-white px-3 py-2 rounded-1 text-decoration-none hover-red" style="background-color: #ff0000; font-size: 12px; font-weight: 600;">
+                                <span>▶ YouTube</span><span>{{index .Settings "social_youtube_count"}}</span>
+                            </a>
+                            <a href="{{index .Settings "social_instagram_url"}}" target="_blank" class="d-flex align-items-center justify-content-between text-white px-3 py-2 rounded-1 text-decoration-none hover-red" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); font-size: 12px; font-weight: 600;">
+                                <span>📸 Instagram</span><span>{{index .Settings "social_instagram_count"}}</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Popular Posts -->
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Berita Populer</h3>
+                        <div class="d-flex flex-column gap-3">
+                            {{range .Popular}}
+                            <div class="d-flex gap-3 align-items-start">
+                                <a href="/artikel/{{.Slug}}" class="d-block rounded overflow-hidden flex-shrink-0" style="width: 80px; height: 60px;">
+                                    {{if .HeroImageURL}}
+                                    <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" class="w-100 h-100 object-fit-cover" />
+                                    {{else}}
+                                    <div class="ph-1 img-placeholder w-100 h-100"></div>
+                                    {{end}}
+                                </a>
+                                <div>
+                                    <h4 class="fw-bold mb-1" style="font-size: 13px; line-height: 1.4; font-family: var(--font-display);">
+                                        <a href="/artikel/{{.Slug}}" class="text-dark text-decoration-none hover-red text-truncate-2">{{.Title}}</a>
+                                    </h4>
+                                    <div class="text-muted" style="font-size: 10px;">📅 {{formatDate .PublishedAt}}</div>
+                                </div>
+                            </div>
+                            {{else}}
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="ph-1 img-placeholder rounded flex-shrink-0" style="width: 80px; height: 60px;"></div>
+                                <div>
+                                    <h4 class="fw-bold mb-1" style="font-size: 13px;">
+                                        <a href="/dashboard/articles/new" class="text-dark text-decoration-none hover-red">Publish artikel baru</a>
+                                    </h4>
+                                    <div class="text-muted" style="font-size: 10px;">Belum ada artikel populer</div>
+                                </div>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <!-- Premium Ad Widget -->
+                    <div class="p-4 text-center text-white rounded-3 mb-4 d-flex flex-column align-items-center" style="background: linear-gradient(135deg, #e63329, #c0392b); box-shadow: 0 4px 15px rgba(230, 51, 41, 0.15);">
+                        <div class="text-uppercase tracking-widest opacity-75 mb-2" style="font-size: 9px; letter-spacing: 2px;">Penawaran Spesial</div>
+                        <h3 class="fw-bold h5 mb-2" style="font-family: var(--font-display);">Berlangganan Premium</h3>
+                        <p class="small opacity-75 mb-3 px-2">Baca semua artikel tanpa batas hanya Rp 29.000/bulan</p>
+                        <a href="#" class="btn btn-light text-danger fw-bold px-4 btn-sm rounded-pill" style="font-size: 11px; letter-spacing: 0.5px;">MULAI SEKARANG</a>
+                    </div>
+
+
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-dark text-white-50 py-5 mt-5 border-top border-secondary">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- About -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="text-white fw-bold mb-3 h4 logo-text">
+                            {{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}
+                        </div>
+                        <p class="small">{{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}NewsPaper adalah portal berita terpercaya yang menyajikan informasi terkini, mendalam, dan berimbang dari seluruh penjuru dunia. Kami berkomitmen pada jurnalisme berkualitas tinggi sejak 2005.{{ end }}</p>
+                    </div>
+
+                    <!-- Editor Picks -->
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="text-white h6 fw-bold mb-3 uppercase tracking-wider" style="font-size: 12px; letter-spacing: 0.5px;">Pilihan Editor</h4>
+                        <div class="d-flex flex-column gap-3">
+                            {{range .EditorPicks}}
+                            <div class="d-flex gap-2 align-items-center">
+                                <a href="/artikel/{{.Slug}}" class="d-block rounded overflow-hidden flex-shrink-0" style="width: 50px; height: 40px;">
+                                    {{if .HeroImageURL}}
+                                    <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" class="w-100 h-100 object-fit-cover" />
+                                    {{else}}
+                                    <div class="ph-2 img-placeholder w-100 h-100"></div>
+                                    {{end}}
+                                </a>
+                                <a href="/artikel/{{.Slug}}" class="text-white-50 text-decoration-none small text-truncate-2 hover-red" style="font-size: 11px; line-height: 1.3;">{{.Title}}</a>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <!-- Popular Posts -->
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="text-white h6 fw-bold mb-3 uppercase tracking-wider" style="font-size: 12px; letter-spacing: 0.5px;">Populer</h4>
+                        <div class="d-flex flex-column gap-3">
+                            {{range .Popular}}
+                            <div class="d-flex gap-2 align-items-center">
+                                <a href="/artikel/{{.Slug}}" class="d-block rounded overflow-hidden flex-shrink-0" style="width: 50px; height: 40px;">
+                                    {{if .HeroImageURL}}
+                                    <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" class="w-100 h-100 object-fit-cover" />
+                                    {{else}}
+                                    <div class="ph-11 img-placeholder w-100 h-100"></div>
+                                    {{end}}
+                                </a>
+                                <a href="/artikel/{{.Slug}}" class="text-white-50 text-decoration-none small text-truncate-2 hover-red" style="font-size: 11px; line-height: 1.3;">{{.Title}}</a>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="col-lg-3 col-md-6">
+                        <h4 class="text-white h6 fw-bold mb-3 uppercase tracking-wider" style="font-size: 12px; letter-spacing: 0.5px;">Kategori Populer</h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            {{range .Categories}}
+                            <a href="/artikel?category={{urlquery .Name}}" class="btn btn-outline-secondary btn-sm text-white-50 py-1 px-2 border-secondary hover-red" style="font-size: 11px;">{{.Name}}</a>
+                            {{else}}
+                            <a href="/dashboard/categories" class="btn btn-outline-secondary btn-sm text-white-50 py-1 px-2 border-secondary hover-red" style="font-size: 11px;">Tambah kategori</a>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Copy -->
+                <div class="border-top border-secondary mt-4 pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center small text-white-50">
+                    <p class="mb-2 mb-md-0">© 2026 {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}. Hak cipta dilindungi. Dibuat dengan ❤ untuk pembaca setia.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white-50 text-decoration-none hover-red">Facebook</a>
+                        <a href="#" class="text-white-50 text-decoration-none hover-red">Twitter</a>
+                        <a href="#" class="text-white-50 text-decoration-none hover-red">Instagram</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Bootstrap 5 Bundle JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+        <!-- Dynamic Placeholder Text Generator -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const placeholders = document.querySelectorAll('.img-placeholder');
+                placeholders.forEach(ph => {
+                    if (ph.children.length > 0 || ph.textContent.trim() !== '') return;
+                    let titleText = '';
+                    let item = ph.closest('.post-card, .popular-item, .footer-post-item, .sidebar-widget') || ph.closest('a');
+                    if (!item) return;
+                    const titleElement = item.querySelector('.post-title-link, .popular-title, .footer-post-title, .featured-title, h4 a');
+                    if (titleElement) {
+                        titleText = titleElement.textContent.trim();
+                    } else {
+                        const parentLink = ph.closest('a');
+                        if (parentLink && parentLink.getAttribute('title')) {
+                            titleText = parentLink.getAttribute('title');
+                        } else {
+                            const img = item.querySelector('img');
+                            if (img && img.getAttribute('alt')) {
+                                  titleText = img.getAttribute('alt');
+                            }
+                        }
+                    }
+                    if (titleText) {
+                        const span = document.createElement('span');
+                        const height = ph.clientHeight || parseInt(ph.style.height) || ph.getBoundingClientRect().height || 0;
+                        if (height >= 180) {
+                            span.className = 'placeholder-text-large';
+                        } else if (height >= 100) {
+                            span.className = 'placeholder-text-medium';
+                        } else if (height > 0 && height <= 60) {
+                            span.className = 'placeholder-text-small';
+                        } else {
+                            span.className = 'placeholder-text';
+                        }
+                        span.textContent = titleText;
+                        ph.appendChild(span);
+                    }
+                });
+            });
+        </script>
+        <!-- Auto Date and Weather Location Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // 1. Update Date automatically in Indonesian
+                const dateElement = document.getElementById("topbar-date");
+                if (dateElement) {
+                    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                    const today = new Date();
+                    const formattedDate = today.toLocaleDateString('id-ID', options);
+                    dateElement.innerHTML = formattedDate;
+                }
+
+                // 2. Update Location & Weather automatically
+                const weatherElement = document.getElementById("topbar-weather");
+                if (weatherElement) {
+                    fetch('/api/v1/proxy-image?url=https://ipapi.co/json/')
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to fetch location");
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data && data.city && data.latitude && data.longitude) {
+                                const city = data.city;
+                                const lat = data.latitude;
+                                const lon = data.longitude;
+                                return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Failed to fetch weather");
+                                        return res.json();
+                                    })
+                                    .then(weatherData => {
+                                        if (weatherData && weatherData.current_weather) {
+                                            const temp = Math.round(weatherData.current_weather.temperature);
+                                            weatherElement.innerHTML = `${temp}°C ${city}`;
+                                        }
+                                    });
+                            }
+                        })
+                        .catch(err => {
+                            console.warn("Weather/Location fetch error, keeping default:", err);
+                        });
+                }
+            });
+        </script>
+    </body>
+</html>

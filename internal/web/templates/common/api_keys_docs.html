@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Integration Guide - NewsPaper CMS</title>
+        <link rel="stylesheet" href="/assets/global.css" />
+        <style>
+            .docs-grid {
+                display: grid;
+                grid-template-columns: 240px 1fr;
+                gap: 30px;
+                align-items: start;
+            }
+            .docs-menu {
+                position: sticky;
+                top: 20px;
+                background: var(--color-white);
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                padding: 16px;
+            }
+            .docs-menu h4 {
+                margin: 0 0 12px;
+                font-family: var(--font-heading);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--color-muted);
+                font-size: 13px;
+            }
+            .docs-menu a {
+                display: block;
+                padding: 8px 12px;
+                border-radius: 4px;
+                color: var(--color-dark);
+                font-size: 14px;
+                font-weight: 500;
+                transition: background 0.2s;
+                margin-bottom: 4px;
+            }
+            .docs-menu a:hover, .docs-menu a.active {
+                background: var(--color-soft);
+                color: var(--color-red);
+            }
+            .docs-content section {
+                margin-bottom: 50px;
+            }
+            .endpoint-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            .method-badge {
+                display: inline-block;
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-family: var(--font-heading);
+                font-weight: 700;
+                font-size: 14px;
+                color: var(--color-white);
+            }
+            .method-post {
+                background: #10b981;
+            }
+            .endpoint-path {
+                font-family: monospace;
+                font-size: 18px;
+                font-weight: 600;
+                color: var(--color-dark);
+            }
+            .param-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 16px 0;
+            }
+            .param-table th, .param-table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid var(--color-border);
+                font-size: 14px;
+            }
+            .param-table th {
+                background: var(--color-soft);
+                font-weight: 600;
+                font-family: var(--font-heading);
+                text-transform: uppercase;
+                font-size: 12px;
+                color: var(--color-muted);
+            }
+            .param-name {
+                font-family: monospace;
+                font-weight: 600;
+                color: var(--color-red);
+            }
+            .param-type {
+                color: var(--color-muted);
+                font-size: 12px;
+            }
+            .code-tabs {
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                overflow: hidden;
+                margin: 20px 0;
+                background: #1e1e1e;
+            }
+            .tab-headers {
+                display: flex;
+                background: #181818;
+                border-bottom: 1px solid #2d2d2d;
+            }
+            .tab-btn {
+                background: none;
+                border: none;
+                color: #888;
+                padding: 10px 18px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 600;
+                font-family: var(--font-body);
+                transition: color 0.2s, background 0.2s;
+            }
+            .tab-btn:hover {
+                color: #fff;
+                background: #222;
+            }
+            .tab-btn.active {
+                color: var(--color-white);
+                background: #1e1e1e;
+                border-bottom: 2px solid var(--color-red);
+            }
+            .tab-content {
+                display: none;
+                padding: 16px;
+                position: relative;
+            }
+            .tab-content.active {
+                display: block;
+            }
+            .tab-content pre {
+                margin: 0;
+                font-family: Consolas, Monaco, monospace;
+                font-size: 13px;
+                line-height: 1.6;
+                overflow-x: auto;
+                color: #d4d4d4;
+            }
+            .tab-copy-btn {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: rgba(255, 255, 255, 0.1);
+                color: #ccc;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                cursor: pointer;
+                transition: background 0.2s, color 0.2s;
+            }
+            .tab-copy-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: #fff;
+            }
+            .scope-badge {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                background: #eff6ff;
+                color: #2563eb;
+                border: 1px solid #bfdbfe;
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow"><a href="/dashboard/api-keys" style="color: var(--color-muted);">API Keys</a> / Dokumentasi</p>
+                        <h1>Panduan Integrasi API</h1>
+                        <p>
+                            Pelajari cara mengintegrasikan sistem eksternal dengan portal berita menggunakan API Keys yang telah dibuat.
+                        </p>
+                    </div>
+                    <a class="btn btn-secondary" href="/dashboard/api-keys">Kembali ke API Keys</a>
+                </header>
+
+                <div class="docs-grid">
+                    <aside class="docs-menu">
+                        <h4>Mulai</h4>
+                        <a href="#autentikasi" class="menu-link active">Autentikasi</a>
+                        <h4>Endpoints</h4>
+                        <a href="#create-article" class="menu-link">Buat Artikel</a>
+                        <a href="#upload-media" class="menu-link">Upload Media</a>
+                        <a href="#register-media-url" class="menu-link">Daftarkan URL Media</a>
+                    </aside>
+
+                    <div class="docs-content">
+                        <section id="autentikasi" class="dashboard-panel">
+                            <div class="panel-heading">
+                                <h2>Autentikasi API</h2>
+                            </div>
+                            <div style="padding: 20px;">
+                                <p>Semua request API wajib menyertakan API Key aktif yang dikirim melalui HTTP Header <code>Authorization</code> menggunakan format <strong>Bearer Token</strong>.</p>
+                                <div class="code-tabs" style="background: #1e1e1e; border: 1px solid var(--color-border);">
+                                    <div class="tab-headers">
+                                        <div class="tab-btn active" style="background: #1e1e1e; color: #fff;">Header Contoh</div>
+                                    </div>
+                                    <div class="tab-content active">
+                                        <pre>Authorization: Bearer portal_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</pre>
+                                    </div>
+                                </div>
+                                <p>Pastikan API Key Anda memiliki scope yang sesuai dengan endpoint yang akan dipanggil.</p>
+                            </div>
+                        </section>
+
+                        <section id="create-article" class="dashboard-panel">
+                            <div class="panel-heading">
+                                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div>
+                                        <h2>Buat Artikel Baru</h2>
+                                        <p style="margin-top: 4px;">Scope wajib: <span class="scope-badge">articles:create</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="padding: 20px;">
+                                <div class="endpoint-header">
+                                    <span class="method-badge method-post">POST</span>
+                                    <span class="endpoint-path">/api/v1/articles</span>
+                                </div>
+                                <p>Membuat artikel baru ke database. Secara default, artikel yang dibuat via API akan berstatus <strong>draft</strong> dengan penulis (author) diset ke admin pemilik API Key.</p>
+
+                                <h3>Payload Parameters</h3>
+                                <table class="param-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Field</th>
+                                            <th>Type</th>
+                                            <th>Wajib</th>
+                                            <th>Keterangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="param-name">title</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Ya</td>
+                                            <td>Judul utama artikel.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">slug</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Tidak</td>
+                                            <td>Slug unik artikel. Jika kosong, slug otomatis dibuat dari judul.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">excerpt</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Tidak</td>
+                                            <td>Ringkasan artikel yang muncul di halaman depan.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">content</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Ya</td>
+                                            <td>Konten/isi artikel lengkap. Mendukung teks biasa atau HTML aman.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">category</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Ya</td>
+                                            <td>Kategori artikel (contoh: <code>Teknologi</code>, <code>Bisnis</code>).</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">hero_image_url</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Tidak</td>
+                                            <td>URL untuk gambar utama artikel. Bisa memakai hasil upload media.</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">status</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Tidak</td>
+                                            <td>Status artikel (<code>draft</code>, <code>submitted</code>, atau <code>published</code>). Default: <code>draft</code>.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h3>Contoh Request</h3>
+                                <div class="code-tabs" data-tabs-id="article">
+                                    <div class="tab-headers">
+                                        <button class="tab-btn active" onclick="switchTab('article', 'curl')">cURL</button>
+                                        <button class="tab-btn" onclick="switchTab('article', 'go')">Go</button>
+                                        <button class="tab-btn" onclick="switchTab('article', 'node')">Node.js</button>
+                                    </div>
+                                    <div class="tab-content active" id="article-curl">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>curl -X POST http://localhost:8080/api/v1/articles \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Tren Kecerdasan Buatan di Tahun 2026",
+    "slug": "tren-ai-2026",
+    "excerpt": "Perkembangan AI semakin mengubah produktivitas kerja sehari-hari.",
+    "content": "Kecerdasan buatan mengalami lompatan besar terutama dalam agen otonom...",
+    "category": "Teknologi",
+    "hero_image_url": "",
+    "status": "draft"
+  }'</pre>
+                                    </div>
+                                    <div class="tab-content" id="article-go">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	url := "http://localhost:8080/api/v1/articles"
+	payload := map[string]string{
+		"title":    "Tren Kecerdasan Buatan di Tahun 2026",
+		"content":  "Kecerdasan buatan mengalami lompatan besar terutama dalam agen otonom...",
+		"category": "Teknologi",
+		"status":   "draft",
+	}
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := (&http.Client{}).Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp.Body.Close()
+	fmt.Println("Response Status:", resp.Status)
+}</pre>
+                                    </div>
+                                    <div class="tab-content" id="article-node">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>const axios = require('axios');
+
+axios.post('http://localhost:8080/api/v1/articles', {
+  title: 'Tren Kecerdasan Buatan di Tahun 2026',
+  content: 'Kecerdasan buatan mengalami lompatan besar terutama dalam agen otonom...',
+  category: 'Teknologi',
+  status: 'draft'
+}, {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }
+})
+.then(res => console.log('Sukses:', res.data))
+.catch(err => console.error('Gagal:', err.response?.data || err.message));</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="upload-media" class="dashboard-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <h2>Upload Media Gambar</h2>
+                                    <p style="margin-top: 4px;">Scope wajib: <span class="scope-badge">media:upload</span></p>
+                                </div>
+                            </div>
+                            <div style="padding: 20px;">
+                                <div class="endpoint-header">
+                                    <span class="method-badge method-post">POST</span>
+                                    <span class="endpoint-path">/api/v1/media/upload</span>
+                                </div>
+                                <p>Mengunggah file media gambar lokal ke server portal berita. Format request wajib berupa <strong>multipart/form-data</strong>.</p>
+
+                                <h3>Payload Parameters</h3>
+                                <table class="param-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Field</th>
+                                            <th>Type</th>
+                                            <th>Wajib</th>
+                                            <th>Keterangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="param-name">file</span></td>
+                                            <td><span class="param-type">file (binary)</span></td>
+                                            <td>Ya</td>
+                                            <td>File gambar yang akan diunggah (JPG, PNG, JPEG, maks 5MB).</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h3>Contoh Request</h3>
+                                <div class="code-tabs" data-tabs-id="upload">
+                                    <div class="tab-headers">
+                                        <button class="tab-btn active" onclick="switchTab('upload', 'curl')">cURL</button>
+                                        <button class="tab-btn" onclick="switchTab('upload', 'go')">Go</button>
+                                        <button class="tab-btn" onclick="switchTab('upload', 'node')">Node.js</button>
+                                    </div>
+                                    <div class="tab-content active" id="upload-curl">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>curl -X POST http://localhost:8080/api/v1/media/upload \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@/path/ke/gambar-anda.jpg"</pre>
+                                    </div>
+                                    <div class="tab-content" id="upload-go">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>package main
+
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+)
+
+func main() {
+	file, _ := os.Open("gambar.jpg")
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("file", "gambar.jpg")
+	io.Copy(part, file)
+	writer.Close()
+
+	req, _ := http.NewRequest("POST", "http://localhost:8080/api/v1/media/upload", body)
+	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := (&http.Client{}).Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp.Body.Close()
+	fmt.Println("Response Status:", resp.Status)
+}</pre>
+                                    </div>
+                                    <div class="tab-content" id="upload-node">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+
+const form = new FormData();
+form.append('file', fs.createReadStream('gambar.jpg'));
+
+axios.post('http://localhost:8080/api/v1/media/upload', form, {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    ...form.getHeaders()
+  }
+})
+.then(res => console.log('Sukses:', res.data))
+.catch(err => console.error('Gagal:', err.response?.data || err.message));</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="register-media-url" class="dashboard-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <h2>Daftarkan URL Media Eksternal</h2>
+                                    <p style="margin-top: 4px;">Scope wajib: <span class="scope-badge">media:url</span></p>
+                                </div>
+                            </div>
+                            <div style="padding: 20px;">
+                                <div class="endpoint-header">
+                                    <span class="method-badge method-post">POST</span>
+                                    <span class="endpoint-path">/api/v1/media/url</span>
+                                </div>
+                                <p>Mendaftarkan metadata gambar yang di-hosting di server eksternal, tanpa perlu mengunggah file fisiknya ke server portal berita.</p>
+
+                                <h3>Payload Parameters</h3>
+                                <table class="param-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Field</th>
+                                            <th>Type</th>
+                                            <th>Wajib</th>
+                                            <th>Keterangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="param-name">url</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Ya</td>
+                                            <td>URL lengkap lokasi file gambar berada (harus diawali <code>http://</code> atau <code>https://</code>).</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">original_name</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>Tidak</td>
+                                            <td>Nama berkas asli untuk disimpan dalam metadata.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h3>Contoh Request</h3>
+                                <div class="code-tabs" data-tabs-id="url">
+                                    <div class="tab-headers">
+                                        <button class="tab-btn active" onclick="switchTab('url', 'curl')">cURL</button>
+                                        <button class="tab-btn" onclick="switchTab('url', 'go')">Go</button>
+                                        <button class="tab-btn" onclick="switchTab('url', 'node')">Node.js</button>
+                                    </div>
+                                    <div class="tab-content active" id="url-curl">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>curl -X POST http://localhost:8080/api/v1/media/url \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://images.unsplash.com/photo-1504711434969-e33886168f5c",
+    "original_name": "berita-utama.jpg"
+  }'</pre>
+                                    </div>
+                                    <div class="tab-content" id="url-go">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	url := "http://localhost:8080/api/v1/media/url"
+	payload := map[string]string{
+		"url":           "https://images.unsplash.com/photo-1504711434969-e33886168f5c",
+		"original_name": "berita-utama.jpg",
+	}
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := (&http.Client{}).Do(req)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp.Body.Close()
+	fmt.Println("Response Status:", resp.Status)
+}</pre>
+                                    </div>
+                                    <div class="tab-content" id="url-node">
+                                        <button class="tab-copy-btn" onclick="copyCode(this)">Copy</button>
+                                        <pre>const axios = require('axios');
+
+axios.post('http://localhost:8080/api/v1/media/url', {
+  url: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c',
+  original_name: 'berita-utama.jpg'
+}, {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }
+})
+.then(res => console.log('Sukses:', res.data))
+.catch(err => console.error('Gagal:', err.response?.data || err.message));</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            // Switch tabs function
+            function switchTab(groupId, lang) {
+                const group = document.querySelector(`[data-tabs-id="${groupId}"]`);
+                if (!group) return;
+
+                // Remove active classes
+                group.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                group.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                // Set clicked active
+                const eventTarget = window.event.currentTarget;
+                if(eventTarget) {
+                    eventTarget.classList.add('active');
+                } else {
+                    const btn = Array.from(group.querySelectorAll('.tab-btn')).find(b => b.textContent.toLowerCase() === lang);
+                    if(btn) btn.classList.add('active');
+                }
+
+                const content = group.querySelector(`#${groupId}-${lang}`);
+                if (content) content.classList.add('active');
+            }
+
+            // Simple copy code function
+            async function copyCode(button) {
+                const pre = button.nextElementSibling;
+                if (!pre) return;
+                try {
+                    await navigator.clipboard.writeText(pre.textContent);
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.style.background = '#10b981';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }, 1500);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            }
+
+            // Sync menu active state on scroll/click
+            const menuLinks = document.querySelectorAll('.menu-link');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            });
+        </script>
+    </body>
+</html>

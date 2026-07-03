@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Atur Menu Navbar - NewsPaper CMS</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Navigasi Utama</p>
+                        <h1>Pengaturan Menu Navbar</h1>
+                        <p>
+                            Pilih kategori mana saja yang ingin Anda tampilkan sebagai menu navigasi utama di bagian atas situs web.
+                        </p>
+                    </div>
+                    <a class="btn btn-secondary" href="/dashboard/categories">Kembali</a>
+                </header>
+
+                {{if .Error}}
+                <div class="alert alert-error" role="alert">{{.Error}}</div>
+                {{end}}
+
+                <section class="dashboard-panel">
+                    <form method="post" action="/dashboard/categories/navbar">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow">Pilihan</p>
+                                <h2>Kategori Tersedia</h2>
+                            </div>
+                            <button class="btn btn-primary" type="submit">Simpan Pengaturan</button>
+                        </div>
+
+                        <!-- Active Navbar Pills Summary Box -->
+                        <div class="active-navbar-categories" style="margin-top: 15px; margin-bottom: 20px; padding: 15px; border: 1px dashed var(--color-border); border-radius: 14px; background: #fafafa;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                                <p class="eyebrow" style="margin: 0; font-size: 11px; font-weight: bold; text-transform: uppercase; color: var(--color-muted);">Kategori Aktif di Navbar (<span id="active-count">0</span>)</p>
+                                <small style="color: var(--color-muted); font-size: 11px;">Klik "x" pada pill untuk menghapus dari navbar</small>
+                            </div>
+                            <div id="active-pills-container" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <span style="font-size: 13px; color: var(--color-muted); font-style: italic;">Memuat kategori...</span>
+                            </div>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="filter-controls" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                            <input
+                                type="text"
+                                id="searchCategory"
+                                placeholder="Cari nama kategori di sini..."
+                                style="flex: 1; min-width: 200px; padding: 10px 15px; border: 1px solid var(--color-border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s;"
+                            />
+                            <button
+                                type="button"
+                                id="toggleCheckedBtn"
+                                class="btn"
+                                style="padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #f0f0f0; border: 1px solid #ccc; color: #333; transition: all 0.2s;"
+                            >
+                                Tampilkan Hanya Terpilih
+                            </button>
+                        </div>
+
+                        <!-- Grid Categories with Max Height Scroll -->
+                        <div class="form-options" id="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 30px; max-height: 400px; overflow-y: auto; padding: 12px; border: 1px solid var(--color-border); border-radius: 12px; background: #fff;">
+                            {{range .Categories}}
+                            <label class="check-card" style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; border: 1px solid var(--color-border); border-radius: 10px; background: #fff; cursor: pointer; transition: all 0.2s; box-sizing: border-box; margin: 0;">
+                                <input
+                                    type="checkbox"
+                                    name="navbar_categories"
+                                    value="{{.ID}}"
+                                    {{if .ShowInNavbar}}checked{{end}}
+                                    style="margin-top: 3px; cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;"
+                                />
+                                <span style="display: flex; flex-direction: column; overflow: hidden;">
+                                    <strong style="color: var(--color-dark); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{.Name}}</strong>
+                                    <span style="font-size: 11px; color: var(--color-muted); margin-top: 2px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">/artikel?category={{.Name}}</span>
+                                </span>
+                            </label>
+                            {{else}}
+                            <div class="empty-state table-empty" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                                <h3>Belum ada kategori</h3>
+                                <p>Silakan buat kategori terlebih dahulu sebelum mengatur menu navbar.</p>
+                                <a class="btn btn-primary" href="/dashboard/categories/new" style="margin-top: 15px; display: inline-block;">Tambah Kategori</a>
+                            </div>
+                            {{end}}
+                        </div>
+
+                        {{if .Categories}}
+                        <div class="editor-actions" style="display: flex; gap: 10px; border-top: 1px solid var(--color-border); padding-top: 20px;">
+                            <button class="btn btn-primary" type="submit">Simpan Pengaturan</button>
+                            <a class="btn btn-secondary" href="/dashboard/categories">Batal</a>
+                        </div>
+                        {{end}}
+                    </form>
+                </section>
+            </main>
+        </div>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById('searchCategory');
+            const toggleCheckedBtn = document.getElementById('toggleCheckedBtn');
+            const pillsContainer = document.getElementById('active-pills-container');
+            const cards = document.querySelectorAll('.check-card');
+            let showCheckedOnly = false;
+
+            // 1. Function to update active pills
+            function updateActivePills() {
+                pillsContainer.innerHTML = '';
+                let count = 0;
+                
+                cards.forEach(card => {
+                    const checkbox = card.querySelector('input[type="checkbox"]');
+                    const name = card.querySelector('strong').textContent;
+                    const id = checkbox.value;
+                    
+                    if (checkbox.checked) {
+                        count++;
+                        
+                        // Highlight card border and background
+                        card.style.borderColor = '#e63329';
+                        card.style.background = '#fffaf9';
+                        
+                        const pill = document.createElement('span');
+                        pill.className = 'status-pill status-published';
+                        pill.style.cssText = 'display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px; border-radius: 20px; cursor: pointer; text-transform: none; font-weight: 600; background: #ddf8e7; color: #17693a; margin: 0;';
+                        pill.innerHTML = `${name} <span style="font-weight: bold; font-size: 12px; margin-left: 2px; color: #17693a;">&times;</span>`;
+                        
+                        pill.addEventListener('click', function() {
+                            checkbox.checked = false;
+                            card.style.borderColor = 'var(--color-border)';
+                            card.style.background = '#fff';
+                            updateActivePills();
+                            filterCards();
+                        });
+                        
+                        pillsContainer.appendChild(pill);
+                    } else {
+                        card.style.borderColor = 'var(--color-border)';
+                        card.style.background = '#fff';
+                    }
+                });
+                
+                document.getElementById('active-count').textContent = count;
+                if (count === 0) {
+                    pillsContainer.innerHTML = '<span style="font-size: 13px; color: var(--color-muted); font-style: italic;">Belum ada kategori yang dipilih untuk navbar</span>';
+                }
+            }
+
+            // 2. Filter function combining search query and "checked only" toggle
+            function filterCards() {
+                const query = searchInput.value.toLowerCase();
+                
+                cards.forEach(card => {
+                    const checkbox = card.querySelector('input[type="checkbox"]');
+                    const name = card.querySelector('strong').textContent.toLowerCase();
+                    const isChecked = checkbox.checked;
+                    
+                    const matchesSearch = name.includes(query);
+                    const matchesToggle = !showCheckedOnly || isChecked;
+                    
+                    if (matchesSearch && matchesToggle) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            // 3. Event Listeners
+            searchInput.addEventListener('input', filterCards);
+            
+            toggleCheckedBtn.addEventListener('click', function() {
+                showCheckedOnly = !showCheckedOnly;
+                if (showCheckedOnly) {
+                    this.textContent = "Tampilkan Semua Kategori";
+                    this.style.background = '#e63329';
+                    this.style.color = '#fff';
+                    this.style.borderColor = '#e63329';
+                } else {
+                    this.textContent = "Tampilkan Hanya Terpilih";
+                    this.style.background = '#f0f0f0';
+                    this.style.color = '#333';
+                    this.style.borderColor = '#ccc';
+                }
+                filterCards();
+            });
+
+            // Handle checkbox change inside card
+            cards.forEach(card => {
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', function() {
+                    updateActivePills();
+                    filterCards();
+                });
+                
+                // Allow clicking anywhere on the card (except directly clicking input which propagates)
+                card.addEventListener('click', function(e) {
+                    if (e.target !== checkbox) {
+                        // Let browser handle standard label behavior, but keep state in sync
+                        setTimeout(updateActivePills, 10);
+                        setTimeout(filterCards, 10);
+                    }
+                });
+            });
+
+            // Initialize pills on load
+            updateActivePills();
+        });
+        </script>
+    </body>
+</html>

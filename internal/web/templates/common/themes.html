@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tema & Tampilan - NewsPaper CMS</title>
+        <link rel="stylesheet" href="/assets/global.css" />
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Tampilan</p>
+                        <h1>Tema &amp; Template</h1>
+                        <p>
+                            Kelola tema visual portal berita dan pasang halaman utama kustom Anda.
+                        </p>
+                    </div>
+                </header>
+
+                {{if .Error}}
+                <div class="alert alert-error">{{.Error}}</div>
+                {{end}}
+                {{if .Success}}
+                <div class="alert alert-success">{{.Success}}</div>
+                {{end}}
+
+                <!-- Grid Utama -->
+                <div class="settings-grid">
+                    <div class="settings-stack">
+                        
+                        <!-- Section: Pilih Tema Portal -->
+                        <section class="dashboard-panel" style="margin-bottom: 24px;">
+                            <div class="panel-heading">
+                                <div>
+                                    <p class="eyebrow">Visual</p>
+                                    <h2>Pilih Tema Portal Berita</h2>
+                                </div>
+                            </div>
+                            <div class="settings-panel-body" style="padding: 20px;">
+                                <p style="margin: 0 0 20px 0; font-size: 13px; color: #718096; line-height: 1.5;">
+                                    Pilih salah satu tema visual bawaan di bawah ini. Tema aktif akan langsung diterapkan pada seluruh halaman publik portal berita Anda.
+                                </p>
+                                
+                                <div class="theme-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+                                    
+                                    <!-- Card 1: Default -->
+                                    <div class="theme-card {{if eq (index .Settings "active_theme") "default"}}active{{end}}" style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: all 0.25s ease; {{if eq (index .Settings "active_theme") "default"}}border-color: #38a169; box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);{{else}}box-shadow: 0 2px 8px rgba(0,0,0,0.04);{{end}}" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='{{if eq (index .Settings "active_theme") "default"}}0 0 0 2px rgba(56, 161, 105, 0.2){{else}}0 2px 8px rgba(0,0,0,0.04){{end}}'">
+                                        <div style="position: relative; aspect-ratio: 3/2; background: #f7fafc; overflow: hidden; border-bottom: 1px solid var(--border-color, #e2e8f0);">
+                                            <img src="/assets/theme_default.jpg" alt="Default Theme" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                                            {{if eq (index .Settings "active_theme") "default"}}
+                                            <span style="position: absolute; top: 12px; left: 12px; background: #38a169; color: white; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">Aktif ✔️</span>
+                                            {{end}}
+                                        </div>
+                                        <div style="padding: 16px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 14px;">
+                                            <div>
+                                                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #2d3748;">Default</h3>
+                                                <p style="margin: 6px 0 0 0; font-size: 12px; color: #718096; line-height: 1.5;">Magazine Red &amp; Dark Header. Klasik, berani, dan terstruktur rapi untuk portal berita umum.</p>
+                                            </div>
+                                            {{if eq (index .Settings "active_theme") "default"}}
+                                            <button class="btn" disabled style="background: #e2e8f0; color: #a0aec0; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: not-allowed;">Tema Aktif</button>
+                                            {{else}}
+                                            <form method="post" action="/dashboard/themes" style="margin: 0; width: 100%;">
+                                                <input type="hidden" name="active_theme" value="default" />
+                                                <button type="submit" class="btn btn-primary" style="background: #3182ce; color: white; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#2b6cb0'" onmouseout="this.style.backgroundColor='#3182ce'">Aktifkan 🎨</button>
+                                            </form>
+                                            {{end}}
+                                        </div>
+                                    </div>
+
+                                    <!-- Card 2: Minimal Clean -->
+                                    <div class="theme-card {{if eq (index .Settings "active_theme") "minimal-clean"}}active{{end}}" style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: all 0.25s ease; {{if eq (index .Settings "active_theme") "minimal-clean"}}border-color: #38a169; box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);{{else}}box-shadow: 0 2px 8px rgba(0,0,0,0.04);{{end}}" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='{{if eq (index .Settings "active_theme") "minimal-clean"}}0 0 0 2px rgba(56, 161, 105, 0.2){{else}}0 2px 8px rgba(0,0,0,0.04){{end}}'">
+                                        <div style="position: relative; aspect-ratio: 3/2; background: #f7fafc; overflow: hidden; border-bottom: 1px solid var(--border-color, #e2e8f0);">
+                                            <img src="/assets/theme_minimal_clean.jpg" alt="Minimal Clean Theme" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                                            {{if eq (index .Settings "active_theme") "minimal-clean"}}
+                                            <span style="position: absolute; top: 12px; left: 12px; background: #38a169; color: white; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">Aktif ✔️</span>
+                                            {{end}}
+                                        </div>
+                                        <div style="padding: 16px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 14px;">
+                                            <div>
+                                                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #2d3748;">Minimal Clean</h3>
+                                                <p style="margin: 6px 0 0 0; font-size: 12px; color: #718096; line-height: 1.5;">Light Elegant &amp; Soft Accents. Desain minimalis dengan tipografi serif indah untuk pengalaman membaca premium.</p>
+                                            </div>
+                                            {{if eq (index .Settings "active_theme") "minimal-clean"}}
+                                            <button class="btn" disabled style="background: #e2e8f0; color: #a0aec0; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: not-allowed;">Tema Aktif</button>
+                                            {{else}}
+                                            <form method="post" action="/dashboard/themes" style="margin: 0; width: 100%;">
+                                                <input type="hidden" name="active_theme" value="minimal-clean" />
+                                                <button type="submit" class="btn btn-primary" style="background: #3182ce; color: white; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#2b6cb0'" onmouseout="this.style.backgroundColor='#3182ce'">Aktifkan 🎨</button>
+                                            </form>
+                                            {{end}}
+                                        </div>
+                                    </div>
+
+                                    <!-- Card 3: Editorial Dark -->
+                                    <div class="theme-card {{if eq (index .Settings "active_theme") "editorial-dark"}}active{{end}}" style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: all 0.25s ease; {{if eq (index .Settings "active_theme") "editorial-dark"}}border-color: #38a169; box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);{{else}}box-shadow: 0 2px 8px rgba(0,0,0,0.04);{{end}}" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='{{if eq (index .Settings "active_theme") "editorial-dark"}}0 0 0 2px rgba(56, 161, 105, 0.2){{else}}0 2px 8px rgba(0,0,0,0.04){{end}}'">
+                                        <div style="position: relative; aspect-ratio: 3/2; background: #f7fafc; overflow: hidden; border-bottom: 1px solid var(--border-color, #e2e8f0);">
+                                            <img src="/assets/theme_editorial_dark.jpg" alt="Editorial Dark Theme" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                                            {{if eq (index .Settings "active_theme") "editorial-dark"}}
+                                            <span style="position: absolute; top: 12px; left: 12px; background: #38a169; color: white; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">Aktif ✔️</span>
+                                            {{end}}
+                                        </div>
+                                        <div style="padding: 16px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 14px;">
+                                            <div>
+                                                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #2d3748;">Editorial Dark</h3>
+                                                <p style="margin: 6px 0 0 0; font-size: 12px; color: #718096; line-height: 1.5;">High-Tech Slate &amp; Neon Teal. Tampilan futuristik gelap beraksen neon cemerlang untuk portal berita teknologi.</p>
+                                            </div>
+                                            {{if eq (index .Settings "active_theme") "editorial-dark"}}
+                                            <button class="btn" disabled style="background: #e2e8f0; color: #a0aec0; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: not-allowed;">Tema Aktif</button>
+                                            {{else}}
+                                            <form method="post" action="/dashboard/themes" style="margin: 0; width: 100%;">
+                                                <input type="hidden" name="active_theme" value="editorial-dark" />
+                                                <button type="submit" class="btn btn-primary" style="background: #3182ce; color: white; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#2b6cb0'" onmouseout="this.style.backgroundColor='#3182ce'">Aktifkan 🎨</button>
+                                            </form>
+                                            {{end}}
+                                        </div>
+                                    </div>
+
+                                    <!-- Card 4: Yapis Theme -->
+                                    <div class="theme-card {{if eq (index .Settings "active_theme") "yapis"}}active{{end}}" style="border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: all 0.25s ease; {{if eq (index .Settings "active_theme") "yapis"}}border-color: #38a169; box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);{{else}}box-shadow: 0 2px 8px rgba(0,0,0,0.04);{{end}}" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='{{if eq (index .Settings "active_theme") "yapis"}}0 0 0 2px rgba(56, 161, 105, 0.2){{else}}0 2px 8px rgba(0,0,0,0.04){{end}}'">
+                                        <div style="position: relative; aspect-ratio: 3/2; background: #f7fafc; overflow: hidden; border-bottom: 1px solid var(--border-color, #e2e8f0);">
+                                            <img src="/assets/theme_yapis.jpg" alt="Yapis Theme" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                                            {{if eq (index .Settings "active_theme") "yapis"}}
+                                            <span style="position: absolute; top: 12px; left: 12px; background: #38a169; color: white; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">Aktif ✔️</span>
+                                            {{end}}
+                                        </div>
+                                        <div style="padding: 16px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 14px;">
+                                            <div>
+                                                <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #2d3748;">YAPIS Portal 🌟 Baru</h3>
+                                                <p style="margin: 6px 0 0 0; font-size: 12px; color: #718096; line-height: 1.5;">Elegant Deep Teal &amp; Gold. Desain modern premium akademis dengan perpaduan warna yang cerah dan rapi.</p>
+                                            </div>
+                                            {{if eq (index .Settings "active_theme") "yapis"}}
+                                            <button class="btn" disabled style="background: #e2e8f0; color: #a0aec0; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: not-allowed;">Tema Aktif</button>
+                                            {{else}}
+                                            <form method="post" action="/dashboard/themes" style="margin: 0; width: 100%;">
+                                                <input type="hidden" name="active_theme" value="yapis" />
+                                                <button type="submit" class="btn btn-primary" style="background: #3182ce; color: white; border: none; padding: 10px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; width: 100%; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#2b6cb0'" onmouseout="this.style.backgroundColor='#3182ce'">Aktifkan 🎨</button>
+                                            </form>
+                                            {{end}}
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Section: Custom Homepage -->
+                        <section class="dashboard-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <p class="eyebrow">Kustomisasi</p>
+                                    <h2>Custom Homepage (HTML Statis / Dinamis)</h2>
+                                </div>
+                            </div>
+                            <div class="settings-panel-body" style="padding: 20px;">
+                                <div style="display: flex; flex-direction: column; gap: 24px;">
+                                    
+                                    <!-- Toggle Enable Custom Homepage -->
+                                    <form method="post" action="/dashboard/themes/custom-homepage/toggle" style="margin: 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid var(--border-color, #e2e8f0);">
+                                            <div style="flex: 1;">
+                                                <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600;">Aktifkan Custom Homepage</h4>
+                                                <p style="margin: 0; font-size: 12px; color: #718096; line-height: 1.4;">
+                                                    Aktifkan opsi ini untuk mengarahkan halaman utama (/) ke index.html kustom yang diunggah.
+                                                </p>
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <select name="custom_homepage_enabled" style="width: auto; margin: 0; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color, #e2e8f0); background: #fff;">
+                                                    <option value="false" {{if ne (index .Settings "custom_homepage_enabled") "true"}}selected{{end}}>Nonaktif</option>
+                                                    <option value="true" {{if eq (index .Settings "custom_homepage_enabled") "true"}}selected{{end}}>Aktif</option>
+                                                </select>
+                                                <button class="btn btn-primary" type="submit" style="margin: 0; padding: 10px 18px; border-radius: 6px; background-color: #3182ce; color: white; border: none; font-weight: 600; cursor: pointer;">Simpan Status 💾</button>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <!-- Upload & Download Template -->
+                                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                                        <!-- Download Template Section -->
+                                        <div style="padding: 16px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; background: rgba(0, 0, 0, 0.01); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                            <div style="flex: 1;">
+                                                <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600;">Unduh Template ZIP Custom Homepage</h4>
+                                                <p style="margin: 0; font-size: 12px; color: #718096; line-height: 1.4;">
+                                                    Unduh paket template awal berisi berkas <code>index.html</code>, <code>style.css</code>, <code>script.js</code>, dan aset untuk dimodifikasi.
+                                                </p>
+                                            </div>
+                                            <a href="/dashboard/settings/custom-homepage/template" class="btn" style="background-color: #4a5568; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 6px; margin: 0; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2d3748'" onmouseout="this.style.backgroundColor='#4a5568'">
+                                                Unduh Template 📁
+                                            </a>
+                                        </div>
+
+                                        <!-- Upload Custom Homepage Zip -->
+                                        <div style="padding: 16px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; background: rgba(0, 0, 0, 0.01);">
+                                            <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600;">Unggah Custom Homepage (.zip)</h4>
+                                            <p style="margin: 0 0 14px 0; font-size: 12px; color: #718096; line-height: 1.4; max-width: 600px;">
+                                                Unggah file <code>.zip</code> yang berisi file <code>index.html</code> pada root zip (wajib), beserta file pendukung seperti <code>style.css</code>, <code>script.js</code>, dan folder <code>assets/</code>.
+                                             </p>
+                                            <form method="post" action="/dashboard/themes/custom-homepage/upload" enctype="multipart/form-data" style="margin: 0;">
+                                                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                                    <input type="file" name="homepage_zip" accept=".zip" required style="border: 1px solid var(--border-color, #e2e8f0); padding: 8px 12px; border-radius: 6px; font-size: 13px; background: #fff;" />
+                                                    <button class="btn btn-primary" type="submit" style="margin: 0; background-color: #3182ce; color: white; border: none; padding: 10px 18px; font-weight: 600; cursor: pointer; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2b6cb0'" onmouseout="this.style.backgroundColor='#3182ce'">
+                                                        Unggah &amp; Terapkan 🚀
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <!-- Sidebar Info Cards -->
+                    <aside class="settings-sidebar-info">
+                        <div class="settings-card" style="border-left: 4px solid #319795; background: #e6fffa; border-color: #319795; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
+                            <h3 style="margin-top: 0; font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #319795;">💡 Fitur Dynamic Templating Aktif</h3>
+                            <p style="font-size: 12.5px; line-height: 1.5; color: #234e52; margin: 0;">
+                                Custom Homepage Anda kini **mendukung Go HTML Templating** secara dinamis.
+                                <br><br>
+                                Anda dapat menyisipkan kode Go Template seperti <code>{{"{{"}}range .LatestArticles{{"}}"}}</code> untuk menampilkan artikel terbaru dari database, dan <code>{{"{{"}}range .Categories{{"}}"}}</code> untuk menampilkan menu navigasi kategori.
+                            </p>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3 style="margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Bantuan Tampilan</h3>
+                            <p style="font-size: 13px; line-height: 1.5; color: #718096; margin-bottom: 12px;">
+                                Mengatur bagaimana portal berita Anda disajikan ke publik.
+                            </p>
+                            <ul style="font-size: 13px; line-height: 1.5; color: #718096; padding-left: 18px; margin: 0;">
+                                <li style="margin-bottom: 8px;"><strong>Tema Visual:</strong> Pilihan visual bawaan yang cepat, responsif, dan rapi.</li>
+                                <li><strong>Custom Homepage:</strong> Kebebasan penuh untuk mendesain halaman depan kustom menggunakan HTML/CSS Anda sendiri.</li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+
+            </main>
+        </div>
+    </body>
+</html>

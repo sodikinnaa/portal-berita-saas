@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Rotator - NewsPaper CMS</title>
+    <link rel="stylesheet" href="/assets/global.css">
+    <style>
+        .text-right {
+            text-align: right;
+        }
+        .btn-check-all {
+            background: #2ecc71;
+            color: #fff;
+            border: 0;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-check-all:hover {
+            background: #27ae60;
+        }
+        .badge-checking {
+            background: rgba(241, 196, 15, 0.1);
+            color: #d35400;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 1.5s infinite;
+        }
+        .badge-active {
+            background: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-dead {
+            background: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-proto {
+            background: rgba(52, 152, 219, 0.1);
+            color: #2980b9;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .dashboard-table {
+            counter-reset: rowNumber;
+        }
+        .dashboard-table tbody tr {
+            counter-increment: rowNumber;
+        }
+        .dashboard-table tbody tr td.row-num::before {
+            content: counter(rowNumber);
+        }
+        /* WordPress Table Styles */
+        .wp-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #c3c4c7;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+            background: #fff;
+            color: #2c3338;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            margin-top: 10px;
+        }
+        .wp-list-table th {
+            border-bottom: 1px solid #c3c4c7;
+            background: #fff;
+            padding: 8px 10px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3338;
+            text-align: left;
+        }
+        .wp-list-table td {
+            padding: 10px 10px;
+            font-size: 13px;
+            line-height: 1.5;
+            vertical-align: middle;
+            border-bottom: 1px solid #dcdcde;
+        }
+        .wp-list-table tbody tr:nth-of-type(odd) {
+            background-color: #f6f7f7;
+        }
+        .wp-list-table tbody tr:hover {
+            background-color: #f0f0f1;
+        }
+        .wp-list-table tr:hover .row-actions {
+            visibility: visible;
+        }
+        .row-actions {
+            color: #a7aaad;
+            font-size: 12px;
+            padding: 2px 0 0;
+            visibility: hidden;
+            display: block;
+            margin-top: 4px;
+        }
+        .row-actions span {
+            display: inline-block;
+        }
+        .row-actions a {
+            text-decoration: none;
+            color: #135e96;
+            font-weight: 500;
+        }
+        .row-actions a:hover {
+            color: #0a4b78;
+        }
+        .row-actions .delete a {
+            color: #b32d2e;
+        }
+        .row-actions .delete a:hover {
+            color: #d63638;
+        }
+        /* WordPress Subsubsub Filter Navigation Styles */
+        .subsubsub a.current {
+            font-weight: 600;
+            color: #000 !important;
+        }
+        .subsubsub a:hover {
+            color: #0a4b78;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+
+        <main class="dashboard-main">
+            <header class="dashboard-header compact" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <p class="eyebrow">Admin</p>
+                    <h1>Proxy Rotator</h1>
+                    <p>Kelola proxy HTTP & SOCKS5 untuk me-route request scraping dan menghindari rate-limiting/blokir IP.</p>
+                </div>
+                <div>
+                    <button class="btn-check-all" onclick="checkAllProxies()">
+                        🔄 Cek Semua Status
+                    </button>
+                </div>
+            </header>
+
+            {{if .Error}}
+            <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">{{.Error}}</div>
+            {{end}}
+            
+            {{if .Success}}
+            <div class="alert alert-success" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px;">{{.Success}}</div>
+            {{end}}
+
+            <div id="ajax-alert" style="display: none; margin-bottom: 20px; padding: 12px 16px; border-radius: 6px;"></div>
+
+            {{if .WebshareKeys}}
+            <section class="dashboard-panel" style="margin-bottom: 24px;">
+                <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                    <div>
+                        <p class="eyebrow">Kuota Resmi Webshare.io (Server-Side Synced)</p>
+                        <h2>Penggunaan Bandwidth Akun Webshare (Limit 1 GB)</h2>
+                    </div>
+                </div>
+                <div class="panel-body" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 10px;">
+                    {{range .WebshareKeys}}
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color, #e5e5e5); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700; color: var(--text-primary);">🏷️ {{.Label}}</span>
+                            <span style="font-size: 11px; background: rgba(46, 204, 113, 0.1); color: #27ae60; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-family: monospace;">{{.MaskedKey}}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+                            <span style="font-size: 14px; font-weight: bold; color: var(--text-primary);">{{.FormattedBandwidth}}</span>
+                            <span style="font-size: 12px; color: var(--text-secondary);">dari 1.00 GB ({{printf "%.2f" .Percentage}}%)</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; margin-top: 4px;">
+                            <div style="width: {{.Percentage}}%; height: 100%; background: {{if gt .Percentage 90.0}}#e63329{{else if gt .Percentage 70.0}}#f39c12{{else}}#2ecc71{{end}}; border-radius: 4px; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </section>
+            {{end}}
+
+            {{if .AccountGroups}}
+            <section class="dashboard-panel" style="margin-bottom: 24px;">
+                <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                    <div>
+                        <p class="eyebrow">Estimasi Kuota</p>
+                        <h2>Penggunaan Bandwidth per Akun / Paket (Limit 1 GB)</h2>
+                    </div>
+                </div>
+                <div class="panel-body" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 10px;">
+                    {{range .AccountGroups}}
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color, #e5e5e5); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700; color: var(--text-primary); font-family: monospace;">👤 {{.Username}}</span>
+                            <span style="font-size: 11px; background: rgba(52, 152, 219, 0.1); color: #2980b9; padding: 2px 6px; border-radius: 4px; font-weight: bold;">{{.ProxiesCount}} Proxy</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+                            <span style="font-size: 14px; font-weight: bold; color: var(--text-primary);">{{.FormattedUsed}}</span>
+                            {{if ne .Username "Tanpa Autentikasi"}}
+                            <span style="font-size: 12px; color: var(--text-secondary);">dari 1.00 GB ({{printf "%.2f" .Percentage}}%)</span>
+                            {{else}}
+                            <span style="font-size: 12px; color: var(--text-secondary);">terpakai (Unlimited)</span>
+                            {{end}}
+                        </div>
+                        {{if ne .Username "Tanpa Autentikasi"}}
+                        <div style="width: 100%; height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; margin-top: 4px;">
+                            <div style="width: {{.Percentage}}%; height: 100%; background: {{if gt .Percentage 90.0}}#e63329{{else if gt .Percentage 70.0}}#f39c12{{else}}#2ecc71{{end}}; border-radius: 4px; transition: width 0.3s ease;"></div>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+            </section>
+            {{end}}
+
+            <div class="settings-stack" style="display: flex; flex-direction: column; gap: 24px;">
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Batch</p>
+                            <h2>Batch Import Proxy</h2>
+                        </div>
+                    </div>
+                    <div class="settings-panel-body" style="padding: 20px;">
+                        <form class="form-grid" method="post" action="/dashboard/proxies/import">
+                            <div class="form-field" style="margin-bottom: 16px;">
+                                <label for="proxy-protocol-batch" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary);">Protokol (untuk semua proxy yang diimpor)</label>
+                                <select id="proxy-protocol-batch" name="protocol" style="width: 200px; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; background: white;">
+                                    <option value="http">HTTP</option>
+                                    <option value="socks5">SOCKS5</option>
+                                </select>
+                            </div>
+                            <div class="form-field" style="margin-bottom: 20px;">
+                                <label for="proxy-batch-list" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary);">Daftar Proxy</label>
+                                <textarea id="proxy-batch-list" name="proxies" placeholder="Format: IP:Port:Username:Password atau IP:Port (satu per baris)&#10;Contoh:&#10;31.59.20.176:6754:yciaalgj:z8h1v3ja476u&#10;31.56.127.193:7684:yciaalgj:z8h1v3ja476u" required style="width: 100%; min-height: 150px; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; font-family: monospace; font-size: 13px; line-height: 1.5; resize: vertical;"></textarea>
+                                <small style="display: block; margin-top: 6px; color: var(--text-secondary); font-size: 12px; line-height: 1.4;">Tempel daftar proxy Anda di atas. Format yang didukung adalah <code>IP:Port:Username:Password</code> atau <code>IP:Port</code>. Setiap baris mewakili satu proxy.</small>
+                            </div>
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: #fff; border: 0; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                <span>📥</span> Mulai Import Batch
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                        <div>
+                            <p class="eyebrow">API Integration</p>
+                            <h2>Kelola Akun Webshare.io</h2>
+                        </div>
+                    </div>
+                    <div class="settings-panel-body" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                        
+                        <!-- List & Sync Section -->
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0 0 8px 0;">Akun Tersimpan</h3>
+                            {{if .WebshareKeys}}
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    {{range .WebshareKeys}}
+                                    <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border-color, #e5e5e5); border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                                            <span style="font-weight: bold; font-size: 14px; color: var(--text-primary);">🏷️ {{.Label}}</span>
+                                            <span style="font-family: monospace; font-size: 11px; color: var(--text-secondary);">Token: {{.MaskedKey}}</span>
+                                        </div>
+                                        <form method="post" action="/dashboard/proxies/webshare-keys/{{.ID}}/delete" style="margin:0;">
+                                            <button type="submit" onclick="return confirm('Hapus API Key {{.Label}}?')" style="background: transparent; border: 0; color: #e63329; cursor: pointer; font-size: 14px; padding: 4px 8px;" title="Hapus Akun">
+                                                🗑️
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {{end}}
+                                </div>
+
+                                <!-- Form to sync all saved keys -->
+                                <form method="post" action="/dashboard/proxies/webshare-sync" style="margin-top: 12px;">
+                                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                                        <label for="webshare-saved-protocol" style="font-size: 13px; font-weight: 500; color: var(--text-secondary);">Protokol:</label>
+                                        <select id="webshare-saved-protocol" name="protocol" style="padding: 6px 12px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; background: white; font-size: 13px;">
+                                            <option value="http">HTTP</option>
+                                            <option value="socks5" selected>SOCKS5</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-primary" type="submit" style="background: #e63329; color: #fff; border: 0; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
+                                        <span>⚡</span> Sinkronisasi Semua Akun Tersimpan
+                                    </button>
+                                </form>
+                            {{else}}
+                                <div style="padding: 20px; border: 2px dashed var(--border-color, #e5e5e5); border-radius: 6px; text-align: center; color: var(--text-secondary); font-size: 13px;">
+                                    Belum ada API Key Webshare yang disimpan.
+                                </div>
+                            {{end}}
+                        </div>
+
+                        <!-- Add Key Section -->
+                        <div style="border-left: 1px solid var(--border-color, #e5e5e5); padding-left: 24px; display: flex; flex-direction: column; gap: 16px;">
+                            <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0 0 8px 0;">Tambah Akun Baru</h3>
+                            <form method="post" action="/dashboard/proxies/webshare-keys" style="display: flex; flex-direction: column; gap: 12px;">
+                                <div class="form-field">
+                                    <label for="webshare-label" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary); font-size: 13px;">Label / Nama Akun</label>
+                                    <input id="webshare-label" name="label" placeholder="e.g. Akun Utama 1GB" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box;">
+                                </div>
+                                <div class="form-field">
+                                    <label for="webshare-api-key" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary); font-size: 13px;">API Key (Token)</label>
+                                    <input id="webshare-api-key" name="api_key" type="password" placeholder="Masukkan API token Webshare" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box;">
+                                </div>
+                                <button class="btn btn-secondary" type="submit" style="background: #3498db; color: #fff; border: 0; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center; margin-top: 8px;">
+                                    <span>💾</span> Simpan Akun
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </section>
+
+
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Daftar</p>
+                            <h2>Semua Proxy Terdaftar</h2>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="padding: 20px;">
+                        <ul class="subsubsub" style="list-style: none; margin: 0 0 15px; padding: 0; font-size: 13px; color: #646970;">
+                            <li class="all" style="display: inline-block;"><a href="/dashboard/proxies" class="{{if eq .FilterStatus ""}}current{{end}}" style="text-decoration: none; color: #135e96;">Semua <span class="count" style="color: #646970;">({{.CountAll}})</span></a> |</li>
+                            <li class="active" style="display: inline-block;"><a href="/dashboard/proxies?status=active" class="{{if eq .FilterStatus "active"}}current{{end}}" style="text-decoration: none; color: #135e96;">Aktif <span class="count" style="color: #646970;">({{.CountActive}})</span></a> |</li>
+                            <li class="dead" style="display: inline-block;"><a href="/dashboard/proxies?status=dead" class="{{if eq .FilterStatus "dead"}}current{{end}}" style="text-decoration: none; color: #135e96;">Mati <span class="count" style="color: #646970;">({{.CountDead}})</span></a> |</li>
+                            <li class="checking" style="display: inline-block;"><a href="/dashboard/proxies?status=checking" class="{{if eq .FilterStatus "checking"}}current{{end}}" style="text-decoration: none; color: #135e96;">Memeriksa <span class="count" style="color: #646970;">({{.CountChecking}})</span></a></li>
+                        </ul>
+                        {{if .Proxies}}
+                            <table class="wp-list-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">No.</th>
+                                        <th style="width: 80px;">Jenis</th>
+                                        <th>Alamat Proxy</th>
+                                        <th>Autentikasi</th>
+                                        <th>Status</th>
+                                        <th>Bandwidth</th>
+                                        <th>Terakhir Dicek</th>
+                                        <th>Terakhir Digunakan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .Proxies}}
+                                    <tr>
+                                        <td class="row-num" style="font-weight: bold; color: #787c82;"></td>
+                                        <td>
+                                            <span class="badge-proto">{{.Protocol}}</span>
+                                        </td>
+                                        <td style="font-weight: bold; font-size: 14px;">
+                                            <span style="color: #1d2327;">{{.IP}}:{{.Port}}</span>
+                                            <div class="row-actions">
+                                                <span class="check"><a href="javascript:void(0)" onclick="checkProxy('{{.ID}}')">Cek Koneksi</a> | </span>
+                                                <span class="delete"><a href="javascript:void(0)" onclick="deleteProxy('{{.ID}}', '{{.IP}}:{{.Port}}')">Hapus</a></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {{if .Username}}
+                                                👤 <span style="font-family: monospace; color: #2c3338;">{{.Username}}</span>
+                                            {{else}}
+                                                <span style="color: #909090; font-style: italic;">None</span>
+                                            {{end}}
+                                        </td>
+                                        <td>
+                                            {{if eq .Status "active"}}
+                                                <span class="badge-active">Active {{if .LatencyMS}}({{.LatencyMS}}ms){{end}}</span>
+                                            {{else if eq .Status "dead"}}
+                                                <span class="badge-dead">Dead</span>
+                                            {{else}}
+                                                <span class="badge-checking">Checking</span>
+                                            {{end}}
+                                        </td>
+                                        <td style="font-family: monospace;">
+                                            {{.FormattedBandwidth}}
+                                        </td>
+                                        <td style="color: #646970;">
+                                            {{if .LastChecked}}
+                                                {{.LastChecked.Format "02 Jan 2006 15:04:05"}} UTC
+                                            {{else}}
+                                                <span style="color: #909090; font-style: italic;">Belum dicek</span>
+                                            {{end}}
+                                        </td>
+                                        <td style="color: #646970;">
+                                            {{if .LastUsed}}
+                                                {{.LastUsed.Format "02 Jan 2006 15:04:05"}} UTC
+                                            {{else}}
+                                                <span style="color: #909090; font-style: italic;">Belum digunakan</span>
+                                            {{end}}
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        {{else}}
+                        <div class="empty-state table-empty" style="text-align: center; padding: 60px 20px; background: #fafafa; border-radius: 8px; border: 1px dashed var(--border-color, #e5e5e5);">
+                            <div style="font-size: 48px; margin-bottom: 12px;">🌐</div>
+                            <h3 style="margin-bottom: 8px; color: var(--text-primary);">Belum ada proxy terdaftar</h3>
+                            <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto; font-size: 14px; line-height: 1.5;">Tambahkan proxy di form atas untuk membantu request auto-post berjalan stabil dan aman dari rate limit Google News.</p>
+                        </div>
+                        {{end}}
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showAlert(message, isSuccess) {
+            const alertDiv = document.getElementById('ajax-alert');
+            alertDiv.innerText = message;
+            alertDiv.style.display = 'block';
+            
+            if (isSuccess) {
+                alertDiv.style.background = 'rgba(46, 204, 113, 0.1)';
+                alertDiv.style.color = '#2ecc71';
+                alertDiv.style.border = '1px solid rgba(46, 204, 113, 0.2)';
+            } else {
+                alertDiv.style.background = 'rgba(230, 51, 41, 0.1)';
+                alertDiv.style.color = '#e63329';
+                alertDiv.style.border = '1px solid rgba(230, 51, 41, 0.2)';
+            }
+
+            // Hide alert after 5s
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function checkProxy(id) {
+            showGlobalLoading("Menguji Koneksi Proxy", "Sedang mengirim permintaan uji ping ke server target...");
+            fetch('/dashboard/proxies/' + id + '/check', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showGlobalStatus(true, "Koneksi Sukses!", 
+                        `<strong>IP:</strong> ${data.ip}<br><strong>Port:</strong> ${data.port}<br><strong>Latency:</strong> <span style="color: #30d158; font-weight: bold;">${data.latency}ms</span><br><br><span style="color: #8e8e93;">Halaman akan dimuat ulang saat modal ditutup.</span>`
+                    );
+                    document.querySelector('#global-modal-status button').onclick = function() {
+                        closeGlobalModal();
+                        window.location.reload();
+                    };
+                } else {
+                    showGlobalStatus(false, "Koneksi Gagal!", 
+                        `<strong>IP:</strong> ${data.ip}<br><strong>Port:</strong> ${data.port}<br><strong style="color: #ff453a;">Error:</strong> ${data.error}<br><br><span style="color: #8e8e93;">Halaman akan dimuat ulang saat modal ditutup.</span>`
+                    );
+                    document.querySelector('#global-modal-status button').onclick = function() {
+                        closeGlobalModal();
+                        window.location.reload();
+                    };
+                }
+            })
+            .catch(err => {
+                showGlobalStatus(false, "Kesalahan Sistem!", `Gagal menghubungi server: ${err.message}`);
+            });
+        }
+
+        function checkAllProxies() {
+            showGlobalLoading("Menguji Semua Proxy", "Sedang menguji seluruh proxy secara paralel di latar belakang...");
+            fetch('/dashboard/proxies/check-all', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showGlobalStatus(true, "Proses Dimulai!", 
+                        `Pemeriksaan seluruh proxy di latar belakang telah dijalankan.<br><br>Setiap proxy yang aktif akan otomatis terdaftar.<br><br><span style="color: #8e8e93;">Halaman akan dimuat ulang saat modal ditutup.</span>`
+                    );
+                    document.querySelector('#global-modal-status button').onclick = function() {
+                        closeGlobalModal();
+                        window.location.reload();
+                    };
+                } else {
+                    showGlobalStatus(false, "Pemeriksaan Gagal!", `Terjadi kesalahan: ${data.error}`);
+                }
+            })
+            .catch(err => {
+                showGlobalStatus(false, "Kesalahan Sistem!", `Gagal menghubungi server: ${err.message}`);
+            });
+        }
+
+        function deleteProxy(id, ipPort) {
+            if (confirm('Apakah Anda yakin ingin menghapus proxy ' + ipPort + '?')) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/dashboard/proxies/' + id + '/delete';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

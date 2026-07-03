@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Manajemen Konten Premium - NewsPaper CMS</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+        <style>
+            .premium-badge {
+                display: inline-block;
+                background-color: #d97706;
+                color: #fff;
+                font-size: 11px;
+                font-weight: bold;
+                padding: 2px 6px;
+                border-radius: 4px;
+                margin-left: 8px;
+            }
+            .regular-badge {
+                display: inline-block;
+                background-color: #6b7280;
+                color: #fff;
+                font-size: 11px;
+                font-weight: bold;
+                padding: 2px 6px;
+                border-radius: 4px;
+                margin-left: 8px;
+            }
+            .toggle-btn {
+                background-color: #2271b1;
+                color: white;
+                border: 1px solid #135e96;
+                border-radius: 3px;
+                padding: 4px 8px;
+                font-size: 12px;
+                cursor: pointer;
+                transition: background-color 0.1s ease;
+            }
+            .toggle-btn:hover {
+                background-color: #135e96;
+            }
+            .toggle-btn.is-premium {
+                background-color: #4b5563;
+                border-color: #374151;
+            }
+            .toggle-btn.is-premium:hover {
+                background-color: #374151;
+            }
+        </style>
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Akses Konten</p>
+                        <h1>Manajemen Konten Premium</h1>
+                        <p>
+                            Ubah dan kelola akses artikel berita reguler atau premium khusus member aplikasi Android.
+                        </p>
+                    </div>
+                </header>
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Daftar</p>
+                            <h2>Manajemen Artikel</h2>
+                        </div>
+                        <a href="/dashboard">Kembali ke dashboard</a>
+                    </div>
+
+                    <ul class="subsubsub" style="list-style: none; margin: 8px 0; padding: 0 4px; font-size: 13px; display: flex; gap: 8px; color: #646970;">
+                        <li><a href="?s={{.SearchQuery}}" style="text-decoration: none; color: #2271b1; {{if eq .Filter ""}}font-weight: 600; color: #000;{{end}}">Semua <span class="count" style="color: #646970; font-weight: normal;">({{.TotalAll}})</span></a> |</li>
+                        <li><a href="?filter=premium&s={{.SearchQuery}}" style="text-decoration: none; color: #2271b1; {{if eq .Filter "premium"}}font-weight: 600; color: #000;{{end}}">Premium <span class="count" style="color: #646970; font-weight: normal;">({{.TotalPremium}})</span></a> |</li>
+                        <li><a href="?filter=reguler&s={{.SearchQuery}}" style="text-decoration: none; color: #2271b1; {{if eq .Filter "reguler"}}font-weight: 600; color: #000;{{end}}">Reguler <span class="count" style="color: #646970; font-weight: normal;">({{.TotalReguler}})</span></a></li>
+                    </ul>
+
+                    <div class="tablenav top" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f6f7f7; border: 1px solid #c3c4c7; border-bottom: none; border-radius: 4px 4px 0 0;">
+                        <div class="alignleft actions">
+                            <a href="/dashboard/premium" style="font-size: 13px; color: #2271b1; text-decoration: none; font-weight: 600;">{{if or .SearchQuery .Filter}}← Lihat Semua Artikel{{else}}Semua Artikel{{end}}</a>
+                        </div>
+                        <form method="get" action="/dashboard/premium" style="display: flex; gap: 6px; margin: 0; padding: 0;">
+                            <input type="hidden" name="filter" value="{{.Filter}}" />
+                            <input type="search" name="s" value="{{.SearchQuery}}" placeholder="Cari judul/konten..." style="padding: 4px 8px; border: 1px solid #8c8f94; border-radius: 3px; font-size: 13px;" />
+                            <button type="submit" class="button" style="padding: 4px 10px; font-size: 13px; cursor: pointer; background: #f6f7f7; border: 1px solid #8c8f94; border-radius: 3px;">Cari Artikel</button>
+                        </form>
+                    </div>
+
+                    <table class="wp-list-table widefat fixed striped table-view-list posts" style="margin-top: 0; border-top: none;">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Judul Artikel</th>
+                                <th>Kategori</th>
+                                <th>Status Akses</th>
+                                <th>Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Articles}}
+                            <tr>
+                                <td>
+                                    <strong>{{.Title}}</strong>
+                                    {{if .IsPremium}}
+                                    <span class="premium-badge">PREMIUM 🔒</span>
+                                    {{else}}
+                                    <span class="regular-badge">REGULER 🔓</span>
+                                    {{end}}
+                                </td>
+                                <td>
+                                    {{.Category}}
+                                </td>
+                                <td>
+                                    {{if .IsPremium}}
+                                    <span style="color: #d97706; font-weight: 600;">Khusus Member Login</span>
+                                    {{else}}
+                                    <span style="color: #10b981; font-weight: 600;">Publik &amp; Tamu</span>
+                                    {{end}}
+                                </td>
+                                <td>
+                                    <form method="post" action="/dashboard/premium/{{.ID}}/toggle?page={{$.Page}}&filter={{$.Filter}}&s={{$.SearchQuery}}" style="display:inline; margin:0; padding:0;">
+                                        {{if .IsPremium}}
+                                        <button type="submit" class="toggle-btn is-premium">Set Reguler</button>
+                                        {{else}}
+                                        <button type="submit" class="toggle-btn">Set Premium 🔒</button>
+                                        {{end}}
+                                    </form>
+                                </td>
+                            </tr>
+                            {{else}}
+                            <tr class="no-items">
+                                <td colspan="4" style="text-align: center; padding: 20px; color: #646970;">
+                                    {{if $.SearchQuery}}Tidak ada artikel yang cocok dengan pencarian "{{$.SearchQuery}}".{{else}}Belum ada artikel terbit yang tersedia.{{end}}
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+
+                    <div class="tablenav bottom" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; margin-top: 0; border: 1px solid #c3c4c7; border-top: none; background: #fff; border-radius: 0 0 4px 4px;">
+                        <div class="alignleft actions bulkactions">
+                            <!-- bottom actions placeholder -->
+                        </div>
+                        
+                        {{if gt .TotalPages 1}}
+                        <div class="tablenav-pages">
+                            <span class="displaying-num">{{.Total}} item</span>
+                            <span class="pagination-links">
+                                {{if .HasPrev}}
+                                <a class="first-page button" href="?page=1&filter={{$.Filter}}&s={{$.SearchQuery}}"><span aria-hidden="true">«</span></a>
+                                <a class="prev-page button" href="?page={{.PrevPage}}&filter={{$.Filter}}&s={{$.SearchQuery}}"><span aria-hidden="true">‹</span></a>
+                                {{else}}
+                                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">«</span>
+                                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">‹</span>
+                                {{end}}
+                                
+                                <span class="paging-input">
+                                    <span class="tablenav-paging-text">
+                                        {{.Page}} dari <span class="total-pages">{{.TotalPages}}</span>
+                                    </span>
+                                </span>
+                                
+                                {{if .HasNext}}
+                                <a class="next-page button" href="?page={{.NextPage}}&filter={{$.Filter}}&s={{$.SearchQuery}}"><span aria-hidden="true">›</span></a>
+                                <a class="last-page button" href="?page={{.TotalPages}}&filter={{$.Filter}}&s={{$.SearchQuery}}"><span aria-hidden="true">»</span></a>
+                                {{else}}
+                                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">›</span>
+                                <span class="tablenav-pages-navspan button disabled" aria-hidden="true">»</span>
+                                {{end}}
+                            </span>
+                        </div>
+                        {{else}}
+                        <div style="font-size: 13px; color: #646970;">
+                            Total: <strong>{{.Total}}</strong> artikel
+                        </div>
+                        {{end}}
+                    </div>
+                </section>
+            </main>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Kustom - NewsPaper CMS</title>
+    <link rel="stylesheet" href="/assets/global.css">
+    <style>
+        .prompts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .prompt-card {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .prompt-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 6px;
+        }
+        .prompt-instruction {
+            font-family: inherit;
+            font-size: 13px;
+            color: #555;
+            white-space: pre-wrap;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            margin-bottom: 12px;
+        }
+        .prompt-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .form-card {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+    {{template "sidebar" .}}
+    <main class="dashboard-main">
+        <header class="dashboard-header compact">
+            <div>
+                <p class="eyebrow">AI Assistant</p>
+                <h1>Prompt Kustom Rewrite</h1>
+                <p>Kelola instruksi gaya penulisan kustom untuk memandu AI menulis ulang artikel rujukan secara terstandarisasi.</p>
+            </div>
+        </header>
+
+        {{if .Error}}
+        <div class="alert alert-error">{{.Error}}</div>
+        {{end}}
+        {{if .Success}}
+        <div class="alert alert-success">{{.Success}}</div>
+        {{end}}
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; width: 100%;">
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; width: 100%;">
+                <!-- Left Side: List Prompts -->
+                <div>
+                    <h2>Daftar Prompt Template</h2>
+                    <div class="prompts-list">
+                        {{if .Prompts}}
+                            {{range .Prompts}}
+                            <div class="prompt-card">
+                                <div class="prompt-title">{{.Name}}</div>
+                                <div class="prompt-instruction">{{.Instruction}}</div>
+                                <div class="prompt-actions">
+                                    <button class="btn btn-secondary btn-edit-prompt" data-id="{{.ID}}" data-name="{{.Name}}" data-instruction="{{.Instruction}}" style="margin: 0; padding: 6px 12px; font-size: 12px;">Edit ✏️</button>
+                                    <form method="post" action="/dashboard/prompts/delete" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus prompt ini?');">
+                                        <input type="hidden" name="id" value="{{.ID}}">
+                                        <button type="submit" class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 12px; border-color: #ff6b68; color: #ff6b68;">Hapus 🗑️</button>
+                                    </form>
+                                </div>
+                            </div>
+                            {{end}}
+                        {{else}}
+                            <div class="prompt-card" style="text-align: center; color: #777;">
+                                <p style="margin: 0;">Belum ada prompt kustom yang tersimpan.</p>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+
+                <!-- Right Side: Add/Edit Form -->
+                <div>
+                    <h2 id="form_heading">Tambah Prompt Kustom</h2>
+                    <div class="form-card">
+                        <form id="prompt_form" method="post" action="/dashboard/prompts">
+                            <input type="hidden" name="id" id="prompt_id" value="">
+                            
+                            <div class="form-field" style="margin-bottom: 15px;">
+                                <label for="prompt_name">Nama Prompt / Gaya Bahasa</label>
+                                <input type="text" id="prompt_name" name="name" required placeholder="Contoh: Gaya Gaul Santai, Ringkasan Eksekutif, dll.">
+                            </div>
+
+                            <div class="form-field" style="margin-bottom: 15px;">
+                                <label for="prompt_instruction">Instruksi Prompt</label>
+                                <textarea id="prompt_instruction" name="instruction" rows="8" required placeholder="Contoh: Ubah sudut pandang tulisan menjadi orang pertama. Tulis ulang dengan bahasa santai gaul ala anak muda Jakarta, gunakan kata 'kamu' dan 'aku'..." style="resize: vertical;"></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                                <button type="button" id="btn_cancel_edit" class="btn btn-secondary" style="display: none; margin: 0;">Batal</button>
+                                <button type="submit" class="btn btn-primary" style="margin: 0;">Simpan Prompt</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+(function() {
+    var editButtons = document.querySelectorAll('.btn-edit-prompt');
+    var form = document.getElementById('prompt_form');
+    var heading = document.getElementById('form_heading');
+    var inputId = document.getElementById('prompt_id');
+    var inputName = document.getElementById('prompt_name');
+    var inputInstruction = document.getElementById('prompt_instruction');
+    var btnCancel = document.getElementById('btn_cancel_edit');
+
+    editButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.getAttribute('data-id');
+            var name = this.getAttribute('data-name');
+            var instruction = this.getAttribute('data-instruction');
+
+            inputId.value = id;
+            inputName.value = name;
+            inputInstruction.value = instruction;
+
+            heading.textContent = 'Edit Prompt Kustom';
+            btnCancel.style.display = 'inline-block';
+            window.scrollTo({ top: form.offsetTop - 100, behavior: 'smooth' });
+        });
+    });
+
+    btnCancel.addEventListener('click', function() {
+        inputId.value = '';
+        inputName.value = '';
+        inputInstruction.value = '';
+        heading.textContent = 'Tambah Prompt Kustom';
+        btnCancel.style.display = 'none';
+    });
+})();
+</script>
+</body>
+</html>

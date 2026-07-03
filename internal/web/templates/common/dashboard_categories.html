@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Manajemen Kategori - NewsPaper CMS</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Editorial</p>
+                        <h1>Manajemen Kategori</h1>
+                        <p>
+                            Kelola kategori yang bisa dipilih saat menambah atau
+                            mengedit artikel.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <a class="btn btn-secondary" href="/dashboard/categories/navbar">Atur Menu Navbar</a>
+                        <a class="btn btn-primary" href="/dashboard/categories/new">Kategori Baru</a>
+                    </div>
+                </header>
+
+                {{if .Error}}
+                <div class="alert alert-error" role="alert">{{.Error}}</div>
+                {{end}}
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Daftar</p>
+                            <h2>{{len .Categories}} kategori</h2>
+                        </div>
+                        <a href="/dashboard/articles/new">Tulis artikel</a>
+                    </div>
+
+                    <div class="category-list">
+                        {{range .Categories}}
+                        <article class="category-card">
+                            <div>
+                                <h3>
+                                    {{.Name}}
+                                    {{if .ShowInNavbar}}
+                                    <span class="status-pill status-published" style="margin-left: 8px; font-size: 9px; padding: 2px 8px; vertical-align: middle;">Navbar</span>
+                                    {{end}}
+                                </h3>
+                                <p>/kategori/{{.Slug}}</p>
+                            </div>
+                            <div class="table-actions category-actions">
+                                <a href="/dashboard/categories/{{.ID}}/edit"
+                                    >Edit</a
+                                >
+                                <form
+                                    method="post"
+                                    action="/dashboard/categories/{{.ID}}/delete"
+                                >
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </article>
+                        {{else}}
+                        <div class="empty-state table-empty">
+                            <h3>Belum ada kategori</h3>
+                            <p>
+                                Buat kategori pertama agar form artikel memiliki
+                                pilihan dropdown.
+                            </p>
+                            <a
+                                class="btn btn-primary"
+                                href="/dashboard/categories/new"
+                                >Tambah Kategori</a
+                            >
+                        </div>
+                        {{end}}
+                    </div>
+                </section>
+            </main>
+        </div>
+    </body>
+</html>

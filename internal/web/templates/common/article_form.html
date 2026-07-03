@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{.Title}} - NewsPaper CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/global.css">
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">Editorial Workspace</p>
+<h1>{{.Title}}</h1>
+<p>Susun artikel menggunakan WordPress Classic Editor theme layout.</p>
+</div>
+<div style="display: flex; gap: 8px;">
+<a class="btn btn-secondary" href="/dashboard/articles/wizard">✨ Wizard Rewrite</a>
+<a class="btn btn-secondary" href="/dashboard/articles">Kembali</a>
+</div>
+</header>
+
+<form method="post" action="{{.Action}}" id="post" style="margin-top: 20px;">
+    {{if .Error}}<div class="alert alert-error" role="alert" style="margin-bottom: 20px; padding: 12px; background-color: #f8d7da; border-color: #f5c2c7; color: #842029; border-radius: 4px;">{{.Error}}</div>{{end}}
+    
+    <!-- Title and Slug permalink box at top -->
+    <div id="titlediv">
+        <input type="text" name="title" id="title" placeholder="Tambahkan Judul" value="{{.Article.Title}}" required>
+    </div>
+    
+    <div id="edit-slug-box">
+        <strong>Tautan Permanen:</strong>
+        <span id="sample-permalink">
+            http://localhost:8080/artikel/<span id="editable-post-name">{{if .Article.Slug}}{{.Article.Slug}}{{else}}otomatis-dari-judul{{end}}</span>
+        </span>
+        <input type="hidden" id="slug" name="slug" value="{{.Article.Slug}}">
+        <button type="button" class="btn btn-secondary" style="padding: 2px 8px !important; font-size: 11px !important;" id="slug_generate_btn">Sunting Slug</button>
+    </div>
+
+    <section class="article-editor-grid">
+        <!-- Main Column (Left) -->
+        <div class="postbox-container-1" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Editor postbox -->
+            <div class="postbox">
+                <div class="postbox-header">
+                    <h2>Konten Artikel</h2>
+                    <span id="content_word_count" style="font-size: 12px; color: #646970;">0 kata</span>
+                </div>
+                <div class="inside" style="padding: 0 !important;">
+                    <textarea id="content" class="content-editor" name="content" rows="18">{{.Article.Content}}</textarea>
+                </div>
+            </div>
+
+            <!-- Excerpt postbox -->
+            <div class="postbox">
+                <div class="postbox-header">
+                    <h2>Ringkasan / Excerpt</h2>
+                </div>
+                <div class="inside">
+                    <textarea id="excerpt" name="excerpt" rows="3" maxlength="220" placeholder="Ringkasan singkat yang tampil di daftar artikel" style="width: 100%;">{{.Article.Excerpt}}</textarea>
+                    <div id="excerpt_counter" class="form-counter" style="text-align: right; font-size: 12px; color: #646970; margin-top: 4px;">0/220</div>
+                </div>
+            </div>
+
+            <!-- Rujukan postbox -->
+            <div class="postbox">
+                <div class="postbox-header">
+                    <h2>Sumber Rujukan & Kredit (Opsional)</h2>
+                </div>
+                <div class="inside" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-field">
+                        <label for="image_source" style="display: block; font-weight: 600; margin-bottom: 5px;">Sumber Gambar / Kredit Gambar</label>
+                        <input id="image_source" name="image_source" value="{{.Article.ImageSource}}" placeholder="Contoh: Foto: Antara / Reuters" style="width: 100%;">
+                    </div>
+                    <div class="form-field">
+                        <label for="source_url" style="display: block; font-weight: 600; margin-bottom: 5px;">Sumber Artikel / Rujukan</label>
+                        <input id="source_url" name="source_url" value="{{.Article.SourceURL}}" placeholder="https://sumber-artikel-asli.com/..." style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column (Right) -->
+        <div class="postbox-container-2" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Publish postbox -->
+            <div class="postbox">
+                <div class="postbox-header">
+                    <h2>Terbitkan</h2>
+                </div>
+                <div class="inside">
+                    <div class="misc-pub-section">
+                        Status: <strong>{{statusLabel .Status}}</strong>
+                    </div>
+                    <div class="misc-pub-section">
+                        Visibilitas: <strong>Publik</strong>
+                    </div>
+                    <div class="misc-pub-section">
+                        Status Pilihan:
+                        <select id="status" name="status" style="width: 100%; margin-top: 5px;">
+                            <option value="draft" {{if eq .Status "draft"}}selected{{end}}>Draft</option>
+                            <option value="submitted" {{if eq .Status "submitted"}}selected{{end}}>Submit review</option>
+                            {{if .CanPublish}}<option value="published" {{if eq .Status "published"}}selected{{end}}>Published</option>{{else if eq .Status "published"}}<option value="published" selected>Published</option>{{end}}
+                        </select>
+                    </div>
+
+                    <div class="major-publishing-actions">
+                        <div id="publishing-action" style="width: 100%;">
+                            <button class="btn btn-primary" type="submit" style="width: 100%;">Terbitkan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories postbox -->
+            <div class="postbox">
+                <div class="postbox-header">
+                    <h2>Kategori</h2>
+                </div>
+                <div class="inside">
+                    <div class="categorydiv">
+                        {{range .Categories}}
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="category" value="{{.Name}}" {{if eq $.Article.Category .Name}}checked{{end}}> {{.Name}}
+                        </label>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Image postbox -->
+            <div class="postbox">
+                <div class="postbox-header">
+                    <h2>Gambar Utama</h2>
+                </div>
+                <div class="inside">
+                    <div class="featured-image-container">
+                        <input id="hero_image_url" name="hero_image_url" value="{{.Article.HeroImageURL}}" type="text" placeholder="URL Gambar Utama" style="width: 100%; margin-bottom: 10px;">
+                        <img id="hero_image_preview" alt="Preview gambar utama" style="max-width: 100%; margin-bottom: 10px; border-radius: 4px; {{if not .Article.HeroImageURL}}display:none{{end}}" {{if .Article.HeroImageURL}}src="{{.Article.HeroImageURL}}"{{end}}>
+                        
+                        <div class="media-upload-area" style="margin-top: 15px; border-top: 1px solid #f0f0f1; padding-top: 15px; text-align: left;">
+                            <label for="media_file" style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 5px;">Unggah File Gambar</label>
+                            <input id="media_file" type="file" name="file" accept="image/*" style="font-size: 11px; margin-bottom: 8px; width: 100%;">
+                            <button id="media_upload_btn" class="btn btn-secondary" type="button" style="width: 100%; padding: 4px 8px !important; font-size: 12px !important;">Upload Gambar</button>
+                            <p id="media_upload_status" class="media-upload-status" style="display:none; font-size: 11px; margin-top: 5px;"></p>
+                        </div>
+
+                        <div style="margin-top: 15px; border-top: 1px solid #f0f0f1; padding-top: 15px; text-align: left;">
+                            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #2271b1;">Cari Cepat (Bing)</label>
+                            <p style="font-size: 11px; color: #646970; margin-bottom: 8px; line-height: 1.3;">Gunakan judul artikel untuk mencari dan memasang gambar dari Bing secara otomatis.</p>
+                            <button id="bing_search_btn" class="btn btn-secondary" type="button" style="width: 100%; padding: 4px 8px !important; font-size: 12px !important; border-color: #2271b1; color: #2271b1;">🔍 Cari & Pasang (Auto)</button>
+                            <p id="bing_search_status" style="display:none; font-size: 11px; margin-top: 5px;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hugerte@1/hugerte.min.js"></script>
+<script>
+function slugify(value) {
+    return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+}
+function updateCounter(input, target, max) {
+    target.textContent = input.value.length + '/' + max;
+}
+function updateWordCount() {
+    var target = document.getElementById('content_word_count');
+    var text = '';
+    if (window.hugerte && hugerte.get('content')) {
+        text = hugerte.get('content').getContent({ format: 'text' });
+    } else {
+        text = document.getElementById('content').value;
+    }
+    var words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    target.textContent = words + ' kata';
+}
+hugerte.init({
+    selector: '#content',
+    height: 560,
+    menubar: false,
+    branding: false,
+    promotion: false,
+    plugins: 'advlist autolink autoresize code fullscreen image link lists media preview searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks | bold italic underline blockquote | alignleft aligncenter alignright | bullist numlist | link image media table | searchreplace preview fullscreen code',
+    toolbar_mode: 'sliding',
+    image_caption: true,
+    automatic_uploads: false,
+    content_style: "body{font-family:'Source Sans 3',Arial,sans-serif;font-size:17px;line-height:1.75;color:#222} img{max-width:100%;height:auto} blockquote{border-left:4px solid #e63329;margin:1.5rem 0;padding:.8rem 1rem;background:#f4f4f4}",
+    setup: function (editor) { editor.on('init keyup change setcontent', updateWordCount); },
+});
+document.getElementById('post').addEventListener('submit', function () {
+    if (window.hugerte) hugerte.triggerSave();
+});
+(function () {
+    var titleInput = document.getElementById('title');
+    var slugInput = document.getElementById('slug');
+    var slugButton = document.getElementById('slug_generate_btn');
+    var excerptInput = document.getElementById('excerpt');
+    var excerptCounter = document.getElementById('excerpt_counter');
+    
+    slugButton.addEventListener('click', function () {
+        var currentSlug = slugInput.value.trim();
+        var newSlug = prompt('Edit Slug URL:', currentSlug || slugify(titleInput.value));
+        if (newSlug !== null) {
+            var formattedSlug = slugify(newSlug);
+            slugInput.value = formattedSlug;
+            document.getElementById('editable-post-name').textContent = formattedSlug || 'otomatis-dari-judul';
+        }
+    });
+    
+    titleInput.addEventListener('input', function () {
+        if (!slugInput.value.trim()) {
+            document.getElementById('editable-post-name').textContent = slugify(titleInput.value) || 'otomatis-dari-judul';
+        }
+    });
+    
+    excerptInput.addEventListener('input', function () {
+        updateCounter(excerptInput, excerptCounter, 220);
+    });
+    
+    updateCounter(excerptInput, excerptCounter, 220);
+    updateWordCount();
+})();
+(function () {
+    var fileInput = document.getElementById('media_file');
+    var uploadBtn = document.getElementById('media_upload_btn');
+    var status = document.getElementById('media_upload_status');
+    var urlInput = document.getElementById('hero_image_url');
+    var preview = document.getElementById('hero_image_preview');
+    
+    function setPreview(url) {
+        if (url) {
+            preview.src = url;
+            preview.style.display = '';
+        } else {
+            preview.removeAttribute('src');
+            preview.style.display = 'none';
+        }
+    }
+    function showStatus(message, isError) {
+        status.textContent = message;
+        status.style.display = '';
+        status.classList.toggle('is-error', !!isError);
+    }
+    urlInput.addEventListener('input', function () { setPreview(urlInput.value.trim()); });
+    uploadBtn.addEventListener('click', async function () {
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) {
+            showStatus('Pilih file gambar dulu.', true);
+            return;
+        }
+        var data = new FormData();
+        data.append('file', file);
+        uploadBtn.disabled = true;
+        showStatus('Mengupload...', false);
+        try {
+            var res = await fetch('/dashboard/media/upload', { method: 'POST', body: data });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            var json = await res.json();
+            if (!json.url) throw new Error('Response tanpa url');
+            urlInput.value = json.url;
+            setPreview(json.url);
+            showStatus('Berhasil diupload.', false);
+        } catch (err) {
+            showStatus('Upload gagal: ' + err.message, true);
+        } finally {
+            uploadBtn.disabled = false;
+        }
+    });
+
+    var bingBtn = document.getElementById('bing_search_btn');
+    var bingStatus = document.getElementById('bing_search_status');
+    var titleInput = document.getElementById('title');
+
+    if (bingBtn) {
+        bingBtn.addEventListener('click', function() {
+            var query = titleInput.value.trim();
+            if (!query) {
+                bingStatus.textContent = 'Isi judul artikel terlebih dahulu.';
+                bingStatus.style.display = 'block';
+                bingStatus.style.color = '#d63638';
+                return;
+            }
+            
+            bingStatus.textContent = 'Mencari gambar dari Bing...';
+            bingStatus.style.display = 'block';
+            bingStatus.style.color = '#2271b1';
+
+            // Format: /Title_With_Underscores
+            var formattedQuery = '/' + query.replace(/\s+/g, '_');
+            var bingUrl = 'https://tse1.mm.bing.net/th?q=' + encodeURIComponent(formattedQuery);
+            
+            urlInput.value = bingUrl;
+            setPreview(bingUrl);
+
+            // Preload to verify
+            var tempImg = new Image();
+            tempImg.onload = function() {
+                bingStatus.textContent = 'Gambar berhasil ditemukan dan dipasang!';
+                bingStatus.style.color = '#00a32a';
+            };
+            tempImg.onerror = function() {
+                bingStatus.textContent = 'Gagal memuat preview gambar dari Bing (mungkin URL salah atau diblokir). URL tetap dipasang.';
+                bingStatus.style.color = '#d63638';
+            };
+            tempImg.src = bingUrl;
+        });
+    }
+})();
+</script>
+</body>
+</html>

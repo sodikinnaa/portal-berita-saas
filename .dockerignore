@@ -1,0 +1,8 @@
+.git
+.gitignore
+README.md
+elementor-36-2026-06-16.json
+*.log
+.tmp
+.env
+.env.local

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengaturan Permalinks - NewsPaper CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/global.css">
+<style>
+.permalink-options-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+.permalink-options-table td {
+    padding: 12px 10px;
+    vertical-align: top;
+    font-size: 14px;
+}
+.permalink-options-table td:first-child {
+    width: 220px;
+    font-weight: 600;
+    color: #2c3338;
+}
+.permalink-options-table label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    cursor: pointer;
+}
+.permalink-options-table code {
+    background: #f6f7f7;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #dcdcde;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    color: #2c3338;
+}
+.tag-button {
+    background: #f6f7f7;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #2271b1;
+    cursor: pointer;
+    margin-right: 4px;
+    margin-bottom: 6px;
+    display: inline-block;
+    transition: all 0.1s ease-in-out;
+}
+.tag-button:hover {
+    background: #f0f0f1;
+    border-color: #135e96;
+    color: #135e96;
+}
+</style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">Pengaturan</p>
+<h1>Pengaturan Permalinks</h1>
+<p>Kustomisasi struktur URL permalink tulisan Anda agar ramah mesin pencari (SEO).</p>
+</div>
+<div style="display: flex; gap: 8px;">
+<a class="btn btn-secondary" href="/dashboard">Kembali</a>
+</div>
+</header>
+
+{{if .Success}}<div class="alert alert-success" role="alert" style="margin: 20px 0 10px; padding: 12px; background-color: #d1e7dd; border-color: #badbcc; color: #0f5132; border-radius: 4px;">{{.Success}}</div>{{end}}
+{{if .Error}}<div class="alert alert-error" role="alert" style="margin: 20px 0 10px; padding: 12px; background-color: #f8d7da; border-color: #f5c2c7; color: #842029; border-radius: 4px;">{{.Error}}</div>{{end}}
+
+<section class="dashboard-panel" style="margin-top: 20px; padding: 25px !important;">
+    <p style="font-size: 14px; line-height: 1.5; color: #50575e; margin: 0 0 20px;">
+        Secara default, struktur tautan tulisan Anda dibuat menggunakan nama tulisan (post name). Di sini Anda dapat memilih struktur permalink bawaan lainnya atau mendefinisikan struktur kustom sendiri.
+    </p>
+
+    <form method="post" action="/dashboard/options-permalink">
+        <h2 style="font-size: 18px; font-weight: 400; border-bottom: 1px solid #c3c4c7; padding-bottom: 8px; margin-bottom: 15px; color: #1d2327;">Pengaturan Umum</h2>
+
+        <table class="permalink-options-table">
+            <tr>
+                <td>
+                    <label>
+                        <input type="radio" name="permalink_structure" value="plain" {{if eq .PermalinkStructure "plain"}}checked{{end}}>
+                        Sederhana (Plain)
+                    </label>
+                </td>
+                <td>
+                    <code>http://localhost:8080/?p=123</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        <input type="radio" name="permalink_structure" value="day_and_name" {{if eq .PermalinkStructure "day_and_name"}}checked{{end}}>
+                        Tanggal dan nama
+                    </label>
+                </td>
+                <td>
+                    <code>http://localhost:8080/2026/06/29/contoh-tulisan/</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        <input type="radio" name="permalink_structure" value="month_and_name" {{if eq .PermalinkStructure "month_and_name"}}checked{{end}}>
+                        Bulan dan nama
+                    </label>
+                </td>
+                <td>
+                    <code>http://localhost:8080/2026/06/contoh-tulisan/</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        <input type="radio" name="permalink_structure" value="numeric" {{if eq .PermalinkStructure "numeric"}}checked{{end}}>
+                        Numerik (Numeric)
+                    </label>
+                </td>
+                <td>
+                    <code>http://localhost:8080/arsip/123</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        <input type="radio" name="permalink_structure" value="post_name" {{if eq .PermalinkStructure "post_name"}}checked{{end}}>
+                        Nama tulisan (Post name)
+                    </label>
+                </td>
+                <td>
+                    <code>http://localhost:8080/contoh-tulisan/</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        <input type="radio" name="permalink_structure" value="custom" {{if and (ne .PermalinkStructure "plain") (ne .PermalinkStructure "day_and_name") (ne .PermalinkStructure "month_and_name") (ne .PermalinkStructure "numeric") (ne .PermalinkStructure "post_name")}}checked{{end}}>
+                        Struktur Kustom
+                    </label>
+                </td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 13.5px; color: #50575e;">http://localhost:8080</span>
+                            <input type="text" name="permalink_structure_custom" id="permalink_structure_custom" 
+                                   value="{{if and (ne .PermalinkStructure "plain") (ne .PermalinkStructure "day_and_name") (ne .PermalinkStructure "month_and_name") (ne .PermalinkStructure "numeric") (ne .PermalinkStructure "post_name")}}{{.PermalinkStructure}}{{else}}/%year%/%monthnum%/%postname%{{end}}"
+                                   style="width: 320px; font-family: monospace; font-size: 13px;" />
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <p style="font-size: 12px; color: #50575e; margin: 0 0 8px;">Klik tag di bawah ini untuk memasukkannya ke dalam struktur URL kustom:</p>
+                            <button type="button" class="tag-button" data-tag="%year%">%year%</button>
+                            <button type="button" class="tag-button" data-tag="%monthnum%">%monthnum%</button>
+                            <button type="button" class="tag-button" data-tag="%day%">%day%</button>
+                            <button type="button" class="tag-button" data-tag="%post_id%">%post_id%</button>
+                            <button type="button" class="tag-button" data-tag="%postname%">%postname%</button>
+                            <button type="button" class="tag-button" data-tag="%category%">%category%</button>
+                            <button type="button" class="tag-button" data-tag="%author%">%author%</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 30px; border-top: 1px solid #c3c4c7; padding-top: 20px;">
+            <h2 style="font-size: 1.1em; margin-bottom: 15px;">Opsional</h2>
+            <table class="permalink-options-table">
+                <tr>
+                    <td style="vertical-align: middle;">
+                        <label for="category_permalink_base">Basis kategori</label>
+                    </td>
+                    <td>
+                        <input type="text" name="category_permalink_base" id="category_permalink_base" value="{{.CategoryBase}}" placeholder="kategori" style="width: 250px;" />
+                        <p style="font-size: 12px; color: #50575e; margin: 4px 0 0;">Contoh: jika menggunakan "topik", kategori akan menjadi <code>/topik/nama-kategori</code>.</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-top: 20px; border-top: 1px solid #c3c4c7; padding-top: 20px;">
+            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+    </form>
+</section>
+</main>
+</div>
+
+<script>
+(function() {
+    var customRadio = document.querySelector('input[value="custom"]');
+    var customInput = document.getElementById('permalink_structure_custom');
+    var tagButtons = document.querySelectorAll('.tag-button');
+    var allRadios = document.querySelectorAll('input[name="permalink_structure"]');
+
+    // Auto-check custom radio when input is clicked/focused
+    customInput.addEventListener('focus', function() {
+        customRadio.checked = true;
+    });
+
+    // Handle tag button clicks
+    tagButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            customRadio.checked = true;
+            var tag = btn.getAttribute('data-tag');
+            var val = customInput.value;
+            // Insert tag at cursor position or append
+            var start = customInput.selectionStart;
+            var end = customInput.selectionEnd;
+            
+            if (start !== undefined && end !== undefined) {
+                customInput.value = val.substring(0, start) + tag + val.substring(end);
+                customInput.selectionStart = customInput.selectionEnd = start + tag.length;
+            } else {
+                customInput.value += tag;
+            }
+            customInput.focus();
+        });
+    });
+})();
+</script>
+</body>
+</html>

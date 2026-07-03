@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tulis Email - NewsPaper CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/global.css" />
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary, #2d3748);
+        }
+        .form-control-static {
+            padding: 10px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .sender-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sender-input-group input[type="text"] {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .sender-domain-label {
+            font-family: monospace;
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 14px;
+            background: #edf2f7;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .warning-card {
+            background-color: #fffaf0;
+            border: 1px solid #feebc8;
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: #c05621;
+            margin-bottom: 24px;
+        }
+        .warning-card h3 {
+            margin-top: 0;
+            color: #dd6b20;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .warning-card p {
+            font-size: 13.5px;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">Email &amp; Komunikasi</p>
+                    <h1>✏️ Tulis Email</h1>
+                    <p>Kirim email langsung dari dashboard menggunakan domain Anda.</p>
+                </div>
+            </header>
+            
+            {{if .Error}}
+            <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">
+                {{.Error}}
+            </div>
+            {{end}}
+
+            {{if not .IsValidDomain}}
+            <div class="warning-card">
+                <h3>⚠️ Mode Uji Coba IP Lokal ({{.Domain}})</h3>
+                <p>
+                    Anda mengakses dashboard via alamat IP atau localhost. Fitur ini <strong>tetap aktif</strong> agar Anda bisa menguji tampilannya secara lokal, namun email yang dikirim kemungkinan besar akan ditolak oleh server luar (seperti Gmail) karena reputasi SPF/DKIM IP lokal Anda belum terverifikasi.
+                </p>
+            </div>
+            {{end}}
+
+            <div class="dashboard-panel" style="padding: 24px;">
+                <form class="form-grid" method="post" action="/dashboard/mail/compose" onsubmit="return prepareSubmitForm()">
+                    <!-- Hidden input to store compiled from_email -->
+                    <input type="hidden" name="from_email" id="from_email">
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Nama Pengirim (From Name)</label>
+                        <input type="text" name="from_name" value="{{.User.Name}}" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box;" required>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+                        <label>Email Pengirim (From Email)</label>
+                        <div class="sender-input-group">
+                            <input type="text" id="sender_prefix" placeholder="contoh: admin" style="flex: 1;" required>
+                            <span class="sender-domain-label" id="domain_suffix">@{{.Domain}}</span>
+                        </div>
+                        <small style="color: #718096; display: block; margin-top: 6px;">
+                            Domain email pengirim diambil langsung berdasarkan alamat host aktif Anda (<strong>{{.Domain}}</strong>) agar reputasi pengiriman lolos SPF/DKIM.
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+                        <label for="to">Kirim Ke (Penerima / To)</label>
+                        <input type="email" name="to" id="to" placeholder="contoh: klien@gmail.com" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box;" required />
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+                        <label for="subject">Subjek Email</label>
+                        <input type="text" name="subject" id="subject" placeholder="Masukkan judul email" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box;" required />
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+                        <label for="body">Isi Pesan</label>
+                        <textarea name="body" id="body" rows="10" placeholder="Tulis pesan Anda di sini..." style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box;" required></textarea>
+                    </div>
+
+                    <div class="form-actions" style="grid-column: 1 / -1; margin-top: 20px; display: flex; gap: 8px;">
+                        <button type="submit" class="btn btn-primary" style="background: #e63329; color: white;">Kirim Email</button>
+                        <a href="/dashboard/mail/inbox" class="btn btn-secondary" style="border: 1px solid #cbd5e0; padding: 10px 16px; text-decoration: none; border-radius: 6px; color: #4a5568; font-weight: 600;">Batal</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Extract prefix from user email on load
+        (function() {
+            var rawEmail = "{{.User.Email}}";
+            var prefix = "admin";
+            if (rawEmail && rawEmail.includes("@")) {
+                prefix = rawEmail.split("@")[0];
+            }
+            document.getElementById('sender_prefix').value = prefix;
+        })();
+
+        function prepareSubmitForm() {
+            var prefix = document.getElementById('sender_prefix').value.trim();
+            // Clean prefix from spaces or @ signs
+            prefix = prefix.replace(/[^a-zA-Z0-9.\-_]/g, "");
+            
+            var suffix = document.getElementById('domain_suffix').innerText.trim();
+            
+            // Combine prefix + suffix
+            document.getElementById('from_email').value = prefix + suffix;
+
+            // Show confirmation alert if using IP/Localhost
+            var isValid = {{.IsValidDomain}};
+            if (!isValid) {
+                alert("Peringatan: Pengiriman email nyata menggunakan IP lokal (" + suffix + ") mungkin gagal terkirim atau ditolak oleh server luar (seperti Gmail). Melanjutkan proses...");
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

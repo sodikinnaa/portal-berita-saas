@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Portal Resmi - Unggul, Mandiri, dan Berbudaya{{ end }}">
+    <title>{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }} - {{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Unggul, Mandiri, dan Berbudaya{{ end }}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/yapis.css">
+    {{if index .Settings "seo_google_verification"}}
+    <meta name="google-site-verification" content="{{index .Settings "seo_google_verification"}}" />
+    {{end}}
+    {{if index .Settings "seo_bing_verification"}}
+    <meta name="msvalidate.01" content="{{index .Settings "seo_bing_verification"}}" />
+    {{end}}
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="main-header">
+        <div class="container nav-container">
+            <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="{{if index .Settings "site_favicon"}}{{index .Settings "site_favicon"}}{{else}}/assets/logo.jpg{{end}}" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;">
+                <span class="logo-bold">{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Jatim Aktual{{ end }}</span>
+            </a>
+            
+            <nav class="nav-menu" id="navMenu">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="nav-link active">Beranda</a>
+                {{range .Categories}}
+                {{if .ShowInNavbar}}
+                <a href="/artikel?category={{urlquery .Name}}" class="nav-link">{{.Name}}</a>
+                {{end}}
+                {{end}}
+                {{if .AppUser}}
+                <form action="/app/logout" method="post" style="display:inline;" class="btn-mobile-only">
+                    <button type="submit" class="btn btn-outline" style="border-color:#ff5247; color:#ff5247; padding:8px 16px; border-radius:12px;">Keluar ({{.AppUser.Name}})</button>
+                </form>
+                {{else}}
+                <a href="/app/login" class="btn btn-primary btn-mobile-only">Masuk</a>
+                {{end}}
+            </nav>
+
+            <div class="nav-actions">
+                {{if .AppUser}}
+                <form action="/app/logout" method="post" style="display:inline;" class="btn-desktop-only">
+                    <button type="submit" class="btn btn-outline" style="border-color:#ff5247; color:#ff5247; padding:8px 16px; border-radius:12px;">Keluar ({{.AppUser.Name}})</button>
+                </form>
+                {{else}}
+                <a href="/app/login" class="btn btn-primary btn-desktop-only">Masuk</a>
+                {{end}}
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="container hero-grid">
+            <div class="hero-content reveal">
+                <span class="badge">Selamat Datang di Portal {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Yapis{{ end }}</span>
+                <h1 class="hero-title">{{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Unggul, Mandiri, dan Berbudaya.{{ end }}</h1>
+                <p class="hero-desc">
+                    Membentuk generasi penerus bangsa yang cerdas, berintegritas tinggi, mandiri dalam berkarya, serta menjunjung tinggi nilai budaya dan akhlak mulia. Bersama kami, wujudkan masa depan yang gemilang.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#news" class="btn btn-primary">Info Terbaru</a>
+                    <a href="/dashboard" class="btn btn-outline">Kelola Konten</a>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-num">2,500+</span>
+                        <span class="stat-label">Mahasiswa Aktif</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">120+</span>
+                        <span class="stat-label">Dosen & Staff</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">25+</span>
+                        <span class="stat-label">Unit Kegiatan Mahasiswa (UKM)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Gallery Grid -->
+            <div class="hero-gallery reveal">
+                <div class="gallery-grid">
+                    <div class="grid-img img-large">
+                        <img src="/assets/academic.jpg" alt="Academic">
+                        <div class="img-caption">Ruang Kreasi</div>
+                    </div>
+                    <div class="grid-img">
+                        <img src="/assets/extracurricular.jpg" alt="Extracurricular">
+                        <div class="img-caption">Ekstrakurikuler</div>
+                    </div>
+                    <div class="grid-img">
+                        <img src="/assets/scout.jpg" alt="Scout">
+                        <div class="img-caption">Belajar Aktif</div>
+                    </div>
+                    <div class="grid-img img-wide">
+                        <img src="/assets/hero.jpg" alt="Hero">
+                        <div class="img-caption">Kegiatan Pramuka</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section class="section-padding bg-light" id="programs">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">Program Pendidikan Tinggi &amp; Riset</h2>
+                <div class="title-line"></div>
+                <p class="section-subtitle">Kami berkomitmen menyelenggarakan tridharma perguruan tinggi berkualitas untuk melahirkan lulusan unggul, kompeten, dan siap berkontribusi pada kemajuan bangsa.</p>
+            </div>
+
+            <div class="card-grid">
+                <!-- Program Card 1 -->
+                <div class="card-item reveal">
+                    <div class="card-img-box">
+                        <img src="/assets/academic.jpg" alt="Akademik">
+                        <span class="card-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Akademik &amp; MBKM</h3>
+                        <p class="card-desc">Penyelenggaraan kurikulum berbasis KKNI yang terintegrasi dengan Merdeka Belajar Kampus Merdeka untuk membekali mahasiswa dengan keahlian praktis.</p>
+                        <ul class="checkmark-list">
+                            <li><i class="fa-solid fa-check"></i> Kurikulum MBKM &amp; KKNI</li>
+                            <li><i class="fa-solid fa-check"></i> Kelas Interaktif &amp; Studi Kasus</li>
+                            <li><i class="fa-solid fa-check"></i> Dosen Praktisi &amp; Doktor</li>
+                            <li><i class="fa-solid fa-check"></i> Program Magang Industri</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Program Card 2 -->
+                <div class="card-item reveal">
+                    <div class="card-img-box">
+                        <img src="/assets/scout.jpg" alt="Penelitian">
+                        <span class="card-icon"><i class="fa-solid fa-flask"></i></span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Penelitian &amp; Pengabdian</h3>
+                        <p class="card-desc">Pengembangan keilmuan melalui riset aplikatif bernilai guna serta pengabdian masyarakat nyata untuk memecahkan problematika sosial.</p>
+                        <ul class="checkmark-list">
+                            <li><i class="fa-solid fa-check"></i> Program Riset Kolaboratif</li>
+                            <li><i class="fa-solid fa-check"></i> Publikasi Jurnal Terakreditasi</li>
+                            <li><i class="fa-solid fa-check"></i> KKN Tematik &amp; Desa Binaan</li>
+                            <li><i class="fa-solid fa-check"></i> Hilirisasi Inovasi Teknologi</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Program Card 3 -->
+                <div class="card-item reveal">
+                    <div class="card-img-box">
+                        <img src="/assets/extracurricular.jpg" alt="Kemahasiswaan">
+                        <span class="card-icon"><i class="fa-solid fa-users"></i></span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Minat &amp; Bakat Mahasiswa</h3>
+                        <p class="card-desc">Mendukung pengembangan soft skills, bakat, kepemimpinan, dan kewirausahaan melalui berbagai Unit Kegiatan Mahasiswa (UKM) yang aktif.</p>
+                        <ul class="checkmark-list">
+                            <li><i class="fa-solid fa-check"></i> UKM Olahraga, Seni &amp; Budaya</li>
+                            <li><i class="fa-solid fa-check"></i> Inkubator Bisnis &amp; Startup</li>
+                            <li><i class="fa-solid fa-check"></i> Lembaga Pers Mahasiswa (LPM)</li>
+                            <li><i class="fa-solid fa-check"></i> UKM Robotika &amp; Debat Bahasa</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News & Info Section -->
+    <section class="section-padding" id="news">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">Berita &amp; Kabar Terbaru</h2>
+                <div class="title-line"></div>
+                <p class="section-subtitle">Ikuti perkembangan mengenai dinamika kampus, publikasi riset, prestasi mahasiswa, dan info akademik terbaru.</p>
+            </div>
+
+            <div class="news-grid">
+                {{range .Articles}}
+                <!-- Dynamic News Card -->
+                <article class="news-card reveal">
+                    <div class="news-img-box">
+                        {{if .HeroImageURL}}
+                        <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}">
+                        {{else}}
+                        <img src="/assets/hero.jpg" alt="{{.Title}}">
+                        {{end}}
+                        <span class="news-category">{{.Category}}</span>
+                    </div>
+                    <div class="news-body">
+                        <span class="news-date"><i class="fa-regular fa-calendar"></i> {{formatDate .PublishedAt}}</span>
+                        <h3 class="news-title"><a href="{{articleURL . $.Settings}}">{{.Title}}</a></h3>
+                        <p class="news-excerpt">{{.Excerpt}}</p>
+                        <a href="{{articleURL . $.Settings}}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                {{else}}
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                    <i class="fa-regular fa-folder-open" style="font-size: 40px; margin-bottom: 12px; display: block; color: var(--primary-light);"></i>
+                    Belum ada artikel berita yang dipublikasikan.
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </section>
+
+    <!-- Split Announcements & Agenda Section -->
+    <section class="section-padding bg-light" id="announcements">
+        <div class="container split-grid">
+            
+            <!-- Left Side: Announcements -->
+            <div class="announcements-box reveal">
+                <div class="box-header">
+                    <h2 class="box-title"><i class="fa-solid fa-bullhorn text-accent"></i> Pengumuman Terbaru</h2>
+                    <a href="/artikel" class="view-all">Lihat Semua</a>
+                </div>
+                <div class="title-line-left"></div>
+
+                <div class="announcement-list">
+                    {{$hasAnnounce := false}}
+                    {{range .Articles}}
+                        {{if eq .Category "Pengumuman"}}
+                            {{$hasAnnounce = true}}
+                            <div class="announce-item">
+                                <div class="announce-date-badge">
+                                    <span class="badge-day">{{.CreatedAt.Format "02"}}</span>
+                                    <span class="badge-month">{{.CreatedAt.Format "Jan"}}</span>
+                                </div>
+                                <div class="announce-info">
+                                    <h3 class="announce-title"><a href="{{articleURL . $.Settings}}">{{.Title}}</a></h3>
+                                    <p class="announce-desc">{{.Excerpt}}</p>
+                                </div>
+                            </div>
+                        {{end}}
+                    {{end}}
+
+                    {{if not $hasAnnounce}}
+                        <!-- Static Fallback Items -->
+                        <div class="announce-item">
+                            <div class="announce-date-badge">
+                                <span class="badge-day">28</span>
+                                <span class="badge-month">Jan</span>
+                            </div>
+                            <div class="announce-info">
+                                <h3 class="announce-title"><a href="#">Jadwal Ujian Tengah Semester Genap Tahun Ajaran 2025/2026</a></h3>
+                                <p class="announce-desc">UTS Genap akan diselenggarakan mulai tanggal 10 hingga 18 Februari 2026 secara offline. Silakan unduh jadwal lengkapnya di sini.</p>
+                            </div>
+                        </div>
+                        <div class="announce-item">
+                            <div class="announce-date-badge">
+                                <span class="badge-day">15</span>
+                                <span class="badge-month">Jan</span>
+                            </div>
+                            <div class="announce-info">
+                                <h3 class="announce-title"><a href="#">Penerimaan Mahasiswa Baru (PMB) Gelombang 2 Resmi Dibuka</a></h3>
+                                <p class="announce-desc">Kesempatan bagi calon mahasiswa berprestasi untuk bergabung bersama keluarga besar Universitas Yapis Papua. Pendaftaran dibuka hingga 15 Maret 2026.</p>
+                            </div>
+                        </div>
+                        <div class="announce-item">
+                            <div class="announce-date-badge">
+                                <span class="badge-day">05</span>
+                                <span class="badge-month">Jan</span>
+                            </div>
+                            <div class="announce-info">
+                                <h3 class="announce-title"><a href="#">Pengumuman Pemenang Hibah Program Kreativitas Mahasiswa (PKM)</a></h3>
+                                <p class="announce-desc">Selamat kepada tim PKM mahasiswa kami yang berhasil lolos pendanaan tingkat nasional dari Kementerian Pendidikan dan Kebudayaan Riset Teknologi.</p>
+                            </div>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- Right Side: Agenda -->
+            <div class="agenda-box reveal">
+                <div class="box-header">
+                    <h2 class="box-title"><i class="fa-solid fa-calendar-days text-primary"></i> Agenda Kegiatan</h2>
+                    <a href="/artikel" class="view-all">Lihat Semua</a>
+                </div>
+                <div class="title-line-left"></div>
+
+                <div class="agenda-list">
+                    {{$hasAgenda := false}}
+                    {{range .Articles}}
+                        {{if eq .Category "Agenda"}}
+                            {{$hasAgenda = true}}
+                            <div class="agenda-item">
+                                <div class="agenda-date">
+                                    <span class="agenda-month">{{.CreatedAt.Format "JAN"}}</span>
+                                    <span class="agenda-day">{{.CreatedAt.Format "02"}}</span>
+                                </div>
+                                <div class="agenda-info">
+                                    <h3 class="agenda-title"><a href="{{articleURL . $.Settings}}">{{.Title}}</a></h3>
+                                    <span class="agenda-time"><i class="fa-regular fa-clock"></i> 08:00 - Selesai</span>
+                                    <span class="agenda-loc"><i class="fa-solid fa-location-dot"></i> Aula Utama</span>
+                                </div>
+                            </div>
+                        {{end}}
+                    {{end}}
+
+                    {{if not $hasAgenda}}
+                        <!-- Static Fallback Items -->
+                        <div class="agenda-item">
+                            <div class="agenda-date">
+                                <span class="agenda-month">FEB</span>
+                                <span class="agenda-day">05</span>
+                            </div>
+                            <div class="agenda-info">
+                                <h3 class="agenda-title">Rapat Koordinasi Senat Universitas</h3>
+                                <span class="agenda-time"><i class="fa-regular fa-clock"></i> 09:00 - 12:00 WIB</span>
+                                <span class="agenda-loc"><i class="fa-solid fa-location-dot"></i> Aula Utama Lantai 2</span>
+                            </div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-date">
+                                <span class="agenda-month">FEB</span>
+                                <span class="agenda-day">12</span>
+                            </div>
+                            <div class="agenda-info">
+                                <h3 class="agenda-title">Seminar Parenting: Mendidik Karakter Mandiri Anak</h3>
+                                <span class="agenda-time"><i class="fa-regular fa-clock"></i> 08:30 - 11:30 WIB</span>
+                                <span class="agenda-loc"><i class="fa-solid fa-location-dot"></i> Zoom Meeting (Online)</span>
+                            </div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-date">
+                                <span class="agenda-month">MAR</span>
+                                <span class="agenda-day">01</span>
+                            </div>
+                            <div class="agenda-info">
+                                <h3 class="agenda-title">Studi Tur dan Field Trip Edukasi Angkatan 7</h3>
+                                <span class="agenda-time"><i class="fa-regular fa-clock"></i> 07:00 - Selesai</span>
+                                <span class="agenda-loc"><i class="fa-solid fa-location-dot"></i> Museum Geologi & Planetarium</span>
+                            </div>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Gallery Showcase Section -->
+    <section class="section-padding" id="gallery">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">Galeri Foto Kegiatan</h2>
+                <div class="title-line"></div>
+                <p class="section-subtitle">Potret dokumentasi aktivitas akademik, seminar nasional, kegiatan riset, dan sarana prasarana kampus kami.</p>
+            </div>
+
+            <div class="gallery-showcase-grid">
+                <div class="showcase-item reveal">
+                    <img src="/assets/hero.jpg" alt="Lab Komputer">
+                    <div class="showcase-overlay">
+                        <span>Laboratorium Komputer</span>
+                    </div>
+                </div>
+                <div class="showcase-item reveal">
+                    <img src="/assets/scout.jpg" alt="Upacara">
+                    <div class="showcase-overlay">
+                        <span>Upacara Wisuda Sarjana</span>
+                    </div>
+                </div>
+                <div class="showcase-item reveal">
+                    <img src="/assets/academic.jpg" alt="Perpustakaan">
+                    <div class="showcase-overlay">
+                        <span>Ruang Perpustakaan</span>
+                    </div>
+                </div>
+                <div class="showcase-item reveal">
+                    <img src="/assets/extracurricular.jpg" alt="Prestasi">
+                    <div class="showcase-overlay">
+                        <span>Penghargaan Mahasiswa Berprestasi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer" id="contact">
+        <div class="container footer-grid">
+            <div class="footer-info-col">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo footer-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 20px;">
+                    <img src="{{if index .Settings "site_favicon"}}{{index .Settings "site_favicon"}}{{else}}/assets/logo.jpg{{end}}" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;">
+                    <span class="logo-bold">{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Jatim Aktual{{ end }}</span>
+                </a>
+                <p class="footer-about-text">
+                    {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}Yayasan Pendidikan Islam (YAPIS) berkomitmen tinggi menyelenggarakan pelayanan pendidikan jenjang menengah yang bermutu, inklusif, dan berkarakter akhlak mulia.{{ end }}
+                </p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="footer-links-col">
+                <h3 class="footer-title">Navigasi Cepat</h3>
+                <div class="footer-links-list">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a>
+                    {{range .Categories}}
+                    {{if .ShowInNavbar}}
+                    <a href="/artikel?category={{urlquery .Name}}">{{.Name}}</a>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- Footer Contact -->
+            <div class="footer-contact-col">
+                <h3 class="footer-title">Hubungi Kami</h3>
+                <ul class="contact-info-list">
+                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Jl. Pendidikan Islam No. 7, Kec. Jayapura Utara, Kota Jayapura, Papua</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-phone"></i>
+                        <span>(0967) 532107 / 0812-3456-7890</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>info@abankyapis.ac.id</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container footer-bottom-content">
+                <p>&copy; 2026 Yayasan Pendidikan Islam (YAPIS). Hak Cipta Dilindungi Undang-Undang.</p>
+                <p>Designed with <i class="fa-solid fa-heart text-accent"></i> for Yapis Community</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu & Scroll Reveal Script -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                } else {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Scroll Reveal logic
+        document.addEventListener("DOMContentLoaded", function() {
+            const reveals = document.querySelectorAll(".reveal");
+            function checkReveal() {
+                const triggerBottom = window.innerHeight * 0.95;
+                reveals.forEach(reveal => {
+                    const revealTop = reveal.getBoundingClientRect().top;
+                    if (revealTop < triggerBottom) {
+                        reveal.classList.add("active");
+                    }
+                });
+            }
+            window.addEventListener("scroll", checkReveal);
+            checkReveal(); // Trigger once on load
+        });
+    </script>
+</body>
+</html>

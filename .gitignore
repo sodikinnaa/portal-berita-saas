@@ -1,0 +1,11 @@
+/portal
+*.exe
+*.log
+.tmp
+.env
+.env.local
+data/*.json
+uploads/*
+references/*
+proxies_input.txt
+porta-berita-app

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>API Keys - NewsPaper CMS</title>
+        <link rel="stylesheet" href="/assets/global.css" />
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Integrasi</p>
+                        <h1>API Keys</h1>
+                        <p>
+                            Buat dan kelola kredensial API untuk integrasi
+                            artikel, upload media, dan external media URL.
+                        </p>
+                    </div>
+                    <a
+                        class="btn btn-secondary"
+                        href="/dashboard/api-keys/docs"
+                        >API Docs</a
+                    >
+                </header>
+                {{if .Error}}
+                <div class="alert alert-error">{{.Error}}</div>
+                {{end}} {{if .NewSecret}}
+                <div class="alert alert-success secret-box">
+                    <span
+                        >API key baru berhasil dibuat. Key ini juga akan
+                        tersedia di daftar API key untuk dicopy ulang.</span
+                    >
+                    <div class="copy-field">
+                        <input
+                            type="text"
+                            value="{{.NewSecret}}"
+                            readonly
+                            aria-label="API key baru"
+                        />
+                        <button
+                            class="btn btn-secondary copy-button"
+                            type="button"
+                            data-copy-value="{{.NewSecret}}"
+                        >
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                {{end}}
+                <div class="settings-grid">
+                    <section class="dashboard-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow">Generate</p>
+                                <h2>Buat API Key</h2>
+                            </div>
+                        </div>
+                        <div class="settings-panel-body">
+                            <form
+                                class="form-grid"
+                                method="post"
+                                action="/dashboard/api-keys"
+                            >
+                                <div class="form-field">
+                                    <label for="api-key-name">Nama key</label>
+                                    <input
+                                        id="api-key-name"
+                                        name="name"
+                                        placeholder="Partner Import"
+                                        required
+                                    />
+                                    <small
+                                        >Minimal 3 karakter, gunakan nama yang
+                                        mudah dilacak.</small
+                                    >
+                                </div>
+                                <div class="form-field">
+                                    <label>Scopes</label>
+                                    <div class="form-options">
+                                        <label class="check-card">
+                                            <input
+                                                type="checkbox"
+                                                name="scopes"
+                                                value="articles:read"
+                                            />
+                                            <span
+                                                ><strong>articles:read</strong><span>Boleh membaca daftar artikel melalui API.</span></span
+                                            >
+                                        </label>
+                                        <label class="check-card">
+                                            <input
+                                                type="checkbox"
+                                                name="scopes"
+                                                value="articles:create"
+                                            />
+                                            <span
+                                                ><strong>articles:create</strong
+                                                ><span
+                                                    >Boleh membuat artikel
+                                                    melalui API.</span
+                                                ></span
+                                            >
+                                        </label>
+                                        <label class="check-card">
+                                            <input
+                                                type="checkbox"
+                                                name="scopes"
+                                                value="media:upload"
+                                            />
+                                            <span
+                                                ><strong>media:upload</strong
+                                                ><span
+                                                    >Boleh upload file media
+                                                    melalui API.</span
+                                                ></span
+                                            >
+                                        </label>
+                                        <label class="check-card">
+                                            <input
+                                                type="checkbox"
+                                                name="scopes"
+                                                value="media:url"
+                                            />
+                                            <span
+                                                ><strong>media:url</strong
+                                                ><span
+                                                    >Boleh mendaftarkan URL
+                                                    media eksternal.</span
+                                                ></span
+                                            >
+                                        </label>
+                                    </div>
+                                    <small
+                                        >Pilih minimal satu scope sesuai
+                                        kebutuhan integrasi.</small
+                                    >
+                                </div>
+                                <div class="form-field">
+                                    <label for="api-key-expires"
+                                        >Expired at</label
+                                    >
+                                    <input
+                                        id="api-key-expires"
+                                        type="date"
+                                        name="expires_at"
+                                    />
+                                    <small
+                                        >Kosongkan jika key tidak memiliki
+                                        tanggal kedaluwarsa.</small
+                                    >
+                                </div>
+                                <button class="btn btn-primary" type="submit">
+                                    Generate API Key
+                                </button>
+                            </form>
+                        </div>
+                    </section>
+                    <section class="dashboard-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow">Daftar</p>
+                                <h2>{{len .Keys}} API key</h2>
+                            </div>
+                        </div>
+                        <div class="entity-list">
+                            {{range .Keys}}
+                            <article class="entity-card">
+                                <div class="entity-card-main">
+                                    <div class="entity-title-row">
+                                        <h3>{{.Name}}</h3>
+                                        {{if eq .Status "active"}}<span
+                                            class="badge badge-success"
+                                            >{{.Status}}</span
+                                        >{{else}}<span
+                                            class="badge badge-danger"
+                                            >{{.Status}}</span
+                                        >{{end}}
+                                    </div>
+                                    <div class="entity-meta-row">
+                                        <p>{{.KeyPrefix}}...</p>
+                                        <p>{{range .Scopes}}{{.}} {{end}}</p>
+                                    </div>
+                                    {{if .Secret}}
+                                    <div class="copy-field">
+                                        <input
+                                            type="text"
+                                            value="{{.Secret}}"
+                                            readonly
+                                            aria-label="API key {{.Name}}"
+                                        />
+                                        <button
+                                            class="btn btn-secondary copy-button"
+                                            type="button"
+                                            data-copy-value="{{.Secret}}"
+                                        >
+                                            Copy Key
+                                        </button>
+                                    </div>
+                                    {{else}}
+                                    <p class="secret-unavailable">
+                                        Secret belum tersimpan untuk key lama
+                                        ini. Buat key baru agar bisa dicopy
+                                        ulang.
+                                    </p>
+                                    {{end}}
+                                </div>
+                                <div class="entity-actions table-actions">
+                                    <form
+                                        method="post"
+                                        action="/dashboard/api-keys/{{.ID}}/revoke"
+                                    >
+                                        <button type="submit">Revoke</button>
+                                    </form>
+                                    <form
+                                        method="post"
+                                        action="/dashboard/api-keys/{{.ID}}/delete"
+                                        onsubmit="return confirm('Hapus API key {{.Name}} secara permanen?')"
+                                    >
+                                        <button
+                                            class="btn-danger"
+                                            type="submit"
+                                        >
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </article>
+                            {{else}}
+                            <div class="empty-state table-empty">
+                                <h3>Belum ada API key</h3>
+                                <p>
+                                    Buat key pertama untuk integrasi eksternal.
+                                </p>
+                            </div>
+                            {{end}}
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+        <script>
+            document
+                .querySelectorAll(".copy-button")
+                .forEach(function (button) {
+                    button.addEventListener("click", async function () {
+                        var value =
+                            button.getAttribute("data-copy-value") || "";
+                        if (!value) return;
+                        try {
+                            await navigator.clipboard.writeText(value);
+                        } catch (error) {
+                            var input =
+                                button.parentElement.querySelector("input");
+                            if (input) {
+                                input.focus();
+                                input.select();
+                                document.execCommand("copy");
+                            }
+                        }
+                        var original = button.textContent;
+                        button.textContent = "Copied";
+                        button.classList.add("is-copied");
+                        window.setTimeout(function () {
+                            button.textContent = original;
+                            button.classList.remove("is-copied");
+                        }, 1600);
+                    });
+                });
+        </script>
+    </body>
+</html>

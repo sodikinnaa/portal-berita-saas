@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - NewsPaper CMS</title>
+<link rel="stylesheet" href="/assets/global.css">
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">Account Settings</p>
+<h1>Profile Saya</h1>
+<p>Kelola identitas publik, kontak, dan foto profil agar tampilan author konsisten di CMS.</p>
+</div>
+</header>
+{{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
+{{if .Success}}<div class="alert alert-success">{{.Success}}</div>{{end}}
+<div class="settings-grid">
+<section class="dashboard-panel">
+<div class="panel-heading"><div><p class="eyebrow">Informasi Dasar</p><h2>Detail Profile</h2></div></div>
+<div class="settings-panel-body">
+<form class="form-grid" method="post" action="/dashboard/profile">
+<div class="form-field">
+<label for="profile-name">Nama</label>
+<input id="profile-name" name="name" value="{{.Profile.Name}}" placeholder="Nama lengkap" required>
+<small>Minimal 2 karakter.</small>
+</div>
+<div class="form-field">
+<label for="profile-bio">Bio</label>
+<textarea id="profile-bio" name="bio" rows="5" placeholder="Ceritakan ringkas tentang peran atau spesialisasi Anda">{{.Profile.Bio}}</textarea>
+<small>Maksimal 500 karakter.</small>
+</div>
+<div class="form-grid two">
+<div class="form-field">
+<label for="profile-phone">Phone</label>
+<input id="profile-phone" name="phone" value="{{.Profile.Phone}}" placeholder="+62...">
+</div>
+<div class="form-field">
+<label for="profile-avatar-url">Avatar URL</label>
+<input id="profile-avatar-url" name="avatar_url" value="{{.Profile.AvatarURL}}" placeholder="https://...">
+</div>
+</div>
+<button class="btn btn-primary" type="submit">Simpan Profile</button>
+</form>
+</div>
+</section>
+<aside class="settings-stack">
+<section class="dashboard-panel">
+<div class="panel-heading"><div><p class="eyebrow">Avatar</p><h2>Foto Profil</h2></div></div>
+<div class="settings-panel-body settings-stack">
+<div class="settings-card soft avatar-preview">
+{{if .Profile.AvatarURL}}
+<img class="avatar-image" src="{{.Profile.AvatarURL}}" alt="Avatar {{.Profile.Name}}">
+{{else}}
+<div class="avatar-placeholder" aria-hidden="true">USER</div>
+{{end}}
+<div>
+<h3>{{.Profile.Name}}</h3>
+<p>{{.User.Role}} · Gunakan gambar rasio persegi agar hasil crop avatar rapi.</p>
+</div>
+</div>
+<form class="form-grid" method="post" action="/dashboard/profile/avatar" enctype="multipart/form-data">
+<div class="form-field">
+<label for="avatar-file">Upload foto</label>
+<div class="file-input-card"><input id="avatar-file" type="file" name="file" accept="image/*" required></div>
+<small>Maksimal 3MB, format gambar.</small>
+</div>
+<button class="btn btn-primary" type="submit">Upload Avatar</button>
+</form>
+</div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</body>
+</html>

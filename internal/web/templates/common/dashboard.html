@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard - NewsPaper CMS</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header">
+                    <div>
+                        <p class="eyebrow">Dashboard CMS</p>
+                        <h1>Halo, {{.User.Name}}</h1>
+                        <p>
+                            Pantau status artikel dan lanjutkan pekerjaan
+                            editorial dari satu tempat.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <a class="btn btn-secondary" href="/dashboard/articles/wizard">
+                            ✨ Wizard Rewrite
+                        </a>
+                        <a class="btn btn-primary" href="/dashboard/articles/new">
+                            Tulis Artikel
+                        </a>
+                    </div>
+                </header>
+
+                {{if index .Settings "custom_domain"}}
+                <div class="dashboard-panel" style="margin-bottom: 24px;">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Gateway &amp; Security</p>
+                            <h2>Status Domain Kustom &amp; SSL</h2>
+                        </div>
+                        <a href="/dashboard/custom-domain">Kelola Domain</a>
+                    </div>
+                    <div style="padding: 20px; overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-color, #e5e5e5); text-align: left;">
+                                    <th style="padding: 10px 8px; font-weight: 600;">Nama Domain</th>
+                                    <th style="padding: 10px 8px; font-weight: 600;">Status DNS</th>
+                                    <th style="padding: 10px 8px; font-weight: 600;">Keamanan SSL</th>
+                                    <th style="padding: 10px 8px; font-weight: 600;">Masa Aktif SSL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px 8px;">
+                                        <a href="http://{{index .Settings "custom_domain"}}" target="_blank" style="font-weight: 600; color: #319795; text-decoration: none;">
+                                            🌐 {{index .Settings "custom_domain"}}
+                                        </a>
+                                    </td>
+                                    <td style="padding: 12px 8px;">
+                                        <span style="padding: 4px 8px; background: rgba(49, 151, 149, 0.1); color: #319795; border: 1px solid rgba(49, 151, 149, 0.2); border-radius: 4px; font-size: 11px; font-weight: 700;">🟢 Terhubung ke IP</span>
+                                    </td>
+                                    <td style="padding: 12px 8px;">
+                                        <span style="padding: 4px 8px; background: rgba(49, 151, 149, 0.1); color: #319795; border: 1px solid rgba(49, 151, 149, 0.2); border-radius: 4px; font-size: 11px; font-weight: 700;">🟢 Aktif (Let's Encrypt)</span>
+                                    </td>
+                                    <td style="padding: 12px 8px; color: var(--text-secondary);">
+                                        90 Hari (Auto-Renew)
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {{else}}
+                <div style="margin-bottom: 24px; padding: 16px; background: rgba(0, 0, 0, 0.02); border: 1px dashed var(--border-color, #ddd); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">💡</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 13px; font-weight: 600; color: var(--text-primary);">Tingkatkan Kredibilitas Website Anda</h3>
+                            <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-secondary);">Hubungkan nama domain pribadi (custom domain) Anda sendiri agar terlihat lebih profesional.</p>
+                        </div>
+                    </div>
+                    <a href="/dashboard/custom-domain" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; border: 1px solid var(--border-color, #ccc); border-radius: 4px; text-decoration: none; display: inline-block; background: white;">Hubungkan Domain</a>
+                </div>
+                {{end}}
+
+                <section class="stat-grid" aria-label="Statistik artikel">
+                    <article class="stat-card">
+                        <span>Hari Ini (Today)</span>
+                        <strong style="color: #2271b1;">+{{.Today}}</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Total Artikel</span>
+                        <strong>{{.Total}}</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Draft</span>
+                        <strong>{{.Draft}}</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Review</span>
+                        <strong>{{.Submitted}}</strong>
+                    </article>
+                    <article class="stat-card accent">
+                        <span>Published</span>
+                        <strong>{{.Published}}</strong>
+                    </article>
+                </section>
+
+                <!-- Article Growth Interactive Chart -->
+                <section class="dashboard-panel" style="margin-bottom: 24px;">
+                    <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <p class="eyebrow">Visualisasi Data</p>
+                            <h2>Grafik Pertambahan Artikel</h2>
+                        </div>
+                        <div>
+                            <select id="chart-range" onchange="loadChartData()" style="padding: 8px 16px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; background: white; font-size: 13px; font-weight: 600; color: var(--text-primary); cursor: pointer; outline: none; transition: border-color 0.2s ease;">
+                                <option value="day" selected>📅 Hari (7 Hari Terakhir)</option>
+                                <option value="week">📅 Minggu (8 Minggu Terakhir)</option>
+                                <option value="month">📅 Bulan (12 Bulan Terakhir)</option>
+                                <option value="year">📅 Tahun (5 Tahun Terakhir)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="padding: 10px 20px 20px 20px; position: relative; height: 300px;">
+                        <canvas id="article-growth-chart"></canvas>
+                    </div>
+                </section>
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Aktivitas</p>
+                            <h2>Artikel terbaru</h2>
+                        </div>
+                        <a href="/dashboard/articles">Kelola semua</a>
+                    </div>
+
+                    <div class="article-stack">
+                        {{range .Recent}}
+                        <article class="article-row-card">
+                            <div>
+                                <span class="status-pill status-{{.Status}}">
+                                    {{statusLabel .Status}}
+                                </span>
+                                <h3>
+                                    <a href="/dashboard/articles/{{.ID}}/edit">
+                                        {{.Title}}
+                                    </a>
+                                </h3>
+                                <p>{{.Excerpt}}</p>
+                            </div>
+                            <a class="text-link" href="/artikel/{{.Slug}}"
+                                >Preview</a
+                            >
+                        </article>
+                        {{else}}
+                        <div class="empty-state">
+                            <h3>Belum ada artikel</h3>
+                            <p>
+                                Mulai tulis artikel pertama untuk mengisi
+                                dashboard.
+                            </p>
+                            <a
+                                class="btn btn-primary"
+                                href="/dashboard/articles/new"
+                            >
+                                Buat Artikel
+                            </a>
+                        </div>
+                        {{end}}
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            let articleChart = null;
+
+            function loadChartData() {
+                const range = document.getElementById('chart-range').value;
+                fetch('/api/dashboard/stats/chart?range=' + range)
+                    .then(response => response.json())
+                    .then(data => {
+                        const labels = data.map(pt => pt.label);
+                        const values = data.map(pt => pt.value);
+
+                        const ctx = document.getElementById('article-growth-chart').getContext('2d');
+                        
+                        if (articleChart) {
+                            articleChart.destroy();
+                        }
+
+                        // Smooth red gradient to transparent
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, 'rgba(230, 51, 41, 0.25)');
+                        gradient.addColorStop(1, 'rgba(230, 51, 41, 0.0)');
+
+                        articleChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Artikel Baru',
+                                    data: values,
+                                    borderColor: '#e63329',
+                                    borderWidth: 3,
+                                    backgroundColor: gradient,
+                                    fill: true,
+                                    tension: 0.35,
+                                    pointBackgroundColor: '#e63329',
+                                    pointBorderColor: '#ffffff',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        backgroundColor: '#1e293b',
+                                        titleColor: '#ffffff',
+                                        bodyColor: '#ffffff',
+                                        padding: 12,
+                                        cornerRadius: 8,
+                                        displayColors: false,
+                                        callbacks: {
+                                            label: function(context) {
+                                                return `📝 ${context.parsed.y} Artikel`;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1,
+                                            color: '#64748b',
+                                            font: {
+                                                family: 'Source Sans 3',
+                                                size: 11
+                                            }
+                                        },
+                                        grid: {
+                                            color: 'rgba(229, 231, 235, 0.5)'
+                                        }
+                                    },
+                                    x: {
+                                        ticks: {
+                                            color: '#64748b',
+                                            font: {
+                                                family: 'Source Sans 3',
+                                                size: 11
+                                            }
+                                        },
+                                        grid: {
+                                            display: false
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch(err => console.error('Gagal memuat data chart:', err));
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                loadChartData();
+            });
+        </script>
+    </body>
+</html>

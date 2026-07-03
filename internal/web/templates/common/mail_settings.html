@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pengaturan Email - NewsPaper CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/global.css" />
+    <style>
+        .dns-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+        .dns-input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+        .btn-copy {
+            padding: 8px 12px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-copy:hover {
+            background: #2d3748;
+        }
+        .data-table th, .data-table td {
+            vertical-align: middle;
+        }
+        .status-badge {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .status-waiting { color: #dd6b20; }
+        .status-ok { color: #38a169; }
+        .status-failed { color: #e53e3e; }
+        
+        .settings-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        @media (max-width: 1024px) {
+            .settings-grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-field {
+            margin-bottom: 16px;
+        }
+        .form-field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .form-field input, .form-field select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .form-field small {
+            display: block;
+            margin-top: 6px;
+            color: var(--text-secondary, #718096);
+            font-size: 12px;
+        }
+        .code-container {
+            position: relative;
+            background: #1a202c;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        .code-block {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: #a0aec0;
+            white-space: pre;
+            overflow-x: auto;
+            display: block;
+            line-height: 1.6;
+        }
+        .btn-copy-code {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-copy-code:hover {
+            background: white;
+            color: #1a202c;
+        }
+        ol.instruction-list {
+            margin: 0;
+            padding-left: 20px;
+            color: #4a5568;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+        ol.instruction-list li {
+            margin-bottom: 8px;
+        }
+        .badge-cf {
+            background: #fdf2e9;
+            color: #d97706;
+            border: 1px solid #fbd38d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">Email &amp; Komunikasi</p>
+                    <h1>⚙️ Pengaturan Email</h1>
+                    <p>Kelola konfigurasi surat keluar (outbound SMTP/API) dan verifikasi DNS domain kustom Anda.</p>
+                </div>
+            </header>
+            
+            {{if .Success}}
+            <div class="alert alert-success" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px;">
+                {{.Success}}
+            </div>
+            {{end}}
+
+            {{if .Error}}
+            <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">
+                {{.Error}}
+            </div>
+            {{end}}
+
+            <div class="settings-grid-layout">
+                <!-- PANEL KIRI: KONFIGURASI OUTBOUND EMAIL -->
+                <div class="dashboard-panel" style="padding: 24px;">
+                    <h3 style="margin-bottom: 20px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px;">📤 Pengaturan Outbound (Kirim Email)</h3>
+                    
+                    <form method="post" action="/dashboard/mail/settings">
+                        <div class="form-field">
+                            <label for="mail_provider">Metode / Provider Pengiriman</label>
+                            <select name="mail_provider" id="mail_provider" onchange="toggleMailProviderFields()">
+                                <option value="direct" {{if or (eq (index .Settings "mail_provider") "direct") (not (index .Settings "mail_provider"))}}selected{{end}}>Kirim Langsung (Direct MX Send - Tanpa Pihak Ketiga)</option>
+                                <option value="smtp" {{if eq (index .Settings "mail_provider") "smtp"}}selected{{end}}>Relay SMTP Tradisional</option>
+                                <option value="mailgun" {{if eq (index .Settings "mail_provider") "mailgun"}}selected{{end}}>Mailgun API</option>
+                                <option value="resend" {{if eq (index .Settings "mail_provider") "resend"}}selected{{end}}>Resend API</option>
+                                <option value="cloudflare" {{if eq (index .Settings "mail_provider") "cloudflare"}}selected{{end}}>Cloudflare Email Worker (Inbound Webhook)</option>
+                            </select>
+                        </div>
+
+                        <!-- SMTP Config Group -->
+                        <div id="smtp-config-group" style="margin-top: 15px;">
+                            <div class="form-field">
+                                <label for="mail_smtp_host">SMTP Host</label>
+                                <input type="text" id="mail_smtp_host" name="mail_smtp_host" value="{{index .Settings "mail_smtp_host"}}" placeholder="smtp.mailgun.org">
+                            </div>
+                            <div class="form-field">
+                                <label for="mail_smtp_port">SMTP Port</label>
+                                <input type="text" id="mail_smtp_port" name="mail_smtp_port" value="{{index .Settings "mail_smtp_port"}}" placeholder="587">
+                            </div>
+                            <div class="form-field">
+                                <label for="mail_smtp_user">SMTP Username</label>
+                                <input type="text" id="mail_smtp_user" name="mail_smtp_user" value="{{index .Settings "mail_smtp_user"}}" placeholder="postmaster@yourdomain.com">
+                            </div>
+                            <div class="form-field">
+                                <label for="mail_smtp_pass">SMTP Password</label>
+                                <input type="password" id="mail_smtp_pass" name="mail_smtp_pass" value="{{index .Settings "mail_smtp_pass"}}" placeholder="••••••••••••••••">
+                            </div>
+                            <div class="form-field">
+                                <label for="mail_smtp_encryption">Protokol Keamanan</label>
+                                <select name="mail_smtp_encryption" id="mail_smtp_encryption">
+                                    <option value="tls" {{if eq (index .Settings "mail_smtp_encryption") "tls"}}selected{{end}}>STARTTLS (Port 587/25)</option>
+                                    <option value="ssl" {{if eq (index .Settings "mail_smtp_encryption") "ssl"}}selected{{end}}>SSL/TLS (Port 465)</option>
+                                    <option value="none" {{if eq (index .Settings "mail_smtp_encryption") "none"}}selected{{end}}>Tanpa Enkripsi (Plain)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- API Config Group -->
+                        <div id="api-config-group" style="margin-top: 15px; display: none;">
+                            <div class="form-field">
+                                <label for="mail_api_key">API Key Provider</label>
+                                <input type="password" id="mail_api_key" name="mail_api_key" value="{{index .Settings "mail_api_key"}}" placeholder="re_123456789... atau key-...">
+                            </div>
+                        </div>
+
+                        <!-- Cloudflare Worker Automation Group -->
+                        <div id="cloudflare-config-group" style="margin-top: 15px; display: none;">
+                            <input type="hidden" id="cloudflare_account_id" name="cloudflare_account_id" value="{{index .Settings "cloudflare_account_id"}}">
+                            <div class="form-field">
+                                <label for="cloudflare_api_token">Cloudflare API Token</label>
+                                <input type="password" id="cloudflare_api_token" name="cloudflare_api_token" value="{{index .Settings "cloudflare_api_token"}}" placeholder="cfat_..." autocomplete="new-password">
+                                <small style="color: var(--text-secondary);">Masukkan API Token Cloudflare Anda (pastikan memiliki izin akses Worker: Edit).</small>
+                            </div>
+                            <div class="form-field" style="display: flex; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 15px;">
+                                <input type="checkbox" id="cloudflare_enable_proxy" name="cloudflare_enable_proxy" value="true" {{if eq (index .Settings "cloudflare_enable_proxy") "true"}}checked{{end}} style="width: auto; margin: 0; cursor: pointer;">
+                                <label for="cloudflare_enable_proxy" style="font-weight: 500; cursor: pointer; color: var(--text-primary); margin-bottom: 0;">Aktifkan Proxy untuk Koneksi Cloudflare</label>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <button type="button" class="btn" id="btn-deploy-cf-worker" onclick="deployCloudflareWorker()" style="width: 100%; background: #2f855a; color: white; padding: 10px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none;">Deploy Worker Otomatis 🚀</button>
+                            </div>
+                            
+                            <!-- Worker Deploy log console -->
+                            <div class="carbon-wrapper" id="cf-deploy-console" style="margin-top: 15px; display: none;">
+                                <div class="ios-console">
+                                    <div class="ios-console-header">
+                                        <div class="ios-console-dots">
+                                            <div class="ios-console-dot red"></div>
+                                            <div class="ios-console-dot yellow"></div>
+                                            <div class="ios-console-dot green"></div>
+                                        </div>
+                                        <div class="ios-console-title">worker_deploy.log</div>
+                                    </div>
+                                    <div class="ios-console-body" id="deploy-log-display" style="height: 120px; background: #1a202c; color: #a0aec0; padding: 12px; font-family: monospace; overflow-y: auto; border-radius: 0 0 8px 8px; line-height: 1.5; font-size: 12px;">
+                                        <div class="log-line" style="color: #718096; font-style: italic;">[SYS] Klik "Deploy Worker Otomatis" untuk memulai...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px;">
+                            <button type="submit" class="btn btn-primary" style="background: #e63329; color: white; width: 100%; padding: 12px;">Simpan Konfigurasi Outbound</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- PANEL KANAN: KONDISIONAL (DNS STANDARD ATAU CLOUDFLARE WORKER) -->
+                <div class="dashboard-panel" style="padding: 24px;">
+                    <!-- Sub-panel A: Standard DNS Verification -->
+                    <div id="inbound-standard-panel">
+                        <h3 style="margin-bottom: 20px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px;">📥 Verifikasi DNS &amp; Inbound (Terima Email)</h3>
+                        
+                        <p style="color: #666; margin-bottom: 20px; font-size: 13.5px; line-height: 1.6;">
+                            Tambahkan record DNS di bawah ini ke penyedia domain Anda (Cloudflare, Niagahoster, dll) untuk memverifikasi domain <strong>{{if index .Settings "custom_domain"}}{{index .Settings "custom_domain"}}{{else}}domain-anda.com{{end}}</strong>:
+                        </p>
+                        
+                        <table class="data-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #eee;">
+                                    <th style="text-align: left; padding: 10px; font-size: 13px;">Tipe</th>
+                                    <th style="text-align: left; padding: 10px; font-size: 13px;">Host / Name</th>
+                                    <th style="text-align: left; padding: 10px; font-size: 13px;">Value / Target</th>
+                                    <th style="text-align: center; padding: 10px; font-size: 13px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td style="padding: 10px; font-weight: 600;">TXT (SPF)</td>
+                                    <td style="padding: 10px; font-family: monospace;">@</td>
+                                    <td style="padding: 10px;">
+                                        <div class="dns-input-group">
+                                            <input type="text" id="dns-spf" value="v=spf1 include:newspaper-mail.com ~all" readonly>
+                                            <button class="btn-copy" onclick="copyToClipboard('dns-spf')">Salin</button>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <span id="status-spf" class="status-badge status-waiting">⏳ Menunggu</span>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td style="padding: 10px; font-weight: 600;">TXT (DKIM)</td>
+                                    <td style="padding: 10px; font-family: monospace;">newspaper._domainkey</td>
+                                    <td style="padding: 10px;">
+                                        <div class="dns-input-group">
+                                            <input type="text" id="dns-dkim" value="v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCr6Z9sB8rYqT9z3W4x9h8v7c6b5a4z3y2x1w0v9u8t7s6r5q4p3o2n1m0l9k8j7h6g5f4e3d2c1b0a" readonly>
+                                            <button class="btn-copy" onclick="copyToClipboard('dns-dkim')">Salin</button>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <span id="status-dkim" class="status-badge status-waiting">⏳ Menunggu</span>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #edf2f7;">
+                                    <td style="padding: 10px; font-weight: 600;">MX</td>
+                                    <td style="padding: 10px; font-family: monospace;">@</td>
+                                    <td style="padding: 10px;">
+                                        <div class="dns-input-group">
+                                            <input type="text" id="dns-mx" value="mail.newspaper-mail.com" readonly>
+                                            <button class="btn-copy" onclick="copyToClipboard('dns-mx')">Salin</button>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <span id="status-mx" class="status-badge status-waiting">⏳ Menunggu</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <button class="btn btn-secondary" id="btn-verify-dns" onclick="runDNSCheck()" style="width: 100%; background: #1a202c; color: white;">Verifikasi DNS Sekarang</button>
+                        </div>
+
+                        <!-- Console logs -->
+                        <div class="carbon-wrapper">
+                            <div class="ios-console">
+                                <div class="ios-console-header">
+                                    <div class="ios-console-dots">
+                                        <div class="ios-console-dot red"></div>
+                                        <div class="ios-console-dot yellow"></div>
+                                        <div class="ios-console-dot green"></div>
+                                    </div>
+                                    <div class="ios-console-title">dns_check.log</div>
+                                </div>
+                                <div class="ios-console-body" id="log-display" style="height: 150px; background: #1a202c; color: #a0aec0; padding: 12px; font-family: monospace; overflow-y: auto; border-radius: 0 0 8px 8px; line-height: 1.5; font-size: 12.5px;">
+                                    <div class="log-line" style="color: #718096; font-style: italic;">[SYS] Klik "Verifikasi DNS Sekarang" untuk memulai lookup DNS...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-panel B: Cloudflare Worker Setup -->
+                    <div id="inbound-cloudflare-panel" style="display: none;">
+                        <h3 style="margin-bottom: 10px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <span>☁️</span> Cloudflare Email Worker Setup
+                        </h3>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 13px; line-height: 1.6;">
+                            Gunakan Cloudflare Worker untuk otomatis menangkap semua email masuk (Catch-All) dan meneruskannya ke dashboard Anda.
+                        </p>
+                        
+                        <div style="font-size: 13.5px; font-weight: 700; color: #2d3748; margin-bottom: 6px;">1. Salin Kode Cloudflare Worker:</div>
+                        <div class="code-container">
+                            <button class="btn-copy-code" id="btn-copy-worker" onclick="copyWorkerCode()">Salin Kode Worker 📋</button>
+                            <code class="code-block" id="worker-code" style="max-height: 180px; overflow-y: auto;">import PostalMime from "https://esm.sh/postal-mime@2.2.0";
+
+export default {
+  async email(message, env, ctx) {
+    const rawEmail = new Response(message.raw);
+    const arrayBuffer = await rawEmail.arrayBuffer();
+    const parser = new PostalMime();
+    const email = await parser.parse(arrayBuffer);
+
+    let fromString = message.from;
+    if (email.from && email.from.name) {
+      fromString = `${email.from.name} <${email.from.address}>`;
+    } else if (email.from && email.from.address) {
+      fromString = email.from.address;
+    }
+
+    const payload = {
+      type: "email.received",
+      data: {
+        from: fromString,
+        to: [message.to],
+        subject: email.subject || "(No Subject)",
+        html: email.html || "",
+        text: email.text || ""
+      }
+    };
+
+    const webhookUrl = "{{.WebhookURL}}";
+
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.error("Webhook error: " + err.message);
+    }
+  }
+}</code>
+                        </div>
+
+                        <div style="font-size: 13.5px; font-weight: 700; color: #2d3748; margin-top: 20px; margin-bottom: 8px;">2. Petunjuk Pemasangan di Cloudflare:</div>
+                        <ol class="instruction-list" style="font-size: 12.5px; line-height: 1.6; padding-left: 18px;">
+                            <li>Buka <a href="https://dash.cloudflare.com" target="_blank" style="color: #e63329; font-weight: 600; text-decoration: underline;">Cloudflare</a> Anda.</li>
+                            <li>Pilih menu <b>Workers &amp; Pages</b> -> klik <b>Create Application</b> -> <b>Create Worker</b> -> klik <b>Deploy</b>.</li>
+                            <li>Klik <b>Edit Code</b>, paste kode di atas ke editor, lalu klik <b>Save and Deploy</b>.</li>
+                            <li>Buka domain Anda -> <b>Email Routing</b> -> tab <b>Email Workers</b> -> klik <b>Add Destination Worker</b> -> pilih Worker Anda.</li>
+                            <li>Buka tab <b>Routes</b> -> di bagian <b>Catch-all address</b>, klik <b>Edit</b> -> ubah Destination menjadi <b>Send to Worker</b> -> pilih Worker Anda -> Klik <b>Save</b>.</li>
+                        </ol>
+
+                        <!-- Card: API Key Status & Permissions Check -->
+                        <div id="cf-token-status-card" style="margin-top: 24px; padding: 18px; background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; display: none; color: #a0aec0; font-family: monospace; font-size: 12.5px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                            <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 13.5px; color: #e2e8f0; display: flex; align-items: center; gap: 6px; font-weight: bold; border-bottom: 1px solid #2d3748; padding-bottom: 6px;">
+                                <span>🔑</span> Status Hak Akses API Token
+                            </h4>
+                            <div style="line-height: 1.6;">
+                                <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+                                    <span>Status Token:</span>
+                                    <span id="cf-token-status" style="font-weight: bold; color: #a0aec0;">Mengecek...</span>
+                                </div>
+                                <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+                                    <span>Izin Workers Scripts:</span>
+                                    <span id="cf-token-workers" style="font-weight: bold; color: #a0aec0;">Mengecek...</span>
+                                </div>
+                                <div style="margin-bottom: 8px; border-top: 1px dashed #2d3748; padding-top: 8px;">
+                                    <span style="color: #718096; display: block; margin-bottom: 4px;">Akun Terhubung:</span>
+                                    <ul id="cf-token-accounts" style="margin: 0; padding-left: 18px; list-style-type: square;">
+                                        <li>Mengecek...</li>
+                                    </ul>
+                                </div>
+                                <div style="margin-bottom: 4px; border-top: 1px dashed #2d3748; padding-top: 8px;">
+                                    <span style="color: #718096; display: block; margin-bottom: 4px;">Domain (Zones) Terhubung:</span>
+                                    <ul id="cf-token-zones" style="margin: 0; padding-left: 18px; list-style-type: square;">
+                                        <li>Mengecek...</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function copyToClipboard(id) {
+            var copyText = document.getElementById(id);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("Record DNS disalin!");
+        }
+
+        function toggleMailProviderFields() {
+            var mailProvider = document.getElementById('mail_provider');
+            if (!mailProvider) return;
+            var provider = mailProvider.value;
+            var smtpGroup = document.getElementById('smtp-config-group');
+            var apiGroup = document.getElementById('api-config-group');
+            var cloudflareGroup = document.getElementById('cloudflare-config-group');
+            var inboundStandard = document.getElementById('inbound-standard-panel');
+            var inboundCloudflare = document.getElementById('inbound-cloudflare-panel');
+
+            if (provider === 'cloudflare') {
+                smtpGroup.style.display = 'none';
+                apiGroup.style.display = 'none';
+                if (cloudflareGroup) cloudflareGroup.style.display = 'block';
+                if (inboundStandard) inboundStandard.style.display = 'none';
+                if (inboundCloudflare) inboundCloudflare.style.display = 'block';
+                if (typeof checkCloudflareTokenStatus === 'function') {
+                    checkCloudflareTokenStatus();
+                }
+            } else if (provider === 'smtp') {
+                smtpGroup.style.display = 'block';
+                apiGroup.style.display = 'none';
+                if (cloudflareGroup) cloudflareGroup.style.display = 'none';
+                if (inboundStandard) inboundStandard.style.display = 'block';
+                if (inboundCloudflare) inboundCloudflare.style.display = 'none';
+            } else if (provider === 'direct') {
+                smtpGroup.style.display = 'none';
+                apiGroup.style.display = 'none';
+                if (cloudflareGroup) cloudflareGroup.style.display = 'none';
+                if (inboundStandard) inboundStandard.style.display = 'block';
+                if (inboundCloudflare) inboundCloudflare.style.display = 'none';
+            } else {
+                smtpGroup.style.display = 'none';
+                apiGroup.style.display = 'block';
+                if (cloudflareGroup) cloudflareGroup.style.display = 'none';
+                if (inboundStandard) inboundStandard.style.display = 'block';
+                if (inboundCloudflare) inboundCloudflare.style.display = 'none';
+            }
+        }
+
+        function copyWorkerCode() {
+            var codeBlock = document.getElementById('worker-code');
+            var btn = document.getElementById('btn-copy-worker');
+            
+            navigator.clipboard.writeText(codeBlock.innerText).then(function() {
+                btn.innerText = 'Tersalin! ✔️';
+                btn.style.background = '#48bb78';
+                btn.style.color = 'white';
+                
+                setTimeout(function() {
+                    btn.innerText = 'Salin Kode Worker 📋';
+                    btn.style.background = 'rgba(255, 255, 255, 0.1)';
+                    btn.style.color = '#e2e8f0';
+                }, 2000);
+            }).catch(function(err) {
+                alert('Gagal menyalin kode: ' + err);
+            });
+        }
+
+        function runDNSCheck() {
+            var btn = document.getElementById('btn-verify-dns');
+            var logDisplay = document.getElementById('log-display');
+
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerText = 'Mengecek...';
+
+            logDisplay.innerHTML = '<div class="log-line" style="color: #4a90e2;">[SYS] Mengirim permintaan verifikasi DNS ke server Go...</div>';
+
+            fetch('/dashboard/mail/verify-dns', {
+                method: 'POST'
+            })
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(data) {
+                logDisplay.innerHTML = ''; // clear
+
+                if (data.logs) {
+                    data.logs.forEach(function(line) {
+                        var div = document.createElement('div');
+                        div.className = 'log-line';
+                        if (line.includes('[SPF] Sukses') || line.includes('[DKIM] Sukses') || line.includes('[MX] Sukses')) {
+                            div.style.color = '#48bb78';
+                        } else if (line.includes('Error:')) {
+                            div.style.color = '#f56565';
+                        } else if (line.includes('Warning:')) {
+                            div.style.color = '#ed8936';
+                        } else {
+                            div.style.color = '#a0aec0';
+                        }
+                        div.innerText = line;
+                        logDisplay.appendChild(div);
+                    });
+                }
+
+                updateStatusBadge('status-spf', data.spf_ok);
+                updateStatusBadge('status-dkim', data.dkim_ok);
+                updateStatusBadge('status-mx', data.mx_ok);
+
+                logDisplay.scrollTop = logDisplay.scrollHeight;
+            })
+            .catch(function(err) {
+                var div = document.createElement('div');
+                div.className = 'log-line';
+                div.style.color = '#f56565';
+                div.innerText = '[SYSTEM ERROR] Gagal melakukan request ke backend: ' + err.message;
+                logDisplay.appendChild(div);
+            })
+            .finally(function() {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerText = 'Verifikasi DNS Sekarang';
+            });
+        }
+
+        function deployCloudflareWorker() {
+            var btn = document.getElementById('btn-deploy-cf-worker');
+            var consoleDiv = document.getElementById('cf-deploy-console');
+            var logDisplay = document.getElementById('deploy-log-display');
+            var accountInput = document.getElementById('cloudflare_account_id');
+            var tokenInput = document.getElementById('cloudflare_api_token');
+
+            if (!tokenInput.value.trim()) {
+                alert("API Token Cloudflare wajib diisi untuk setup otomatis lek!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerText = 'Men-deploy...';
+            consoleDiv.style.display = 'block';
+            logDisplay.innerHTML = '<div class="log-line" style="color: #4a90e2;">[SYS] Memulai deployment otomatis ke Cloudflare...</div>';
+
+            var proxyInput = document.getElementById('cloudflare_enable_proxy');
+            var formData = new FormData();
+            formData.append('cf_account_id', accountInput.value.trim());
+            formData.append('cf_api_token', tokenInput.value.trim());
+            formData.append('cloudflare_enable_proxy', proxyInput && proxyInput.checked ? 'true' : 'false');
+
+            fetch('/dashboard/mail/cloudflare/deploy-worker', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(data) {
+                logDisplay.innerHTML = '';
+                if (data.logs) {
+                    data.logs.forEach(function(line) {
+                        var div = document.createElement('div');
+                        div.className = 'log-line';
+                        if (line.includes('[SUKSES]')) {
+                            div.style.color = '#48bb78';
+                        } else if (line.includes('[ERROR]')) {
+                            div.style.color = '#f56565';
+                        } else {
+                            div.style.color = '#a0aec0';
+                        }
+                        div.innerText = line;
+                        logDisplay.appendChild(div);
+                    });
+                }
+                logDisplay.scrollTop = logDisplay.scrollHeight;
+            })
+            .catch(function(err) {
+                var div = document.createElement('div');
+                div.className = 'log-line';
+                div.style.color = '#f56565';
+                div.innerText = '[SYSTEM ERROR] Gagal menghubungi server Go: ' + err.message;
+                logDisplay.appendChild(div);
+            })
+            .finally(function() {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerText = 'Deploy Worker Otomatis 🚀';
+            });
+        }
+
+        function checkCloudflareTokenStatus() {
+            var mailProvider = document.getElementById('mail_provider');
+            if (!mailProvider || mailProvider.value !== 'cloudflare') return;
+
+            var card = document.getElementById('cf-token-status-card');
+            if (!card) return;
+
+            var tokenInput = document.getElementById('cloudflare_api_token');
+            var tokenVal = tokenInput ? tokenInput.value.trim() : '';
+
+            if (!tokenVal) {
+                card.style.display = 'none';
+                return;
+            }
+
+            card.style.display = 'block';
+            document.getElementById('cf-token-status').innerText = 'Mengecek...';
+            document.getElementById('cf-token-status').style.color = '#a0aec0';
+            document.getElementById('cf-token-workers').innerText = 'Mengecek...';
+            document.getElementById('cf-token-workers').style.color = '#a0aec0';
+            document.getElementById('cf-token-accounts').innerHTML = '<li>Mengecek...</li>';
+            document.getElementById('cf-token-zones').innerHTML = '<li>Mengecek...</li>';
+
+            var proxyInput = document.getElementById('cloudflare_enable_proxy');
+            var enableProxy = proxyInput && proxyInput.checked ? 'true' : 'false';
+
+            fetch('/dashboard/mail/cloudflare/verify-token?token=' + encodeURIComponent(tokenVal) + '&enable_proxy=' + enableProxy)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (!data.configured) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                var statusSpan = document.getElementById('cf-token-status');
+                if (data.valid) {
+                    statusSpan.innerText = '✅ ' + data.status;
+                    statusSpan.style.color = '#48bb78';
+                } else {
+                    statusSpan.innerText = '❌ ' + data.status;
+                    statusSpan.style.color = '#f56565';
+                    document.getElementById('cf-token-workers').innerText = 'Tidak Punya Akses';
+                    document.getElementById('cf-token-workers').style.color = '#f56565';
+                    document.getElementById('cf-token-accounts').innerHTML = '<li style="color: #f56565;">Token tidak valid / expired</li>';
+                    document.getElementById('cf-token-zones').innerHTML = '<li style="color: #f56565;">Token tidak valid / expired</li>';
+                    return;
+                }
+
+                var workersSpan = document.getElementById('cf-token-workers');
+                workersSpan.innerText = data.workers;
+                if (data.workers_ok) {
+                    workersSpan.style.color = '#48bb78';
+                } else {
+                    workersSpan.style.color = '#f56565';
+                }
+
+                var accList = document.getElementById('cf-token-accounts');
+                accList.innerHTML = '';
+                if (data.accounts && data.accounts.length > 0) {
+                    data.accounts.forEach(function(acc) {
+                        var li = document.createElement('li');
+                        li.innerText = acc;
+                        accList.appendChild(li);
+                    });
+                } else {
+                    accList.innerHTML = '<li style="color: #ed8936;">Tidak ada akun terhubung</li>';
+                }
+
+                var zoneList = document.getElementById('cf-token-zones');
+                zoneList.innerHTML = '';
+                if (data.zones && data.zones.length > 0) {
+                    data.zones.forEach(function(zone) {
+                        var li = document.createElement('li');
+                        li.innerText = zone;
+                        zoneList.appendChild(li);
+                    });
+                } else {
+                    zoneList.innerHTML = '<li style="color: #ed8936;">Tidak ada domain terhubung</li>';
+                }
+            })
+            .catch(function(err) {
+                document.getElementById('cf-token-status').innerText = 'Error: ' + err.message;
+                document.getElementById('cf-token-status').style.color = '#f56565';
+            });
+        }
+
+        function updateStatusBadge(elementId, isOk) {
+            var badge = document.getElementById(elementId);
+            if (!badge) return;
+
+            if (isOk) {
+                badge.className = 'status-badge status-ok';
+                badge.innerText = '✅ Terverifikasi';
+            } else {
+                badge.className = 'status-badge status-failed';
+                badge.innerText = '❌ Belum Terdeteksi';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            toggleMailProviderFields();
+            checkCloudflareTokenStatus();
+
+            var tokenInput = document.getElementById('cloudflare_api_token');
+            if (tokenInput) {
+                tokenInput.addEventListener('change', checkCloudflareTokenStatus);
+            }
+
+            var proxyInput = document.getElementById('cloudflare_enable_proxy');
+            if (proxyInput) {
+                proxyInput.addEventListener('change', checkCloudflareTokenStatus);
+            }
+        });
+    </script>
+</body>
+</html>

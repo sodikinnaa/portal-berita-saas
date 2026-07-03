@@ -1,0 +1,1574 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pengaturan Situs - NewsPaper CMS</title>
+        <link rel="stylesheet" href="/assets/global.css" />
+        <style>
+            .settings-tabs {
+                display: flex;
+                gap: 6px;
+                border-bottom: 1px solid var(--border-color, #e5e5e5);
+                margin-bottom: 24px;
+                padding-bottom: 4px;
+                overflow-x: auto;
+                scrollbar-width: none; /* Firefox */
+            }
+            .settings-tabs::-webkit-scrollbar {
+                display: none; /* Chrome/Safari */
+            }
+            .tab-btn {
+                padding: 10px 16px;
+                border: none;
+                background: transparent;
+                color: var(--text-secondary, #718096);
+                font-weight: 600;
+                font-size: 14px;
+                cursor: pointer;
+                border-bottom: 2px solid transparent;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                white-space: nowrap;
+            }
+            .tab-btn:hover {
+                color: #e63329;
+            }
+            .tab-btn.active {
+                color: #e63329;
+                border-bottom-color: #e63329;
+            }
+            .form-field input, .form-field textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid var(--border-color, #ddd);
+                border-radius: 6px;
+                box-sizing: border-box;
+                margin-top: 6px;
+                transition: border-color 0.2s;
+            }
+            .form-field input:focus, .form-field textarea:focus {
+                border-color: #e63329;
+                outline: none;
+            }
+            .form-field label {
+                font-weight: 600;
+                color: var(--text-primary);
+                font-size: 14px;
+            }
+            .form-field small {
+                display: block;
+                margin-top: 6px;
+                color: var(--text-secondary, #718096);
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            .social-input-row {
+                display: grid;
+                grid-template-columns: 1fr 140px;
+                gap: 16px;
+                align-items: start;
+            }
+            @media (max-width: 600px) {
+                .social-input-row {
+                    grid-template-columns: 1fr;
+                    gap: 8px;
+                }
+            }
+            .info-card-sidebar {
+                border-left: 4px solid #e63329;
+            }
+            
+            /* WordPress Classic Editor Styles */
+            .subsubsub a {
+                color: #0073aa;
+                text-decoration: none;
+                transition: color 0.1s ease-in-out;
+            }
+            .subsubsub a:hover {
+                color: #00a0d2;
+            }
+            .subsubsub a.active {
+                color: #000;
+                font-weight: 700;
+            }
+            .wp-editor-layout {
+                display: flex;
+                gap: 20px;
+                margin-top: 15px;
+                align-items: flex-start;
+            }
+            .wp-editor-main {
+                flex: 1;
+                min-width: 0;
+            }
+            .wp-editor-sidebar {
+                width: 280px;
+                flex-shrink: 0;
+            }
+            @media (max-width: 900px) {
+                .wp-editor-layout {
+                    flex-direction: column;
+                }
+                .wp-editor-sidebar {
+                    width: 100%;
+                }
+            }
+            .wp-title-input {
+                font-size: 1.7em;
+                padding: 11px 10px;
+                line-height: 1.4;
+                height: auto;
+                width: 100%;
+                margin: 0 0 15px 0;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
+                border-radius: 4px;
+                font-weight: 500;
+                box-sizing: border-box;
+            }
+            .wp-title-input:focus {
+                border-color: #5b9dd9;
+                box-shadow: 0 0 2px rgba(30,140,190,.8);
+                outline: none;
+            }
+            .btn-wp-media {
+                background: #f7f7f7;
+                border: 1px solid #ccc;
+                color: #555;
+                padding: 4px 12px;
+                font-size: 12px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .btn-wp-media:hover {
+                background: #fafafa;
+                border-color: #999;
+                color: #222;
+            }
+            .wp-editor-tabs {
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: -1px;
+                position: relative;
+                z-index: 1;
+            }
+            .wp-tab-btn {
+                background: #ececec;
+                border: 1px solid #ccc;
+                border-bottom: none;
+                border-radius: 4px 4px 0 0;
+                padding: 5px 12px;
+                font-size: 12px;
+                color: #888;
+                cursor: pointer;
+            }
+            .wp-tab-btn.active {
+                background: #fff;
+                border: 1px solid #ccc;
+                border-bottom: 1px solid #fff;
+                color: #333;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            .wp-editor-toolbar {
+                background: #f5f5f5;
+                border: 1px solid #ccc;
+                border-bottom: none;
+                padding: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            .wp-quicktag-btn {
+                background: #f7f7f7;
+                border: 1px solid #ccc;
+                color: #555;
+                padding: 3px 8px;
+                font-size: 12px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-family: monospace;
+                font-weight: 600;
+            }
+            .wp-quicktag-btn:hover {
+                background: #fafafa;
+                border-color: #999;
+                color: #222;
+            }
+            .wp-editor-textarea {
+                width: 100%;
+                min-height: 480px;
+                font-family: Consolas, Monaco, monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                padding: 12px;
+                border: 1px solid #ccc;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
+                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
+                box-sizing: border-box;
+                background: #fff;
+                color: #333;
+                resize: vertical;
+            }
+            .wp-editor-textarea:focus {
+                border-color: #5b9dd9;
+                box-shadow: 0 0 2px rgba(30,140,190,.8);
+                outline: none;
+            }
+            .postbox {
+                background: #fff;
+                border: 1px solid #ccd0d4;
+                box-shadow: 0 1px 1px rgba(0,0,0,.04);
+                margin-bottom: 20px;
+                border-radius: 4px;
+            }
+            .postbox-header {
+                border-bottom: 1px solid #ccd0d4;
+                padding: 8px 12px;
+                margin: 0;
+                font-size: 14px;
+                font-weight: 600;
+                background: #f7f7f7;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                color: #23282d;
+            }
+            .postbox-content {
+                padding: 12px;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #333;
+            }
+            .btn-wp-update {
+                background: #007cba;
+                border-color: #007cba;
+                color: #fff;
+                text-decoration: none;
+                text-shadow: none;
+                display: inline-block;
+                font-size: 13px;
+                line-height: 2.15;
+                height: 30px;
+                margin: 0;
+                padding: 0 12px;
+                cursor: pointer;
+                border-width: 1px;
+                border-style: solid;
+                border-radius: 3px;
+                white-space: nowrap;
+                box-sizing: border-box;
+                font-weight: 600;
+            }
+            .btn-wp-update:hover {
+                background: #008ec2;
+                border-color: #008ec2;
+                color: #fff;
+            }
+            .wp-editor-visual {
+                width: 100%;
+                min-height: 480px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+                padding: 15px;
+                border: 1px solid #ccc;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
+                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
+                box-sizing: border-box;
+                background: #fff;
+                color: #333;
+                resize: vertical;
+                overflow-y: auto;
+                outline: none;
+            }
+            .wp-editor-visual:focus {
+                border-color: #5b9dd9;
+                box-shadow: 0 0 2px rgba(30,140,190,.8);
+            }
+            .wp-editor-visual p {
+                margin: 0 0 1.5em 0;
+            }
+            .wp-editor-visual h3, .wp-editor-visual h4 {
+                margin: 1.5em 0 0.5em 0;
+                font-weight: 600;
+            }
+            .wp-editor-visual ul, .wp-editor-visual ol {
+                margin: 0 0 1.5em 20px;
+            }
+            .wp-editor-visual table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 1.5em;
+            }
+            .wp-editor-visual table td {
+                padding: 8px;
+                border: 1px solid #ddd;
+            }
+        </style>
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Konfigurasi</p>
+                        <h1>Pengaturan Situs</h1>
+                        <p>
+                            Kelola konfigurasi dasar, kecerdasan buatan, media sosial, halaman statis, dan ekspor-impor database.
+                        </p>
+                    </div>
+                </header>
+
+                {{if .Error}}
+                <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">{{.Error}}</div>
+                {{end}}
+                {{if .Success}}
+                <div class="alert alert-success" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px;">{{.Success}}</div>
+                {{end}}
+
+                <!-- Navigation Tabs -->
+                <div class="settings-tabs">
+                    <button type="button" class="tab-btn active" id="btn-tab-general" onclick="switchTab('general')">🌐 Umum</button>
+                    <button type="button" class="tab-btn" id="btn-tab-ai" onclick="switchTab('ai')">🤖 AI Assistant</button>
+                    <button type="button" class="tab-btn" id="btn-tab-social" onclick="switchTab('social')">📱 Media Sosial</button>
+                    <button type="button" class="tab-btn" id="btn-tab-pages" onclick="switchTab('pages')">📝 Halaman Statis</button>
+                    <button type="button" class="tab-btn" id="btn-tab-seo" onclick="switchTab('seo')">🔍 SEO, AdSense & Webmaster</button>
+                    <button type="button" class="tab-btn" id="btn-tab-backup" onclick="switchTab('backup')">💾 Backup & Restore</button>
+                </div>
+
+                <form method="post" action="/dashboard/settings" enctype="multipart/form-data">
+                    <input type="hidden" name="active_tab_input" id="active_tab_input" value="general" />
+
+                    <!-- TAB: GENERAL -->
+                    <div class="settings-grid tab-content" id="tab-general" style="display: grid;">
+                        <div class="settings-stack">
+                            <section class="dashboard-panel">
+                                <div class="panel-heading">
+                                    <div>
+                                        <p class="eyebrow">Identitas</p>
+                                        <h2>Informasi Situs Utama</h2>
+                                    </div>
+                                </div>
+                                <div class="settings-panel-body" style="padding: 20px;">
+                                    <div class="form-grid">
+                                        <div class="form-field">
+                                            <label for="site_title">Judul Situs (Site Title)</label>
+                                            <input
+                                                id="site_title"
+                                                name="site_title"
+                                                value="{{index .Settings "site_title"}}"
+                                                placeholder="NewsPaper"
+                                                required
+                                            />
+                                        </div>
+                                         <div class="form-field" style="margin-top: 16px;">
+                                             <label for="site_tagline">Tagline / Deskripsi Singkat</label>
+                                             <input
+                                                 id="site_tagline"
+                                                 name="site_tagline"
+                                                 value="{{index .Settings "site_tagline"}}"
+                                                 placeholder="Berita Terkini & Terpercaya"
+                                                 required
+                                             />
+                                         </div>
+                                         <div class="form-field" style="margin-top: 20px;">
+                                             <label for="favicon_file">Favicon Situs (Format Gambar)</label>
+                                             <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
+                                                 {{if index .Settings "site_favicon"}}
+                                                 <img src="{{index .Settings "site_favicon"}}" alt="Favicon" style="width: 36px; height: 36px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px; background: white;" id="favicon-preview" />
+                                                 {{else}}
+                                                 <div style="width: 36px; height: 36px; border: 1px dashed #cbd5e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #718096; background: #f7fafc;" id="favicon-preview">None</div>
+                                                 {{end}}
+                                                 <input type="file" id="favicon_file" name="favicon_file" accept="image/*" style="flex: 1; border: none; padding: 0; background: transparent;" />
+                                             </div>
+                                             <small>Pilih file gambar (PNG, ICO, atau JPG) untuk favicon situs. Ukuran ideal adalah 32x32 atau 48x48 piksel.</small>
+                                         </div>
+                                        <div class="form-field" style="margin-top: 20px;">
+                                            <label for="site_description">Deskripsi Lengkap / Tentang Portal (Footer)</label>
+                                            <textarea
+                                                id="site_description"
+                                                name="site_description"
+                                                rows="4"
+                                                placeholder="NewsPaper adalah portal berita terpercaya yang menyajikan informasi terkini, mendalam, dan berimbang..."
+                                                required
+                                            >{{index .Settings "site_description"}}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: white; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 6px;">Simpan Pengaturan Umum</button>
+                        </div>
+
+                        <aside class="settings-sidebar-info">
+                            <div class="settings-card info-card-sidebar" style="border-left-color: #e63329;">
+                                <h3 style="margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Informasi Umum</h3>
+                                <p style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); margin-bottom: 12px;">
+                                    Pengaturan identitas menentukan nama portal berita, favicon di tab peramban, slogan situs, serta deskripsi di bagian kaki halaman (footer).
+                                </p>
+                                <ul style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); padding-left: 18px; margin: 0;">
+                                    <li style="margin-bottom: 8px;"><strong>Judul Utama:</strong> Digunakan di logo teks, nama brand, dan meta title SEO.</li>
+                                    <li style="margin-bottom: 8px;"><strong>Landing Page:</strong> Gerbang selamat datang utama sebelum pengunjung masuk ke beranda berita.</li>
+                                    <li><strong>Favicon:</strong> Icon kecil situs di samping judul tab browser.</li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <!-- TAB: AI ASSISTANT -->
+                    <div class="settings-grid tab-content" id="tab-ai" style="display: none;">
+                        <div class="settings-stack">
+                            <section class="dashboard-panel">
+                                <div class="panel-heading">
+                                    <div>
+                                        <p class="eyebrow">Kecerdasan Buatan</p>
+                                        <h2>Kredensial OpenAI-Compatible / Gemini API</h2>
+                                    </div>
+                                </div>
+                                <div class="settings-panel-body" style="padding: 20px;">
+                                    <div class="form-grid">
+                                        <div class="form-field">
+                                            <label for="ai_api_key">API Key (Google Gemini / OpenAI / OpenRouter)</label>
+                                            <input
+                                                id="ai_api_key"
+                                                name="ai_api_key"
+                                                type="password"
+                                                value="{{index .Settings "ai_api_key"}}"
+                                                placeholder="sk-... atau AIzaSy..."
+                                            />
+                                            <small>Masukkan API Key dari penyedia layanan AI. Biarkan kosong jika ingin menggunakan mode Mock AI.</small>
+                                        </div>
+                                        <div class="form-field" style="margin-top: 16px;">
+                                            <label for="ai_endpoint_url">Endpoint URL (Base API Endpoint)</label>
+                                            <input
+                                                id="ai_endpoint_url"
+                                                name="ai_endpoint_url"
+                                                value="{{index .Settings "ai_endpoint_url"}}"
+                                                placeholder="Contoh: https://generativelanguage.googleapis.com/v1beta/models/ atau https://api.openai.com/v1"
+                                            />
+                                            <small>Jika menggunakan Gemini API langsung, isi: <code>https://generativelanguage.googleapis.com/v1beta/models/</code>. Jika OpenAI-compatible, isi base URL endpoint-nya.</small>
+                                        </div>
+                                        <div class="form-field" style="margin-top: 16px;">
+                                            <label for="ai_default_model">Model Chat Default</label>
+                                            <div style="display: flex; gap: 8px; margin-top: 6px; align-items: stretch;">
+                                                <input
+                                                    id="ai_default_model"
+                                                    name="ai_default_model"
+                                                    value="{{index .Settings "ai_default_model"}}"
+                                                    placeholder="gemini-2.5-flash, gpt-4o-mini, dll."
+                                                    style="flex: 1; margin-top: 0;"
+                                                />
+                                                <button id="btn_fetch_settings_models" class="btn btn-secondary" type="button" style="margin: 0; padding: 10px 16px; font-weight: 600; cursor: pointer; border-radius: 6px; white-space: nowrap;">Tarik Model 🔄</button>
+                                            </div>
+                                            <small>Pilih model default untuk asisten tulis. Klik "Tarik Model" untuk memvalidasi kunci dan memuat daftar model yang tersedia.</small>
+                                        </div>
+                                        <div class="form-field" style="margin-top: 20px; display: flex; align-items: center; gap: 8px;">
+                                            <input
+                                                id="ai_enable_proxy"
+                                                name="ai_enable_proxy"
+                                                type="checkbox"
+                                                {{if eq (index .Settings "ai_enable_proxy") "true"}}checked{{end}}
+                                                style="width: 18px; height: 18px; margin: 0; cursor: pointer;"
+                                            />
+                                            <label for="ai_enable_proxy" style="font-weight: 500; cursor: pointer; color: var(--text-primary);">Aktifkan Proxy untuk Koneksi AI</label>
+                                        </div>
+                                        <div style="margin-left: 26px; margin-top: 4px;">
+                                            <small style="color: var(--text-secondary); display: block;">Gunakan proxy acak yang aktif dari <strong>Proxy Rotator</strong> untuk semua panggilan API asisten AI (seperti rewrite artikel, generate caption Facebook, dll.). Berguna jika IP server Anda terblokir atau dibatasi kuota oleh penyedia AI.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <section class="dashboard-panel" style="margin-top: 10px;">
+                                <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                                    <div>
+                                        <p class="eyebrow">Aktivitas Koneksi</p>
+                                        <h2>Log Koneksi & Request AI</h2>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm" id="btn_clear_ai_logs" type="button" style="padding: 6px 12px; font-size: 12px; margin: 0; cursor: pointer; border-radius: 4px;">Hapus Log 🗑️</button>
+                                </div>
+                                <div class="settings-panel-body" style="padding: 10px;">
+                                    <div class="ios-logs-container" id="ai_logs_list" style="max-height: 400px; overflow-y: auto; padding: 4px; display: flex; flex-direction: column; gap: 12px;">
+                                        <div style="text-align: center; color: #8e8e93; padding: 30px; font-style: italic; font-size: 13px;">
+                                            Memuat log aktivitas...
+                                        </div>
+                                    </div>
+                                    <small style="display: block; margin-top: 12px; color: var(--text-secondary); margin-left: 4px;">Log di atas merekam status percobaan koneksi ke API Provider menggunakan sistem proxy rotator. Data diperbarui secara otomatis setiap beberapa detik.</small>
+                                </div>
+                            </section>
+
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: white; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 6px;">Simpan Pengaturan AI</button>
+                        </div>
+
+                        <aside class="settings-sidebar-info">
+                            <div class="settings-card info-card-sidebar" style="border-left-color: #3182ce;">
+                                <h3 style="margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Panduan Integrasi AI</h3>
+                                <p style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); margin-bottom: 12px;">
+                                    Asisten AI digunakan untuk menyusun ulang artikel (rewrite), menulis caption berita ke media sosial dalam bahasa Inggris, serta memoles ringkasan secara instan.
+                                </p>
+                                <ul style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); padding-left: 18px; margin: 0;">
+                                    <li style="margin-bottom: 8px;"><strong>Gemini API:</strong> Layanan bawaan dan terekomendasi untuk auto-post sosial.</li>
+                                    <li style="margin-bottom: 8px;"><strong>OpenRouter:</strong> Memberikan akses ke ratusan model alternatif (seperti Claude, Llama).</li>
+                                    <li><strong>Mock AI:</strong> Mode simulasi lokal gratis jika Anda belum memiliki API Key.</li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <!-- TAB: SOCIAL MEDIA -->
+                    <div class="settings-grid tab-content" id="tab-social" style="display: none;">
+                        <div class="settings-stack">
+                            <section class="dashboard-panel">
+                                <div class="panel-heading">
+                                    <div>
+                                        <p class="eyebrow">Widget Sosial</p>
+                                        <h2>Media Sosial (Tautan &amp; Pengikut)</h2>
+                                    </div>
+                                </div>
+                                <div class="settings-panel-body" style="padding: 20px;">
+                                    <div class="form-grid">
+                                        
+                                        <div class="social-input-row" style="margin-bottom: 16px;">
+                                            <div class="form-field">
+                                                <label for="social_facebook_url">Tautan Facebook URL</label>
+                                                <input
+                                                    id="social_facebook_url"
+                                                    name="social_facebook_url"
+                                                    value="{{index .Settings "social_facebook_url"}}"
+                                                    placeholder="https://facebook.com/username"
+                                                    required
+                                                />
+                                            </div>
+                                            <div class="form-field">
+                                                <label for="social_facebook_count">Jumlah Pengikut</label>
+                                                <input
+                                                    id="social_facebook_count"
+                                                    name="social_facebook_count"
+                                                    value="{{index .Settings "social_facebook_count"}}"
+                                                    placeholder="24.8K"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div class="social-input-row" style="margin-bottom: 16px;">
+                                            <div class="form-field">
+                                                <label for="social_twitter_url">Tautan Twitter / X URL</label>
+                                                <input
+                                                    id="social_twitter_url"
+                                                    name="social_twitter_url"
+                                                    value="{{index .Settings "social_twitter_url"}}"
+                                                    placeholder="https://twitter.com/username"
+                                                    required
+                                                />
+                                            </div>
+                                            <div class="form-field">
+                                                <label for="social_twitter_count">Jumlah Pengikut</label>
+                                                <input
+                                                    id="social_twitter_count"
+                                                    name="social_twitter_count"
+                                                    value="{{index .Settings "social_twitter_count"}}"
+                                                    placeholder="18.1K"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div class="social-input-row" style="margin-bottom: 16px;">
+                                            <div class="form-field">
+                                                <label for="social_youtube_url">Tautan YouTube Channel URL</label>
+                                                <input
+                                                    id="social_youtube_url"
+                                                    name="social_youtube_url"
+                                                    value="{{index .Settings "social_youtube_url"}}"
+                                                    placeholder="https://youtube.com/c/channelname"
+                                                    required
+                                                />
+                                            </div>
+                                            <div class="form-field">
+                                                <label for="social_youtube_count">Jumlah Subscribers</label>
+                                                <input
+                                                    id="social_youtube_count"
+                                                    name="social_youtube_count"
+                                                    value="{{index .Settings "social_youtube_count"}}"
+                                                    placeholder="103K"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div class="social-input-row">
+                                            <div class="form-field">
+                                                <label for="social_instagram_url">Tautan Instagram URL</label>
+                                                <input
+                                                    id="social_instagram_url"
+                                                    name="social_instagram_url"
+                                                    value="{{index .Settings "social_instagram_url"}}"
+                                                    placeholder="https://instagram.com/username"
+                                                    required
+                                                />
+                                            </div>
+                                            <div class="form-field">
+                                                <label for="social_instagram_count">Jumlah Pengikut</label>
+                                                <input
+                                                    id="social_instagram_count"
+                                                    name="social_instagram_count"
+                                                    value="{{index .Settings "social_instagram_count"}}"
+                                                    placeholder="56.4K"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: white; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 6px;">Simpan Pengaturan Sosial</button>
+                        </div>
+
+                        <aside class="settings-sidebar-info">
+                            <div class="settings-card info-card-sidebar" style="border-left-color: #3b5998;">
+                                <h3 style="margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Widget "Ikuti Kami"</h3>
+                                <p style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); margin-bottom: 12px;">
+                                    Konfigurasi tautan sosial dan statistik pengikut yang Anda tentukan di sini akan dirender pada blok widget khusus di bilah samping (sidebar) halaman publik pembaca.
+                                </p>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <!-- TAB: STATIC PAGES -->
+                    <!-- TAB: STATIC PAGES -->
+                    <div class="tab-content" id="tab-pages" style="display: none;">
+                        <ul class="subsubsub" style="list-style: none; padding: 0; margin: 0 0 20px 0; font-size: 13px; color: #666; display: flex; gap: 8px;">
+                            <li><a href="#" class="wp-page-tab active" data-target="wp-editor-about" style="text-decoration: none; color: #0073aa; font-weight: 600;">Tentang Kami</a> |</li>
+                            <li><a href="#" class="wp-page-tab" data-target="wp-editor-contact" style="text-decoration: none; color: #0073aa; font-weight: 600;">Hubungi Kami</a> |</li>
+                            <li><a href="#" class="wp-page-tab" data-target="wp-editor-privacy" style="text-decoration: none; color: #0073aa; font-weight: 600;">Kebijakan Privasi</a> |</li>
+                            <li><a href="#" class="wp-page-tab" data-target="wp-editor-ads" style="text-decoration: none; color: #0073aa; font-weight: 600;">Informasi Iklan</a></li>
+                        </ul>
+
+                        <!-- Editor: Tentang Kami -->
+                        <div class="wp-editor-layout wp-page-editor-container" id="wp-editor-about">
+                            <div class="wp-editor-main">
+                                <input type="text" class="wp-title-input" value="Tentang Kami" readonly />
+                                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                                    <button type="button" class="btn-wp-media" onclick="alert('Unggah media dari menu Media di sidebar kiri untuk mendapatkan link gambar Anda!')">📷 Add Media</button>
+                                </div>
+                                <div class="wp-editor-box">
+                                    <div class="wp-editor-tabs">
+                                        <button type="button" class="wp-tab-btn visual-tab" id="tab-visual-page_about_content" onclick="switchEditorMode('page_about_content', 'visual')">Visual</button>
+                                        <button type="button" class="wp-tab-btn text-tab active" id="tab-text-page_about_content" onclick="switchEditorMode('page_about_content', 'text')">Text</button>
+                                    </div>
+                                    
+                                    <!-- TEXT MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-text-page_about_content">
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'b')">b</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'i')">i</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'link')">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'blockquote')">b-quote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'del')">del</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'p')">p</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'h3')">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'h4')">h4</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'ul')">ul</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'ol')">ol</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'li')">li</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'code')">code</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_about_content', 'table')">table</button>
+                                    </div>
+
+                                    <!-- VISUAL MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-visual-page_about_content" style="display: none; background: #f1f1f1; border-color: #ccc;">
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'bold')" title="Bold"><b>B</b></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'italic')" title="Italic"><i>I</i></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'underline')" title="Underline"><u>U</u></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'strikeThrough')" title="Strikethrough"><del>abc</del></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'insertUnorderedList')" title="Bullet List">• List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'insertOrderedList')" title="Numbered List">1. List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'formatBlock', 'blockquote')" title="Blockquote">” Blockquote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'justifyLeft')" title="Align Left">Align Left</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'justifyCenter')" title="Align Center">Align Center</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'justifyRight')" title="Align Right">Align Right</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="var url = prompt('Masukkan URL link:', 'https://'); if(url) execVisualCmd('page_about_content', 'createLink', url);" title="Insert Link">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'unlink')" title="Remove Link">unlink</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'formatBlock', 'h3')" title="Heading 3">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_about_content', 'formatBlock', 'h4')" title="Heading 4">h4</button>
+                                    </div>
+                                    
+                                    <!-- TEXT EDITOR -->
+                                    <textarea
+                                        id="page_about_content"
+                                        name="page_about_content"
+                                        class="wp-editor-textarea"
+                                        placeholder="Tulis informasi profil dan struktur redaksi portal berita Anda di sini..."
+                                    >{{index .Settings "page_about_content"}}</textarea>
+
+                                    <!-- VISUAL EDITOR -->
+                                    <div id="visual-page_about_content" class="wp-editor-visual" contenteditable="true" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="wp-editor-sidebar">
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Publish</h3>
+                                    <div class="postbox-content">
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📌</span> Status: <strong>Published</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">👁️</span> Visibility: <strong>Public</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📅</span> Published on: <strong>immediately</strong>
+                                        </div>
+                                        <div style="background: #f7f7f7; padding: 10px 12px; border-top: 1px solid #ccd0d4; margin: 12px -12px -12px -12px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">
+                                            <a href="/tentang" target="_blank" style="color: #0073aa; text-decoration: underline;">View Page</a>
+                                            <button class="btn-wp-update" type="submit">Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Page Attributes</h3>
+                                    <div class="postbox-content">
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Template:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">Default Page Template</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Parent:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">(no parent)</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 0;"><strong>Order:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Editor: Hubungi Kami -->
+                        <div class="wp-editor-layout wp-page-editor-container" id="wp-editor-contact" style="display: none;">
+                            <div class="wp-editor-main">
+                                <input type="text" class="wp-title-input" value="Hubungi Kami" readonly />
+                                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                                    <button type="button" class="btn-wp-media" onclick="alert('Unggah media dari menu Media di sidebar kiri untuk mendapatkan link gambar Anda!')">📷 Add Media</button>
+                                </div>
+                                <div class="wp-editor-box">
+                                    <div class="wp-editor-tabs">
+                                        <button type="button" class="wp-tab-btn visual-tab" id="tab-visual-page_contact_content" onclick="switchEditorMode('page_contact_content', 'visual')">Visual</button>
+                                        <button type="button" class="wp-tab-btn text-tab active" id="tab-text-page_contact_content" onclick="switchEditorMode('page_contact_content', 'text')">Text</button>
+                                    </div>
+                                    
+                                    <!-- TEXT MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-text-page_contact_content">
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'b')">b</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'i')">i</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'link')">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'blockquote')">b-quote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'del')">del</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'p')">p</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'h3')">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'h4')">h4</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'ul')">ul</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'ol')">ol</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'li')">li</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'code')">code</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_contact_content', 'table')">table</button>
+                                    </div>
+
+                                    <!-- VISUAL MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-visual-page_contact_content" style="display: none; background: #f1f1f1; border-color: #ccc;">
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'bold')" title="Bold"><b>B</b></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'italic')" title="Italic"><i>I</i></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'underline')" title="Underline"><u>U</u></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'strikeThrough')" title="Strikethrough"><del>abc</del></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'insertUnorderedList')" title="Bullet List">• List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'insertOrderedList')" title="Numbered List">1. List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'formatBlock', 'blockquote')" title="Blockquote">” Blockquote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'justifyLeft')" title="Align Left">Align Left</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'justifyCenter')" title="Align Center">Align Center</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'justifyRight')" title="Align Right">Align Right</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="var url = prompt('Masukkan URL link:', 'https://'); if(url) execVisualCmd('page_contact_content', 'createLink', url);" title="Insert Link">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'unlink')" title="Remove Link">unlink</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'formatBlock', 'h3')" title="Heading 3">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_contact_content', 'formatBlock', 'h4')" title="Heading 4">h4</button>
+                                    </div>
+                                    
+                                    <!-- TEXT EDITOR -->
+                                    <textarea
+                                        id="page_contact_content"
+                                        name="page_contact_content"
+                                        class="wp-editor-textarea"
+                                        placeholder="Tulis alamat redaksi, email kontak, nomor telepon, atau instruksi kirim naskah..."
+                                    >{{index .Settings "page_contact_content"}}</textarea>
+
+                                    <!-- VISUAL EDITOR -->
+                                    <div id="visual-page_contact_content" class="wp-editor-visual" contenteditable="true" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="wp-editor-sidebar">
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Publish</h3>
+                                    <div class="postbox-content">
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📌</span> Status: <strong>Published</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">👁️</span> Visibility: <strong>Public</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📅</span> Published on: <strong>immediately</strong>
+                                        </div>
+                                        <div style="background: #f7f7f7; padding: 10px 12px; border-top: 1px solid #ccd0d4; margin: 12px -12px -12px -12px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">
+                                            <a href="/kontak" target="_blank" style="color: #0073aa; text-decoration: underline;">View Page</a>
+                                            <button class="btn-wp-update" type="submit">Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Page Attributes</h3>
+                                    <div class="postbox-content">
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Template:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">Default Page Template</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Parent:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">(no parent)</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 0;"><strong>Order:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Editor: Kebijakan Privasi -->
+                        <div class="wp-editor-layout wp-page-editor-container" id="wp-editor-privacy" style="display: none;">
+                            <div class="wp-editor-main">
+                                <input type="text" class="wp-title-input" value="Kebijakan Privasi" readonly />
+                                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                                    <button type="button" class="btn-wp-media" onclick="alert('Unggah media dari menu Media di sidebar kiri untuk mendapatkan link gambar Anda!')">📷 Add Media</button>
+                                </div>
+                                <div class="wp-editor-box">
+                                    <div class="wp-editor-tabs">
+                                        <button type="button" class="wp-tab-btn visual-tab" id="tab-visual-page_privacy_content" onclick="switchEditorMode('page_privacy_content', 'visual')">Visual</button>
+                                        <button type="button" class="wp-tab-btn text-tab active" id="tab-text-page_privacy_content" onclick="switchEditorMode('page_privacy_content', 'text')">Text</button>
+                                    </div>
+                                    
+                                    <!-- TEXT MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-text-page_privacy_content">
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'b')">b</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'i')">i</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'link')">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'blockquote')">b-quote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'del')">del</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'p')">p</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'h3')">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'h4')">h4</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'ul')">ul</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'ol')">ol</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'li')">li</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'code')">code</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_privacy_content', 'table')">table</button>
+                                    </div>
+
+                                    <!-- VISUAL MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-visual-page_privacy_content" style="display: none; background: #f1f1f1; border-color: #ccc;">
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'bold')" title="Bold"><b>B</b></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'italic')" title="Italic"><i>I</i></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'underline')" title="Underline"><u>U</u></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'strikeThrough')" title="Strikethrough"><del>abc</del></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'insertUnorderedList')" title="Bullet List">• List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'insertOrderedList')" title="Numbered List">1. List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'formatBlock', 'blockquote')" title="Blockquote">” Blockquote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'justifyLeft')" title="Align Left">Align Left</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'justifyCenter')" title="Align Center">Align Center</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'justifyRight')" title="Align Right">Align Right</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="var url = prompt('Masukkan URL link:', 'https://'); if(url) execVisualCmd('page_privacy_content', 'createLink', url);" title="Insert Link">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'unlink')" title="Remove Link">unlink</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'formatBlock', 'h3')" title="Heading 3">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_privacy_content', 'formatBlock', 'h4')" title="Heading 4">h4</button>
+                                    </div>
+                                    
+                                    <!-- TEXT EDITOR -->
+                                    <textarea
+                                        id="page_privacy_content"
+                                        name="page_privacy_content"
+                                        class="wp-editor-textarea"
+                                        placeholder="Tulis ketentuan dan kebijakan privasi perlindungan data pembaca..."
+                                    >{{index .Settings "page_privacy_content"}}</textarea>
+
+                                    <!-- VISUAL EDITOR -->
+                                    <div id="visual-page_privacy_content" class="wp-editor-visual" contenteditable="true" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="wp-editor-sidebar">
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Publish</h3>
+                                    <div class="postbox-content">
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📌</span> Status: <strong>Published</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">👁️</span> Visibility: <strong>Public</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📅</span> Published on: <strong>immediately</strong>
+                                        </div>
+                                        <div style="background: #f7f7f7; padding: 10px 12px; border-top: 1px solid #ccd0d4; margin: 12px -12px -12px -12px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">
+                                            <a href="/privasi" target="_blank" style="color: #0073aa; text-decoration: underline;">View Page</a>
+                                            <button class="btn-wp-update" type="submit">Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Page Attributes</h3>
+                                    <div class="postbox-content">
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Template:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">Default Page Template</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Parent:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">(no parent)</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 0;"><strong>Order:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Editor: Informasi Iklan -->
+                        <div class="wp-editor-layout wp-page-editor-container" id="wp-editor-ads" style="display: none;">
+                            <div class="wp-editor-main">
+                                <input type="text" class="wp-title-input" value="Informasi Iklan &amp; Rate Card" readonly />
+                                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                                    <button type="button" class="btn-wp-media" onclick="alert('Unggah media dari menu Media di sidebar kiri untuk mendapatkan link gambar Anda!')">📷 Add Media</button>
+                                </div>
+                                <div class="wp-editor-box">
+                                    <div class="wp-editor-tabs">
+                                        <button type="button" class="wp-tab-btn visual-tab" id="tab-visual-page_ads_content" onclick="switchEditorMode('page_ads_content', 'visual')">Visual</button>
+                                        <button type="button" class="wp-tab-btn text-tab active" id="tab-text-page_ads_content" onclick="switchEditorMode('page_ads_content', 'text')">Text</button>
+                                    </div>
+                                    
+                                    <!-- TEXT MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-text-page_ads_content">
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'b')">b</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'i')">i</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'link')">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'blockquote')">b-quote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'del')">del</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'p')">p</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'h3')">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'h4')">h4</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'ul')">ul</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'ol')">ol</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'li')">li</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'code')">code</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="insertTag('page_ads_content', 'table')">table</button>
+                                    </div>
+
+                                    <!-- VISUAL MODE TOOLBAR -->
+                                    <div class="wp-editor-toolbar" id="toolbar-visual-page_ads_content" style="display: none; background: #f1f1f1; border-color: #ccc;">
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'bold')" title="Bold"><b>B</b></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'italic')" title="Italic"><i>I</i></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'underline')" title="Underline"><u>U</u></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'strikeThrough')" title="Strikethrough"><del>abc</del></button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'insertUnorderedList')" title="Bullet List">• List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'insertOrderedList')" title="Numbered List">1. List</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'formatBlock', 'blockquote')" title="Blockquote">” Blockquote</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'justifyLeft')" title="Align Left">Align Left</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'justifyCenter')" title="Align Center">Align Center</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'justifyRight')" title="Align Right">Align Right</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="var url = prompt('Masukkan URL link:', 'https://'); if(url) execVisualCmd('page_ads_content', 'createLink', url);" title="Insert Link">link</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'unlink')" title="Remove Link">unlink</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'formatBlock', 'h3')" title="Heading 3">h3</button>
+                                        <button type="button" class="wp-quicktag-btn" onclick="execVisualCmd('page_ads_content', 'formatBlock', 'h4')" title="Heading 4">h4</button>
+                                    </div>
+                                    
+                                    <!-- TEXT EDITOR -->
+                                    <textarea
+                                        id="page_ads_content"
+                                        name="page_ads_content"
+                                        class="wp-editor-textarea"
+                                        placeholder="Tulis penawaran kerja sama periklanan, banner, rate card, advetorial, dan kontak marketing..."
+                                    >{{index .Settings "page_ads_content"}}</textarea>
+
+                                    <!-- VISUAL EDITOR -->
+                                    <div id="visual-page_ads_content" class="wp-editor-visual" contenteditable="true" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="wp-editor-sidebar">
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Publish</h3>
+                                    <div class="postbox-content">
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📌</span> Status: <strong>Published</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">👁️</span> Visibility: <strong>Public</strong>
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <span style="font-size: 14px;">📅</span> Published on: <strong>immediately</strong>
+                                        </div>
+                                        <div style="background: #f7f7f7; padding: 10px 12px; border-top: 1px solid #ccd0d4; margin: 12px -12px -12px -12px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">
+                                            <a href="/iklan" target="_blank" style="color: #0073aa; text-decoration: underline;">View Page</a>
+                                            <button class="btn-wp-update" type="submit">Update</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="postbox">
+                                    <h3 class="postbox-header">Page Attributes</h3>
+                                    <div class="postbox-content">
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Template:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">Default Page Template</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 8px;"><strong>Parent:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">(no parent)</span></p>
+                                        <p style="margin-top: 0; margin-bottom: 0;"><strong>Order:</strong><br/>
+                                        <span style="color: #666; font-size: 12px;">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: SEO & WEBMASTER -->
+                    <div class="settings-grid tab-content" id="tab-seo" style="display: none;">
+                        <div class="settings-stack">
+                            <section class="dashboard-panel">
+                                <div class="panel-heading">
+                                    <div>
+                                        <p class="eyebrow">Search Engine</p>
+                                        <h2>Hubungkan ke Google Search Console &amp; Bing Webmaster</h2>
+                                    </div>
+                                </div>
+                                <div class="settings-panel-body" style="padding: 20px;">
+                                    <div class="form-grid">
+                                        <div class="form-field">
+                                            <label for="seo_google_verification">Kode Verifikasi Google Search Console</label>
+                                            <input
+                                                id="seo_google_verification"
+                                                name="seo_google_verification"
+                                                value="{{index .Settings "seo_google_verification"}}"
+                                                placeholder="Contoh: 4N-Xm9_xyz123abc..."
+                                            />
+                                            <small>
+                                                Salin kode verifikasi tag HTML dari Google Search Console. 
+                                                Pilih verifikasi via <strong>Tag HTML</strong> di console, lalu salin kode unik yang ada di dalam atribut <code>content="..."</code>.
+                                            </small>
+                                        </div>
+                                        <div class="form-field" style="margin-top: 20px;">
+                                            <label for="seo_bing_verification">Kode Verifikasi Bing Webmaster Tools</label>
+                                            <input
+                                                id="seo_bing_verification"
+                                                name="seo_bing_verification"
+                                                value="{{index .Settings "seo_bing_verification"}}"
+                                                placeholder="Contoh: A1B2C3D4E5F6..."
+                                            />
+                                            <small>
+                                                Salin kode verifikasi tag HTML dari Bing Webmaster. 
+                                                Pilih verifikasi via <strong>Tag HTML</strong>, lalu salin kode unik yang ada di dalam atribut <code>content="..."</code>.
+                                            </small>
+                                        </div>
+
+                                        <div class="form-field" style="margin-top: 24px; border-top: 1px solid var(--border-color, #e5e5e5); padding-top: 20px;">
+                                            <label for="verification_html_file">Upload File Verifikasi Webmaster (.html)</label>
+                                            <input
+                                                type="file"
+                                                id="verification_html_file"
+                                                name="verification_html_file"
+                                                accept=".html"
+                                                style="padding: 6px 10px; margin-top: 6px;"
+                                            />
+                                            <small>
+                                                Jika Anda memilih metode verifikasi dengan mengunggah file HTML (misal: <code>google123abc.html</code>), Anda dapat mengunggah file tersebut di sini.
+                                            </small>
+                                            {{if index .Settings "verification_html_filename"}}
+                                            <div style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.02); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+                                                <span style="font-size: 13px; font-family: monospace;">📁 {{index .Settings "verification_html_filename"}}</span>
+                                                <label style="font-weight: 500; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #e63329;">
+                                                    <input type="checkbox" name="clear_verification_html" value="true" style="margin: 0; width: auto;" />
+                                                    Hapus file ini
+                                                </label>
+                                            </div>
+                                            {{end}}
+                                        </div>
+
+                                        <div class="form-field" style="margin-top: 24px; border-top: 1px solid var(--border-color, #e5e5e5); padding-top: 20px;">
+                                            <label for="adsense_head_script">Kode Custom Head / AdSense CMP Script</label>
+                                            <textarea
+                                                id="adsense_head_script"
+                                                name="adsense_head_script"
+                                                rows="5"
+                                                placeholder='<script async src="https://pagead2.googlesyndication.com/..."></script>'
+                                                style="font-family: monospace; font-size: 13px;"
+                                            >{{index .Settings "adsense_head_script"}}</textarea>
+                                            <small>
+                                                Masukkan kode Google AdSense, CMP Script, atau script custom lainnya yang harus ditaruh di dalam tag <code>&lt;head&gt;</code> pada setiap halaman website.
+                                            </small>
+                                        </div>
+
+                                        <div class="form-field" style="margin-top: 24px; border-top: 1px solid var(--border-color, #e5e5e5); padding-top: 20px;">
+                                            <label for="ads_txt_content">Konten ads.txt (Google AdSense / Iklan)</label>
+                                            <textarea
+                                                id="ads_txt_content"
+                                                name="ads_txt_content"
+                                                rows="6"
+                                                placeholder="Contoh: google.com, pub-xxxxxxxxxxxxxxxx, DIRECT, f08c47fec0942fa0"
+                                                style="font-family: monospace; font-size: 13px;"
+                                            >{{index .Settings "ads_txt_content"}}</textarea>
+                                            <small>
+                                                Pecahan teks atau baris ads.txt untuk Google AdSense atau jaringan iklan lainnya. Konten ini akan disajikan di URL <code>/ads.txt</code> secara publik.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: white; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 6px;">Simpan Pengaturan SEO &amp; AdSense</button>
+                        </div>
+
+                        <aside class="settings-sidebar-info">
+                            <div class="settings-card info-card-sidebar" style="border-left-color: #319795;">
+                                <h3 style="margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px;">SEO Otomatis</h3>
+                                <p style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); margin-bottom: 12px;">
+                                    Portal berita ini secara otomatis menghasilkan file <code>/sitemap.xml</code> yang dinamis untuk melacak seluruh tulisan aktif Anda.
+                                </p>
+                                <p style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096);">
+                                    Dengan menempelkan kode verifikasi di samping, robot perayap Google dan Bing akan mengenali kepemilikan situs Anda secara instan dan mempercepat indeksasi berita.
+                                </p>
+                            </div>
+                        </aside>
+                    </div>
+
+
+                </form>
+
+                <!-- TAB: BACKUP & RESTORE -->
+                <div class="settings-grid tab-content" id="tab-backup" style="display: none;">
+                    <div class="settings-stack">
+                        <section class="settings-section" style="border: 1px solid var(--border-color, #e5e5e5); border-radius: 8px; background: white; padding: 20px;">
+                            <div class="settings-section-header" style="margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px;">
+                                <h2 style="margin: 0 0 6px 0; font-size: 18px; font-weight: 600; color: var(--text-primary);">Backup &amp; Restore Database</h2>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-secondary, #718096);">Cadangkan seluruh data portal ke file eksternal atau pulihkan data dari file JSON cadangan Anda.</p>
+                            </div>
+                            <div class="settings-section-body">
+                                <div style="display: flex; flex-direction: column; gap: 20px;">
+                                    
+                                    <!-- Export Database -->
+                                    <div style="padding: 20px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; background: rgba(0, 0, 0, 0.01); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                        <div style="flex: 1; min-width: 250px;">
+                                            <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: var(--text-primary);">Ekspor Database (.json)</h4>
+                                            <p style="margin: 0; font-size: 12px; color: var(--color-text-muted, #718096); line-height: 1.5;">Unduh file cadangan data lengkap (artikel, kategori, media, api_keys, blacklist, dan konfigurasi) dalam skema JSON yang aman.</p>
+                                        </div>
+                                        <div>
+                                            <a href="/dashboard/settings/backup/export" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; margin: 0; background-color: #3182ce; color: white; border: none; padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2b6cb0'" onmouseout="this.style.backgroundColor='#3182ce'">
+                                                Unduh Backup ⬇️
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Import Database -->
+                                    <div style="padding: 20px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; background: rgba(0, 0, 0, 0.01);">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: var(--text-primary);">Impor/Restore Database</h4>
+                                        <p style="margin: 0 0 14px 0; font-size: 12px; color: var(--color-text-muted, #718096); line-height: 1.5; max-width: 600px;">
+                                            Unggah file JSON hasil ekspor sebelumnya untuk memulihkan database. 
+                                            <strong style="color: #e53e3e;">⚠️ PERINGATAN:</strong> Tindakan ini akan menghapus seluruh data yang ada saat ini secara permanen! Pastikan file backup valid.
+                                        </p>
+                                        <form method="post" action="/dashboard/settings/backup/import" enctype="multipart/form-data" style="margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menimpa seluruh database aktif dengan data dari file backup? Tindakan ini tidak dapat dibatalkan.');">
+                                            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                                <input type="file" name="backup_file" accept=".json" required style="border: 1px solid var(--border-color, #e2e8f0); padding: 8px 12px; border-radius: 6px; font-size: 13px; background: #fff;" />
+                                                <button class="btn" type="submit" style="margin: 0; background-color: #e53e3e; color: white; border: none; padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#c53030'" onmouseout="this.style.backgroundColor='#e53e3e'">
+                                                    Impor Backup 🚀
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <aside class="settings-sidebar-info">
+                        <div class="settings-card info-card-sidebar" style="border-left-color: #e53e3e;">
+                            <h3 style="margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Tips Keamanan</h3>
+                            <p style="font-size: 13px; line-height: 1.6; color: var(--color-text-muted, #718096); margin-bottom: 12px;">
+                                Selalu ekspor database Anda secara berkala sebelum melakukan upgrade binary, modifikasi source code, atau migrasi server guna menghindari kehilangan data yang tidak terduga.
+                            </p>
+                        </div>
+                    </aside>
+                </div>
+            </main>
+        </div>
+
+        <script>
+        // Tab switching function
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(function(el) {
+                el.style.display = 'none';
+            });
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            var target = document.getElementById('tab-' + tabId);
+            if (target) {
+                target.style.display = 'grid'; // Maintain settings-grid design layout
+            }
+            
+            // Add active class to clicked button
+            var btn = document.getElementById('btn-tab-' + tabId);
+            if (btn) {
+                btn.classList.add('active');
+            }
+            
+            // Sync with hidden input
+            var input = document.getElementById('active_tab_input');
+            if (input) {
+                input.value = tabId;
+            }
+            
+            // Save active tab to localStorage so it persists on form submits & refreshes
+            localStorage.setItem('active_settings_tab', tabId);
+        }
+
+        // Initialize tabs on page load
+        (function() {
+            var activeTab = localStorage.getItem('active_settings_tab') || 'general';
+            switchTab(activeTab);
+            toggleMailProviderFields();
+        })();
+
+        // Toggle mail provider fields
+        function toggleMailProviderFields() {
+            var mailProvider = document.getElementById('mail_provider');
+            if (!mailProvider) return;
+            var provider = mailProvider.value;
+            var smtpGroup = document.getElementById('smtp-config-group');
+            var apiGroup = document.getElementById('api-config-group');
+            if (provider === 'smtp') {
+                smtpGroup.style.display = 'block';
+                apiGroup.style.display = 'none';
+            } else {
+                smtpGroup.style.display = 'none';
+                apiGroup.style.display = 'block';
+            }
+        }
+
+        // Fetch AI Models Handler
+        (function() {
+            var btn = document.getElementById('btn_fetch_settings_models');
+            if (!btn) return;
+            
+            btn.addEventListener('click', async function() {
+                var apiKey = document.getElementById('ai_api_key').value.trim();
+                var endpointUrl = document.getElementById('ai_endpoint_url').value.trim();
+                
+                if (!apiKey) {
+                    alert('Silakan isi API Key terlebih dahulu.');
+                    return;
+                }
+                
+                btn.disabled = true;
+                btn.textContent = 'Menarik...';
+                
+                try {
+                    var enableProxy = document.getElementById('ai_enable_proxy').checked;
+                    var response = await fetch('/dashboard/settings/test-models', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            api_key: apiKey,
+                            endpoint_url: endpointUrl,
+                            enable_proxy: enableProxy
+                        })
+                    });
+                    
+                    var data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Gagal menarik model.');
+                    }
+                    
+                    var inputModel = document.getElementById('ai_default_model');
+                    var parent = inputModel.parentNode;
+                    var currentVal = inputModel.value;
+                    
+                    var select = document.createElement('select');
+                    select.id = 'ai_default_model';
+                    select.name = 'ai_default_model';
+                    select.style.flex = '1';
+                    select.style.padding = '10px';
+                    select.style.border = '1px solid var(--border-color, #ddd)';
+                    select.style.borderRadius = '6px';
+                    select.style.boxSizing = 'border-box';
+                    
+                    data.forEach(function(m) {
+                        var opt = document.createElement('option');
+                        opt.value = m.id;
+                        opt.textContent = m.name;
+                        if (m.id === currentVal) {
+                            opt.selected = true;
+                        }
+                        select.appendChild(opt);
+                    });
+                    
+                    parent.replaceChild(select, inputModel);
+                    alert('Daftar model berhasil ditarik! Silakan pilih model default Anda dari dropdown.');
+                } catch (err) {
+                    alert('Gagal mengambil daftar model: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Tarik Model 🔄';
+                }
+            });
+        })();
+
+        // Poll AI logs automatically
+        (function() {
+            var container = document.getElementById('ai_logs_list');
+            var clearBtn = document.getElementById('btn_clear_ai_logs');
+            if (!container) return;
+
+            async function loadAILogs() {
+                try {
+                    var response = await fetch('/dashboard/settings/ai-logs');
+                    if (!response.ok) return;
+                    var logs = await response.json();
+                    
+                    if (logs.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; color: #8e8e93; padding: 30px; font-style: italic; font-size: 13px;">Belum ada log aktivitas asisten AI.</div>';
+                        return;
+                    }
+                    
+                    var html = '';
+                    // Display latest logs first
+                    for (var i = logs.length - 1; i >= 0; i--) {
+                        var log = logs[i];
+                        
+                        var badgeColor = '#007aff';
+                        var badgeBg = 'rgba(0, 122, 255, 0.08)';
+                        if (log.type === 'Tarik Model') {
+                            badgeColor = '#5856d6';
+                            badgeBg = 'rgba(88, 86, 214, 0.08)';
+                        } else if (log.type === 'Generate Content') {
+                            badgeColor = '#ff9f0a';
+                            badgeBg = 'rgba(255, 159, 10, 0.08)';
+                        }
+
+                        var statusDotColor = log.status === 'Success' ? '#30d158' : '#ff453a';
+                        var statusBg = log.status === 'Success' ? 'rgba(48, 209, 88, 0.08)' : 'rgba(255, 69, 58, 0.08)';
+                        var statusTextColor = log.status === 'Success' ? '#30d158' : '#ff453a';
+                        
+                        var cardBorder = log.status === 'Success' ? '1px solid #e5e5ea' : '1px solid rgba(255, 69, 58, 0.2)';
+                        var cardBg = log.status === 'Success' ? '#ffffff' : 'rgba(255, 69, 58, 0.01)';
+                        
+                        html += '<div class="ios-log-card" style="background: ' + cardBg + '; border: ' + cardBorder + '; border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px;">';
+                        
+                        html += '  <div style="display: flex; justify-content: space-between; align-items: center;">';
+                        html += '    <span style="background: ' + badgeBg + '; color: ' + badgeColor + '; font-size: 10px; font-weight: 600; padding: 3px 6px; border-radius: 6px; letter-spacing: -0.1px; text-transform: uppercase;">' + log.type + '</span>';
+                        html += '    <span style="font-size: 11px; color: #8e8e93; font-weight: 500;">' + log.timestamp + '</span>';
+                        html += '  </div>';
+                        
+                        html += '  <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">';
+                        html += '    <span style="font-weight: 600; color: #1c1c1e; font-size: 13px; font-family: monospace; word-break: break-all;">' + log.model + '</span>';
+                        html += '    <span style="font-size: 11px; color: #8e8e93; font-family: monospace; white-space: nowrap;">Proxy: ' + log.proxy + '</span>';
+                        html += '  </div>';
+                        
+                        html += '  <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">';
+                        html += '    <span style="font-size: 12px; color: #3a3a3c; word-break: break-all;">' + log.details + '</span>';
+                        html += '    <span style="display: inline-flex; align-items: center; gap: 5px; background: ' + statusBg + '; color: ' + statusTextColor + '; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap;">';
+                        html += '      <span style="width: 6px; height: 6px; border-radius: 50%; background: ' + statusDotColor + ';"></span>';
+                        html += '      ' + log.status;
+                        html += '    </span>';
+                        html += '  </div>';
+                        
+                        html += '</div>';
+                    }
+                    container.innerHTML = html;
+                } catch (e) {
+                    console.error('Error loading AI logs:', e);
+                }
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', async function() {
+                    if (confirm('Apakah Anda yakin ingin menghapus semua log aktivitas AI?')) {
+                        try {
+                            await fetch('/dashboard/settings/ai-logs/clear', { method: 'POST' });
+                            loadAILogs();
+                        } catch (e) {
+                            alert('Gagal menghapus log');
+                        }
+                    }
+                });
+            }
+
+            loadAILogs();
+            setInterval(loadAILogs, 4000);
+        })();
+
+        // WordPress Editor Tab Switcher & Quicktags
+        (function() {
+            var pageTabs = document.querySelectorAll('.wp-page-tab');
+            var editors = document.querySelectorAll('.wp-page-editor-container');
+
+            pageTabs.forEach(function(tab) {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active from all tabs
+                    pageTabs.forEach(function(t) { t.classList.remove('active'); });
+                    
+                    // Add active to current
+                    this.classList.add('active');
+                    
+                    // Hide all editors
+                    editors.forEach(function(editor) { editor.style.display = 'none'; });
+                    
+                    // Show target editor
+                    var targetId = this.getAttribute('data-target');
+                    var targetEditor = document.getElementById(targetId);
+                    if (targetEditor) {
+                        targetEditor.style.display = 'flex';
+                    }
+                });
+            });
+
+            // Initialize: Show first editor, hide others
+            if (editors.length > 0) {
+                editors.forEach(function(editor, index) {
+                    if (index === 0) {
+                        editor.style.display = 'flex';
+                    } else {
+                        editor.style.display = 'none';
+                    }
+                });
+            }
+        })();
+
+        // Quicktags insertion function
+        function insertTag(textareaId, tagType) {
+            var txt = document.getElementById(textareaId);
+            if (!txt) return;
+            var start = txt.selectionStart;
+            var end = txt.selectionEnd;
+            var text = txt.value;
+            var selected = text.substring(start, end);
+            
+            var openTag = "";
+            var closeTag = "";
+            
+            switch (tagType) {
+                case 'b':
+                    openTag = "<strong>"; closeTag = "</strong>"; break;
+                case 'i':
+                    openTag = "<em>"; closeTag = "</em>"; break;
+                case 'link':
+                    var url = prompt("Masukkan URL link:", "https://");
+                    if (url === null) return;
+                    openTag = '<a href="' + url + '">'; closeTag = "</a>"; break;
+                case 'blockquote':
+                    openTag = "<blockquote>\n"; closeTag = "\n</blockquote>"; break;
+                case 'del':
+                    openTag = "<del>"; closeTag = "</del>"; break;
+                case 'p':
+                    openTag = "<p>"; closeTag = "</p>"; break;
+                case 'h3':
+                    openTag = "<h3>"; closeTag = "</h3>"; break;
+                case 'h4':
+                    openTag = "<h4>"; closeTag = "</h4>"; break;
+                case 'ul':
+                    openTag = "<ul>\n  <li>"; closeTag = "</li>\n</ul>"; break;
+                case 'ol':
+                    openTag = "<ol>\n  <li>"; closeTag = "</li>\n</ol>"; break;
+                case 'li':
+                    openTag = "<li>"; closeTag = "</li>"; break;
+                case 'code':
+                    openTag = "<code>"; closeTag = "</code>"; break;
+                case 'table':
+                    openTag = '<table class="table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">\n  <tbody>\n    <tr style="border-bottom: 1px solid var(--border-color, #e5e5e5);">\n      <td style="padding: 10px; font-weight: bold; width: 35%;">Label</td>\n      <td style="padding: 10px;">';
+                    closeTag = '</td>\n    </tr>\n  </tbody>\n</table>';
+                    break;
+            }
+            
+            var replacement = openTag + selected + closeTag;
+            txt.value = text.substring(0, start) + replacement + text.substring(end);
+            txt.focus();
+            
+            // Adjust selection
+            var newCursorPos = start + openTag.length + selected.length + closeTag.length;
+            txt.setSelectionRange(newCursorPos, newCursorPos);
+        }
+
+        // Switch between visual and text editor modes
+        function switchEditorMode(id, mode) {
+            var txt = document.getElementById(id);
+            var vis = document.getElementById('visual-' + id);
+            var tText = document.getElementById('toolbar-text-' + id);
+            var tVis = document.getElementById('toolbar-visual-' + id);
+            var btnText = document.getElementById('tab-text-' + id);
+            var btnVis = document.getElementById('tab-visual-' + id);
+            
+            if (!txt || !vis) return;
+            
+            if (mode === 'visual') {
+                // Sync HTML from textarea to visual div
+                vis.innerHTML = txt.value;
+                
+                // Toggle visibility
+                txt.style.display = 'none';
+                vis.style.display = 'block';
+                
+                tText.style.display = 'none';
+                tVis.style.display = 'flex';
+                
+                btnText.classList.remove('active');
+                btnVis.classList.add('active');
+            } else {
+                // Sync HTML from visual div to textarea
+                txt.value = vis.innerHTML;
+                
+                // Toggle visibility
+                txt.style.display = 'block';
+                vis.style.display = 'none';
+                
+                tText.style.display = 'flex';
+                tVis.style.display = 'none';
+                
+                btnText.classList.add('active');
+                btnVis.classList.remove('active');
+            }
+        }
+
+        // Execute visual commands for rich text
+        function execVisualCmd(textareaId, command, value) {
+            var visualDiv = document.getElementById('visual-' + textareaId);
+            if (!visualDiv) return;
+            visualDiv.focus();
+            document.execCommand(command, false, value || null);
+            
+            // Sync immediately to textarea to make sure changes are recorded
+            var txt = document.getElementById(textareaId);
+            if (txt) {
+                txt.value = visualDiv.innerHTML;
+            }
+        }
+
+        // Sync visual content to textarea before form submission
+        (function() {
+            var form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    var textareas = ['page_about_content', 'page_contact_content', 'page_privacy_content', 'page_ads_content'];
+                    textareas.forEach(function(id) {
+                        var txt = document.getElementById(id);
+                        var vis = document.getElementById('visual-' + id);
+                        if (txt && vis && vis.style.display !== 'none') {
+                            txt.value = vis.innerHTML;
+                        }
+                    });
+                });
+            }
+        })();
+        </script>
+    </body>
+</html>

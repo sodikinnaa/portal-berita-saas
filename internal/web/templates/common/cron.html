@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cron Rewrite Artikel - NewsPaper CMS</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+        <style>
+            .cron-grid {
+                display: grid;
+                grid-template-columns: 1fr 1.5fr;
+                gap: 30px;
+                max-width: 1300px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .card-panel {
+                background: #ffffff;
+                border-radius: 12px;
+                border: 1px solid #eef2f5;
+                padding: 24px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            }
+            .card-panel h2 {
+                margin-top: 0;
+                margin-bottom: 20px;
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+                font-size: 20px;
+                color: #1a1a1a;
+                border-bottom: 2px solid #f4f6f8;
+                padding-bottom: 12px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #333;
+            }
+            .form-group select,
+            .form-group input,
+            .form-group textarea {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid #dcdfe6;
+                border-radius: 8px;
+                font-family: inherit;
+                font-size: 14px;
+                color: #303133;
+                background-color: #fff;
+                transition: border-color 0.2s;
+            }
+            .form-group select:focus,
+            .form-group input:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: #2f54eb;
+            }
+            .form-group .help-text {
+                font-size: 12px;
+                color: #909399;
+                margin-top: 6px;
+            }
+            .rss-list-container {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .rss-item-card {
+                padding: 16px;
+                border: 1px solid #eef2f5;
+                border-radius: 8px;
+                background: #fafbfc;
+                transition: all 0.2s;
+            }
+            .rss-item-card:hover {
+                border-color: #dcdfe6;
+                background: #fff;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            }
+            .rss-item-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 8px;
+            }
+            .rss-item-title {
+                font-weight: 700;
+                font-size: 15px;
+                color: #2c3e50;
+                line-height: 1.4;
+                margin: 0;
+            }
+            .rss-item-meta {
+                display: flex;
+                gap: 12px;
+                font-size: 12px;
+                color: #7f8c8d;
+                margin-bottom: 8px;
+            }
+            .rss-item-meta a {
+                color: #2f54eb;
+                text-decoration: none;
+            }
+            .rss-item-meta a:hover {
+                text-decoration: underline;
+            }
+            .rss-item-actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px solid #f4f6f8;
+            }
+            .badge {
+                display: inline-block;
+                padding: 4px 10px;
+                font-size: 11px;
+                font-weight: 600;
+                border-radius: 12px;
+                text-transform: uppercase;
+            }
+            .badge-ready {
+                background: #e6f7ff;
+                color: #1890ff;
+                border: 1px solid #91d5ff;
+            }
+            .badge-exists {
+                background: #f6ffed;
+                color: #52c41a;
+                border: 1px solid #b7eb8f;
+            }
+            .badge-loading {
+                background: #f5f5f5;
+                color: #8c8c8c;
+            }
+            .empty-state {
+                text-align: center;
+                padding: 40px 20px;
+                color: #909399;
+            }
+            .loading-spinner {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                border: 2px solid rgba(0, 0, 0, 0.1);
+                border-left-color: #2f54eb;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-right: 8px;
+                vertical-align: middle;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Otomatisasi</p>
+                        <h1>Cron Rewrite Artikel</h1>
+                        <p>
+                            Ambil berita dari Google News RSS secara periodik, scrape halaman asli, rewrite dengan AI,
+                            dan terbitkan secara otomatis sebagai draft/published artikel.
+                        </p>
+                    </div>
+                </header>
+
+                {{if .Error}}
+                <div class="alert alert-error">{{.Error}}</div>
+                {{end}} {{if .Success}}
+                <div class="alert alert-success">{{.Success}}</div>
+                {{end}}
+
+                <div class="cron-grid">
+                    <!-- Left Side: Config Form -->
+                    <div class="card-panel">
+                        <h2>Konfigurasi Cron</h2>
+                        <form method="post" action="/dashboard/cron/settings">
+                            <div class="form-group">
+                                <label for="cron_enabled">Status Auto-Post</label>
+                                <select name="cron_enabled" id="cron_enabled">
+                                    <option value="false" {{if ne (index .Settings "cron_enabled") "true"}}selected{{end}}>Nonaktif</option>
+                                    <option value="true" {{if eq (index .Settings "cron_enabled") "true"}}selected{{end}}>Aktif</option>
+                                </select>
+                                <p class="help-text">Jika aktif, sistem background akan memproses feed secara otomatis.</p>
+                            </div>
+
+                             <div class="form-group">
+                                <label for="cron_interval">Interval Pemeriksaan</label>
+                                <select name="cron_interval" id="cron_interval">
+                                    <option value="1" {{if eq (index .Settings "cron_interval") "1"}}selected{{end}}>Setiap 1 Menit</option>
+                                    <option value="5" {{if eq (index .Settings "cron_interval") "5"}}selected{{end}}>Setiap 5 Menit</option>
+                                    <option value="15" {{if eq (index .Settings "cron_interval") "15"}}selected{{end}}>Setiap 15 Menit</option>
+                                    <option value="30" {{if eq (index .Settings "cron_interval") "30"}}selected{{end}}>Setiap 30 Menit</option>
+                                    <option value="60" {{if or (eq (index .Settings "cron_interval") "60") (eq (index .Settings "cron_interval") "")}}selected{{end}}>Setiap 1 Jam</option>
+                                    <option value="180" {{if eq (index .Settings "cron_interval") "180"}}selected{{end}}>Setiap 3 Jam</option>
+                                    <option value="360" {{if eq (index .Settings "cron_interval") "360"}}selected{{end}}>Setiap 6 Jam</option>
+                                    <option value="720" {{if eq (index .Settings "cron_interval") "720"}}selected{{end}}>Setiap 12 Jam</option>
+                                    <option value="1440" {{if eq (index .Settings "cron_interval") "1440"}}selected{{end}}>Setiap 24 Jam</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cron_category">Kategori Artikel Impor</label>
+                                <select name="cron_category" id="cron_category">
+                                    {{range .Categories}}
+                                    <option value="{{.Name}}" {{if eq (index $.Settings "cron_category") .Name}}selected{{end}}>{{.Name}}</option>
+                                    {{end}}
+                                </select>
+                                <p class="help-text">Kategori bawaan untuk draf artikel hasil auto-post.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cron_rss_url">Google News RSS URL</label>
+                                <input
+                                    type="text"
+                                    name="cron_rss_url"
+                                    id="cron_rss_url"
+                                    value="{{if index .Settings "cron_rss_url"}}{{index .Settings "cron_rss_url"}}{{else}}https://news.google.com/rss?hl=id&gl=ID&ceid=ID:id{{end}}"
+                                    required
+                                />
+                                <p class="help-text">Google News RSS Feed URL yang akan ditarik datanya.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cron_prompt">Panduan Kustom Rewrite AI (Opsional)</label>
+                                <textarea name="cron_prompt" id="cron_prompt" rows="4" placeholder="Misal: Tambahkan opini lokal, gunakan nada tulisan formal, sertakan saran tindak lanjut... (kosongkan untuk default)">{{index .Settings "cron_prompt"}}</textarea>
+                                <p class="help-text">Instruksi kustom tambahan yang digabungkan ke AI prompt.</p>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                                Simpan Konfigurasi 💾
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <!-- Right Side: RSS Link Feed Checker -->
+                    <div class="card-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f4f6f8; padding-bottom: 12px; margin-bottom: 20px;">
+                            <h2 style="margin: 0; border: none; padding: 0;">Pratinjau RSS Feed</h2>
+                            <button id="btn-fetch-rss" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px;">
+                                Cek RSS Sekarang 🔄
+                            </button>
+                        </div>
+
+                        <div id="rss-feed-status" style="margin-bottom: 16px; font-size: 13px; color: #606266; font-style: italic;">
+                            Klik "Cek RSS Sekarang" untuk memuat berita terbaru dari Google News.
+                        </div>
+
+                        <div id="rss-items-list" class="rss-list-container">
+                            <div class="empty-state">
+                                <p>Belum ada feed yang dimuat.</p>
+                            </div>
+                        </div>
+                        <div id="rss-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid #f4f6f8; font-size: 13px; display: none;">
+                            <button id="btn-prev-page" class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 12px; cursor: pointer;">Sebelumnya</button>
+                            <span id="rss-page-info" style="color: #606266; font-weight: 600;">Halaman 1 dari 1</span>
+                            <button id="btn-next-page" class="btn btn-secondary" style="margin: 0; padding: 6px 12px; font-size: 12px; cursor: pointer;">Berikutnya</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Panel -->
+                <div class="card-panel" style="margin-top: 30px; border: 1px solid #eef2f5;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f4f6f8; padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <h2 style="margin: 0; border: none; padding: 0;">Log Aktivitas Latar Belakang (Cron Job)</h2>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button id="btn-run-cron" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px; background-color: #2f54eb; color: white; border: none;">
+                                Jalankan Auto-Post Sekarang ⚡
+                            </button>
+                            <button id="btn-refresh-logs" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px;">
+                                Perbarui Log 🔄
+                            </button>
+                            <button id="btn-clear-logs" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px; background-color: #fff0f6; border-color: #ffadd2; color: #eb2f96;">
+                                Bersihkan Log 🗑️
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="carbon-wrapper">
+                        <div class="ios-console">
+                            <div class="ios-console-header">
+                                <div class="ios-console-dots">
+                                    <div class="ios-console-dot red"></div>
+                                    <div class="ios-console-dot yellow"></div>
+                                    <div class="ios-console-dot green"></div>
+                                </div>
+                                <div class="ios-console-title">cron_jobs.log</div>
+                            </div>
+                            <div class="ios-console-body" id="cron-logs-container" style="height: 400px;">
+                                <div style="color: #8e8e93; font-style: italic;">Memuat log aktivitas...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            let allRssItems = [];
+            let currentPage = 1;
+            const itemsPerPage = 5;
+
+            function renderRssPage(page) {
+                const listDiv = document.getElementById('rss-items-list');
+                const pageInfo = document.getElementById('rss-page-info');
+                const paginationDiv = document.getElementById('rss-pagination');
+                const btnPrev = document.getElementById('btn-prev-page');
+                const btnNext = document.getElementById('btn-next-page');
+
+                listDiv.innerHTML = '';
+                
+                if (!allRssItems || allRssItems.length === 0) {
+                    listDiv.innerHTML = '<div class="empty-state"><p>Tidak ada berita.</p></div>';
+                    paginationDiv.style.display = 'none';
+                    return;
+                }
+
+                const totalPages = Math.ceil(allRssItems.length / itemsPerPage);
+                if (page < 1) page = 1;
+                if (page > totalPages) page = totalPages;
+                currentPage = page;
+
+                if (allRssItems.length > itemsPerPage) {
+                    paginationDiv.style.display = 'flex';
+                } else {
+                    paginationDiv.style.display = 'none';
+                }
+
+                pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+                btnPrev.disabled = (currentPage === 1);
+                btnNext.disabled = (currentPage === totalPages);
+
+                const start = (currentPage - 1) * itemsPerPage;
+                const end = Math.min(start + itemsPerPage, allRssItems.length);
+                const pageItems = allRssItems.slice(start, end);
+
+                pageItems.forEach((item, pageIndex) => {
+                    const globalIndex = start + pageIndex;
+                    const card = document.createElement('div');
+                    card.className = 'rss-item-card';
+                    card.style.marginBottom = '12px';
+                    
+                    let statusBadge = '';
+                    let actionButton = '';
+                    
+                    if (item.exists) {
+                        statusBadge = '<span class="badge badge-exists">Sudah Diimport</span>';
+                        if (item.article_slug) {
+                            actionButton = `
+                                <a href="/artikel/${item.article_slug}" target="_blank" class="btn btn-secondary" style="margin:0; padding: 6px 12px; font-size: 12px; text-decoration: none; margin-right: 6px;">Lihat Artikel 👁️</a>
+                                <a href="/dashboard/articles/${item.article_slug}/edit" class="btn btn-primary" style="margin:0; padding: 6px 12px; font-size: 12px; text-decoration: none;">Edit Draf 📝</a>
+                            `;
+                        } else {
+                            actionButton = `<span style="font-size: 12px; color: #52c41a; font-weight: 600;">✓ Sudah Diimport</span>`;
+                        }
+                    } else {
+                        statusBadge = '<span class="badge badge-ready">Siap Diimport</span>';
+                        actionButton = `<button class="btn btn-primary btn-import-item" data-index="${globalIndex}" style="margin:0; padding: 6px 12px; font-size: 12px;">Rewrite & Import ✨</button>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="rss-item-header">
+                            <h3 class="rss-item-title">${item.title}</h3>
+                            ${statusBadge}
+                        </div>
+                        <div class="rss-item-meta">
+                            <span>Pub Date: ${item.pub_date}</span>
+                            <span>|</span>
+                            <a href="${item.original_url}" target="_blank" title="${item.original_url}">Sumber Asli ↗</a>
+                        </div>
+                        <div class="rss-item-actions" id="action-area-${globalIndex}">
+                            ${actionButton}
+                        </div>
+                    `;
+                    listDiv.appendChild(card);
+                    
+                    const btnImport = card.querySelector('.btn-import-item');
+                    if (btnImport) {
+                        btnImport.addEventListener('click', async function() {
+                            await importItem(item, globalIndex);
+                        });
+                    }
+                });
+            }
+
+            document.getElementById('btn-prev-page').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    renderRssPage(currentPage - 1);
+                }
+            });
+
+            document.getElementById('btn-next-page').addEventListener('click', function() {
+                const totalPages = Math.ceil(allRssItems.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    renderRssPage(currentPage + 1);
+                }
+            });
+
+            document.getElementById('btn-fetch-rss').addEventListener('click', async function() {
+                const btn = this;
+                const statusDiv = document.getElementById('rss-feed-status');
+                const listDiv = document.getElementById('rss-items-list');
+
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span>Memuat RSS...';
+                statusDiv.textContent = 'Menghubungi Google News RSS dan mendecode link asli secara paralel...';
+                listDiv.innerHTML = '';
+                document.getElementById('rss-pagination').style.display = 'none';
+
+                try {
+                    const response = await fetch('/dashboard/cron/fetch', {
+                        method: 'POST'
+                    });
+                    if (!response.ok) {
+                        throw new Error('Gagal memuat feed dari server');
+                    }
+                    const data = await response.json();
+                    
+                    allRssItems = data || [];
+                    currentPage = 1;
+                    
+                    if (allRssItems.length > 0) {
+                        statusDiv.textContent = `Berhasil memuat ${allRssItems.length} berita terbaru.`;
+                        renderRssPage(currentPage);
+                    } else {
+                        statusDiv.textContent = 'Tidak ada berita yang ditemukan di RSS Feed.';
+                        listDiv.innerHTML = '<div class="empty-state"><p>Tidak ada berita.</p></div>';
+                    }
+
+                } catch (err) {
+                    statusDiv.textContent = 'Terjadi kesalahan: ' + err.message;
+                    listDiv.innerHTML = `<div class="empty-state" style="color: #ff4d4f;"><p>${err.message}</p></div>`;
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Cek RSS Sekarang 🔄';
+                }
+            });
+
+            async function importItem(item, index) {
+                const actionArea = document.getElementById(`action-area-${index}`);
+                const originalContent = actionArea.innerHTML;
+                
+                actionArea.innerHTML = '<span class="badge badge-loading"><span class="loading-spinner"></span>Menyalin & Menulis Ulang via AI...</span>';
+                
+                try {
+                    const response = await fetch('/dashboard/cron/import', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: item.title,
+                            google_link: item.google_link,
+                            original_url: item.original_url
+                        })
+                    });
+                    
+                    const resData = await response.json();
+                    if (!response.ok || !resData.success) {
+                        throw new Error(resData.error || 'Gagal mengimpor artikel');
+                    }
+                    
+                    actionArea.innerHTML = `
+                        <span style="font-size: 12px; color: #52c41a; font-weight: 600; margin-right: 12px;">✓ Berhasil Diimport!</span>
+                        <a href="/artikel/${resData.article_slug}" target="_blank" class="btn btn-secondary" style="margin:0; padding: 6px 12px; font-size: 12px; text-decoration: none; margin-right: 6px;">Lihat Artikel 👁️</a>
+                        <a href="/dashboard/articles/${resData.article_id}/edit" class="btn btn-primary" style="margin:0; padding: 6px 12px; font-size: 12px; text-decoration: none;">Edit Draf 📝</a>
+                    `;
+                    
+                    // Update status badge on card
+                    const card = actionArea.closest('.rss-item-card');
+                    const badge = card.querySelector('.badge');
+                    if (badge) {
+                        badge.className = 'badge badge-exists';
+                        badge.textContent = 'Sudah Diimport';
+                    }
+
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                    actionArea.innerHTML = originalContent;
+                    // Rebind event listener because we restored original HTML
+                    const btnImport = actionArea.querySelector('.btn-import-item');
+                    if (btnImport) {
+                        btnImport.addEventListener('click', async function() {
+                            await importItem(item, index);
+                        });
+                    }
+                }
+            }
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            async function fetchAndRenderLogs() {
+                const container = document.getElementById('cron-logs-container');
+                try {
+                    const response = await fetch('/dashboard/cron/logs');
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil data log.');
+                    }
+                    const logs = await response.json();
+                    if (!logs || logs.length === 0) {
+                        container.innerHTML = '<div style="color: #64748b; font-style: italic; text-align: center; padding: 20px 0;">Belum ada log aktivitas. Log akan muncul saat background job berjalan.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = logs.map(log => {
+                        const date = new Date(log.timestamp);
+                        const timeStr = date.toLocaleTimeString('id-ID', { hour12: false }) + '.' + String(date.getMilliseconds()).padStart(3, '0');
+                        const dateStr = date.toLocaleDateString('id-ID') + ' ' + timeStr;
+
+                        let levelColor = '#0a84ff'; // iOS system blue for INFO
+                        if (log.level === 'WARN') {
+                            levelColor = '#ff9f0a'; // iOS system orange for WARN
+                        } else if (log.level === 'ERROR') {
+                            levelColor = '#ff453a'; // iOS system red for ERROR
+                        }
+
+                        return `<div style="margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; display: flex; gap: 8px; align-items: flex-start;">
+                            <span style="color: #8e8e93; white-space: nowrap; font-size: 12px;">[${dateStr}]</span>
+                            <span style="color: ${levelColor}; font-weight: bold; white-space: nowrap; font-size: 12px;">[${log.level}]</span>
+                            <span style="color: #f2f2f7; word-break: break-all;">${escapeHtml(log.message)}</span>
+                        </div>`;
+                    }).join('');
+
+                    // Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
+
+                } catch (err) {
+                    container.innerHTML = `<div style="color: #ef4444; font-weight: bold; text-align: center; padding: 20px 0;">Error memuat log: ${escapeHtml(err.message)}</div>`;
+                }
+            }
+
+            // Refresh logs
+            document.getElementById('btn-refresh-logs').addEventListener('click', fetchAndRenderLogs);
+
+            // Clear logs
+            document.getElementById('btn-clear-logs').addEventListener('click', async function() {
+                if (!confirm('Apakah Anda yakin ingin menghapus semua log aktivitas?')) {
+                    return;
+                }
+                const btn = this;
+                btn.disabled = true;
+                try {
+                    const response = await fetch('/dashboard/cron/logs/clear', { method: 'POST' });
+                    if (!response.ok) throw new Error('Gagal membersihkan log');
+                    fetchAndRenderLogs();
+                } catch (err) {
+                    alert(err.message);
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+
+            // Run manual cron
+            document.getElementById('btn-run-cron').addEventListener('click', async function() {
+                const btn = this;
+                btn.disabled = true;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="loading-spinner"></span>Menjalankan...';
+                
+                try {
+                    const response = await fetch('/dashboard/cron/run', { method: 'POST' });
+                    if (!response.ok) throw new Error('Gagal memulai auto-post');
+                    
+                    alert('Job auto-post berhasil dijalankan di latar belakang. Silakan perbarui log untuk melihat proses berjalan!');
+                    // Poll logs every 2 seconds for a bit
+                    let count = 0;
+                    const interval = setInterval(() => {
+                        fetchAndRenderLogs();
+                        count++;
+                        if (count >= 15) clearInterval(interval); // Poll for 30s
+                    }, 2000);
+                } catch (err) {
+                    alert(err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            });
+
+            // Initial load
+            fetchAndRenderLogs();
+        </script>
+    </body>
+</html>

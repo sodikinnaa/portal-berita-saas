@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Scraper & Tester - NewsPaper CMS</title>
+    <link rel="stylesheet" href="/assets/global.css">
+    <style>
+        .badge-checking {
+            background: rgba(241, 196, 15, 0.1);
+            color: #d35400;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Carbon Wrapper & Console Styling */
+        .carbon-wrapper {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 36px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .ios-console {
+            background: #151820; /* Carbon Dark theme background */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #f2f2f7;
+            text-align: left;
+        }
+        .ios-console-header {
+            background: #1c1f2b; /* Slightly lighter title bar */
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+        .ios-console-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .ios-console-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .ios-console-dot.red { background: #ff5f56; } /* Precise Carbon dot colors */
+        .ios-console-dot.yellow { background: #ffbd2e; }
+        .ios-console-dot.green { background: #27c93f; }
+        .ios-console-title {
+            margin-left: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8a8d9a;
+            letter-spacing: -0.1px;
+            font-family: SFMono-Regular, Consolas, Menlo, monospace;
+        }
+        .ios-console-body {
+            padding: 20px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+
+        <main class="dashboard-main">
+            <header class="dashboard-header compact">
+                <div>
+                    <p class="eyebrow">Sandbox Tools</p>
+                    <h1>Proxy Scraper & Tester</h1>
+                    <p>Scrape proxy publik gratis atau uji proxy kustom (Webshare, dll) secara langsung sebelum dimasukkan ke sistem rotasi.</p>
+                </div>
+            </header>
+
+            {{if .Error}}
+            <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">{{.Error}}</div>
+            {{end}}
+            {{if .Success}}
+            <div class="alert alert-success" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px;">{{.Success}}</div>
+            {{end}}
+
+            <div id="ajax-alert" style="display: none; margin-bottom: 20px; padding: 12px 16px; border-radius: 6px;"></div>
+
+            <div class="settings-stack">
+                <section class="dashboard-panel" style="margin-bottom: 24px;">
+                    <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                        <div>
+                            <p class="eyebrow">Automation</p>
+                            <h2>Pencarian Proxy Otomatis di Latar Belakang (Auto-Scraper)</h2>
+                        </div>
+                    </div>
+                    <div class="settings-panel-body" style="padding: 20px;">
+                        <form method="post" action="/dashboard/proxies/scraper/settings" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                                <div class="form-field" style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="proxy_auto_scrape_enabled" name="proxy_auto_scrape_enabled" value="true" {{if eq (index .Settings "proxy_auto_scrape_enabled") "true"}}checked{{end}} style="width: 18px; height: 18px; cursor: pointer; margin: 0;">
+                                    <label for="proxy_auto_scrape_enabled" style="font-weight: 600; color: var(--text-primary); font-size: 14px; cursor: pointer;">Aktifkan Auto-Scraper Latar Belakang</label>
+                                </div>
+                                <div class="form-field">
+                                    <label for="proxy_auto_scrape_threshold" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary); font-size: 13px;">Batas Minimal Proxy Aktif (Threshold)</label>
+                                    <input type="number" id="proxy_auto_scrape_threshold" name="proxy_auto_scrape_threshold" value="{{if index .Settings "proxy_auto_scrape_threshold"}}{{index .Settings "proxy_auto_scrape_threshold"}}{{else}}10{{end}}" min="1" max="100" style="width: 100%; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; margin-top: 0;">
+                                    <small style="color: var(--text-secondary); display: block; margin-top: 4px;">Jika jumlah proxy yang berstatus <strong>Active</strong> di database turun di bawah angka ini, sistem otomatis berjalan di latar belakang mencari & mengimpor proxy publik gratis baru.</small>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: white; border: none; padding: 10px 20px; font-weight: 600; cursor: pointer; border-radius: 6px; width: fit-content; align-self: flex-start; margin-top: 8px;">Simpan Pengaturan Auto-Scraper</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                        <div>
+                            <p class="eyebrow">Sandbox</p>
+                            <h2>Proxy Tester & Scraper Sandbox</h2>
+                        </div>
+                    </div>
+                    <div class="settings-panel-body" style="padding: 10px 20px 20px 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                            <!-- Configuration Section -->
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0;">1. Konfigurasi Pencarian & Tes</h3>
+
+                                <div class="form-field" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                                    <input type="checkbox" id="sandbox-scrape-public" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <label for="sandbox-scrape-public" style="font-weight: 500; color: var(--text-primary); font-size: 13px; cursor: pointer;">Scrape Proxy Publik Gratis (ProxyScrape, TheSpeedX)</label>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="sandbox-target-url" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary); font-size: 13px;">Target URL Uji</label>
+                                    <input type="url" id="sandbox-target-url" value="https://news.google.com/rss" placeholder="https://news.google.com/rss" style="width: 100%; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; font-size: 13px;">
+                                    <small style="color: var(--text-secondary); font-size: 11px;">Domain target untuk menguji latensi & konektivitas proxy.</small>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="sandbox-default-protocol" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary); font-size: 13px;">Protokol Default Proxy Kustom / Scraping</label>
+                                    <select id="sandbox-default-protocol" style="width: 100%; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; background: white; font-size: 13px;">
+                                        <option value="http" selected>HTTP (Default)</option>
+                                        <option value="socks5">SOCKS5</option>
+                                    </select>
+                                    <small style="color: var(--text-secondary); font-size: 11px;">Digunakan untuk mendeteksi proxy kustom tanpa prefiks skema (seperti <code>socks5://</code>), serta menentukan tipe scraping proxy publik.</small>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="sandbox-custom-list" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary); font-size: 13px;">Masukkan Proxy Kustom Anda (Format Webshare/Lainnya)</label>
+                                    <textarea id="sandbox-custom-list" placeholder="Format: IP:Port:User:Pass, User:Pass@IP:Port, atau IP:Port (satu per baris)" style="width: 100%; min-height: 120px; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                                    <small style="color: var(--text-secondary); font-size: 11px;">Tempel proxy kustom Anda di sini jika ingin mengujinya sekaligus.</small>
+                                </div>
+
+                                <button class="btn btn-primary" type="button" onclick="runSandboxTest()" id="btn-run-sandbox" style="background: #2ecc71; color: #fff; border: 0; padding: 12px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center;">
+                                    <span id="sandbox-icon">🚀</span> <span id="sandbox-text">Mulai Scraping & Pengujian</span>
+                                </button>
+                            </div>
+
+                            <!-- Results Section -->
+                            <div style="border-left: 1px solid var(--border-color, #e5e5e5); padding-left: 24px; display: flex; flex-direction: column; gap: 16px;">
+                                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>2. Hasil Proxy Aktif (Lolos Uji)</span>
+                                    <span id="sandbox-counter" style="font-size: 12px; background: rgba(52, 152, 219, 0.1); color: #2980b9; padding: 2px 8px; border-radius: 20px; display: none;">0 Aktif</span>
+                                </h3>
+
+                                <div id="sandbox-loader" style="display: none; text-align: center; padding: 40px 10px; color: var(--text-secondary);">
+                                    <div class="badge-checking" style="display: inline-block; margin-bottom: 12px; padding: 8px 16px;">MEMINDAI & MENGUJI...</div>
+                                    <p style="font-size: 13px; margin: 0;">Menghubungi endpoint target via proxy. Mohon tunggu beberapa detik...</p>
+                                </div>
+
+                                <div id="sandbox-result-container" style="display: flex; flex-direction: column; gap: 12px; height: 100%;">
+                                    <textarea id="sandbox-result-text" readonly placeholder="Hasil proxy yang aktif dan dapat digunakan akan muncul di sini..." style="width: 100%; flex-grow: 1; min-height: 180px; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box; font-family: monospace; font-size: 12px; background: #fafafa; color: #27ae60; resize: vertical;"></textarea>
+                                    
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <label for="import-protocol" style="font-size: 13px; font-weight: 500; color: var(--text-secondary);">Protokol Import:</label>
+                                        <select id="import-protocol" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; background: white; font-size: 13px;">
+                                            <option value="http" selected>HTTP</option>
+                                            <option value="socks5">SOCKS5</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <button class="btn" type="button" onclick="copySandboxResults()" id="btn-copy-sandbox" disabled style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: not-allowed; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px;">
+                                            📋 Copy ke Clipboard
+                                        </button>
+                                        <button class="btn btn-primary" type="button" onclick="importSandboxResults()" id="btn-import-sandbox" disabled style="padding: 10px; border-radius: 6px; background: #e63329; color: white; border: 0; cursor: not-allowed; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px;">
+                                            📥 Import ke Rotator
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="dashboard-panel" style="margin-top: 24px;">
+                    <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px;">
+                        <div>
+                            <p class="eyebrow">Real-Time Console</p>
+                            <h2>Log Proses Pengujian</h2>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="padding: 10px 20px 20px 20px;">
+                        <div class="carbon-wrapper">
+                            <div class="ios-console">
+                                <div class="ios-console-header">
+                                    <div class="ios-console-dots">
+                                        <div class="ios-console-dot red"></div>
+                                        <div class="ios-console-dot yellow"></div>
+                                        <div class="ios-console-dot green"></div>
+                                    </div>
+                                    <div class="ios-console-title">proxy_scraper.log</div>
+                                </div>
+                                <div class="ios-console-body" id="sandbox-console">
+                                    <span style="color: #8e8e93;">> Konsol log siap. Silakan klik tombol "Mulai Scraping & Pengujian" di atas.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="dashboard-panel" style="margin-top: 24px;">
+                    <div class="panel-heading" style="border-bottom: 1px solid var(--border-color, #e5e5e5); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <p class="eyebrow">Cron Job Logs</p>
+                            <h2 style="margin: 0; border: none; padding: 0;">Log Aktivitas Latar Belakang (Auto-Scraper)</h2>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button id="btn-refresh-scraper-logs" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px;">Perbarui Log 🔄</button>
+                            <button id="btn-clear-scraper-logs" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px; background-color: #fff0f6; border-color: #ffadd2; color: #eb2f96;">Bersihkan Log 🗑️</button>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="padding: 10px 20px 20px 20px;">
+                        <div class="carbon-wrapper">
+                            <div class="ios-console">
+                                <div class="ios-console-header">
+                                    <div class="ios-console-dots">
+                                        <div class="ios-console-dot red"></div>
+                                        <div class="ios-console-dot yellow"></div>
+                                        <div class="ios-console-dot green"></div>
+                                    </div>
+                                    <div class="ios-console-title">auto_scraper_background.log</div>
+                                </div>
+                                <div class="ios-console-body" id="bg-scraper-console" style="height: 350px;">
+                                    <div style="color: #8e8e93; font-style: italic;">Memuat log aktivitas...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scraper Result Modal -->
+    <div id="result-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; max-width: 420px; width: 90%; padding: 28px 24px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12); text-align: center; border: 1px solid rgba(0,0,0,0.06); animation: modalFadeIn 0.3s ease;">
+            <div style="font-size: 54px; margin-bottom: 16px;">🚀</div>
+            <h3 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 8px; font-family: var(--font-display);">Scraping & Pengujian Selesai!</h3>
+            <p id="modal-success-desc" style="font-size: 14.5px; color: #64748b; margin-bottom: 24px; line-height: 1.6;"></p>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="btn" type="button" onclick="importFromModal()" id="btn-modal-import" style="padding: 12px; border-radius: 8px; background: #e63329; color: white; border: 0; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; box-shadow: 0 4px 12px rgba(230, 51, 41, 0.2);">
+                    📥 Import Langsung ke Rotator
+                </button>
+                <button class="btn" type="button" onclick="copyFromModal()" style="padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%;">
+                    📋 Copy ke Clipboard
+                </button>
+                <button class="btn" type="button" onclick="closeResultModal()" style="padding: 12px; border-radius: 8px; border: 0; background: transparent; cursor: pointer; font-weight: 600; font-size: 13px; color: #94a3b8; width: 100%; margin-top: 4px;">
+                    Tutup / Nanti Saja
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+
+    <script>
+        function showAlert(message, isSuccess) {
+            const alertDiv = document.getElementById('ajax-alert');
+            alertDiv.innerText = message;
+            alertDiv.style.display = 'block';
+            
+            if (isSuccess) {
+                alertDiv.style.background = 'rgba(46, 204, 113, 0.1)';
+                alertDiv.style.color = '#2ecc71';
+                alertDiv.style.border = '1px solid rgba(46, 204, 113, 0.2)';
+            } else {
+                alertDiv.style.background = 'rgba(230, 51, 41, 0.1)';
+                alertDiv.style.color = '#e63329';
+                alertDiv.style.border = '1px solid rgba(230, 51, 41, 0.2)';
+            }
+
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        async function runSandboxTest() {
+            const scrapePublic = document.getElementById('sandbox-scrape-public').checked;
+            const customList = document.getElementById('sandbox-custom-list').value;
+            const targetURL = document.getElementById('sandbox-target-url').value;
+            const defaultProtocol = document.getElementById('sandbox-default-protocol').value;
+            
+            const btn = document.getElementById('btn-run-sandbox');
+            const icon = document.getElementById('sandbox-icon');
+            const text = document.getElementById('sandbox-text');
+            const loader = document.getElementById('sandbox-loader');
+            const resultText = document.getElementById('sandbox-result-text');
+            const counter = document.getElementById('sandbox-counter');
+            const consoleDiv = document.getElementById('sandbox-console');
+            
+            const btnCopy = document.getElementById('btn-copy-sandbox');
+            const btnImport = document.getElementById('btn-import-sandbox');
+
+            btn.disabled = true;
+            btn.style.background = '#95a5a6';
+            icon.innerText = '⚙️';
+            text.innerText = 'Sedang Menguji...';
+            loader.style.display = 'block';
+            resultText.value = '';
+            counter.style.display = 'none';
+            btnCopy.disabled = true;
+            btnCopy.style.cursor = 'not-allowed';
+            btnImport.disabled = true;
+            btnImport.style.cursor = 'not-allowed';
+
+            consoleDiv.innerHTML = '<span style="color: #64748b;">[SYSTEM] Memulai koneksi streaming...</span>\n';
+
+            let activeProxies = [];
+
+            try {
+                const response = await fetch('/dashboard/proxies/tool/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        proxies: customList,
+                        scrape_public: scrapePublic,
+                        target_url: targetURL,
+                        default_protocol: defaultProtocol
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('HTTP error ' + response.status);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        if (!trimmedLine) continue;
+
+                        if (trimmedLine.startsWith("[PROXY]")) {
+                            const proxyStr = trimmedLine.replace("[PROXY]", "").trim();
+                            if (proxyStr) {
+                                activeProxies.push(proxyStr);
+                                resultText.value = activeProxies.join("\n");
+                                counter.innerText = activeProxies.length + ' Aktif';
+                                counter.style.display = 'inline-block';
+                            }
+                            continue;
+                        }
+
+                        let color = '#0a84ff'; // iOS system blue
+                        if (trimmedLine.startsWith("[OK]")) {
+                            color = '#30d158'; // iOS system green
+                        } else if (trimmedLine.startsWith("[FAIL]")) {
+                            color = '#ff453a'; // iOS system red
+                        } else if (trimmedLine.startsWith("[WARN]")) {
+                            color = '#ff9f0a'; // iOS system orange
+                        } else if (trimmedLine.startsWith("[SUCCESS]")) {
+                            color = '#30d158'; // iOS system green
+                        } else if (trimmedLine.startsWith("[INFO]")) {
+                            color = '#8e8e93'; // iOS system gray
+                        }
+
+                        const logSpan = document.createElement('span');
+                        logSpan.style.color = color;
+                        logSpan.innerText = trimmedLine + '\n';
+                        consoleDiv.appendChild(logSpan);
+                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    }
+                }
+
+                if (buffer) {
+                    const trimmedLine = buffer.trim();
+                    if (trimmedLine.startsWith("[PROXY]")) {
+                        const proxyStr = trimmedLine.replace("[PROXY]", "").trim();
+                        if (proxyStr) {
+                            activeProxies.push(proxyStr);
+                            resultText.value = activeProxies.join("\n");
+                        }
+                    } else if (trimmedLine) {
+                        const logSpan = document.createElement('span');
+                        logSpan.innerText = trimmedLine + '\n';
+                        consoleDiv.appendChild(logSpan);
+                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    }
+                }
+
+                btn.disabled = false;
+                btn.style.background = '#2ecc71';
+                icon.innerText = '🚀';
+                text.innerText = 'Mulai Scraping & Pengujian';
+                loader.style.display = 'none';
+
+                if (activeProxies.length > 0) {
+                    btnCopy.disabled = false;
+                    btnCopy.style.cursor = 'pointer';
+                    btnImport.disabled = false;
+                    btnImport.style.cursor = 'pointer';
+                    showAlert('Pengujian selesai! Menemukan ' + activeProxies.length + ' proxy aktif.', true);
+                    showResultModal(activeProxies.length);
+                } else {
+                    resultText.value = 'Tidak ada proxy aktif yang berhasil terhubung ke target.';
+                    showAlert('Pengujian selesai, tidak ada proxy aktif ditemukan.', false);
+                    showResultModal(0);
+                }
+
+            } catch (err) {
+                btn.disabled = false;
+                btn.style.background = '#2ecc71';
+                icon.innerText = '🚀';
+                text.innerText = 'Mulai Scraping & Pengujian';
+                loader.style.display = 'none';
+                
+                const errSpan = document.createElement('span');
+                errSpan.style.color = '#f87171';
+                errSpan.innerText = '[ERROR] Gagal: ' + err.message + '\n';
+                consoleDiv.appendChild(errSpan);
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                
+                showAlert('Gagal menghubungi server: ' + err.message, false);
+            }
+        }
+
+        function copySandboxResults() {
+            const textarea = document.getElementById('sandbox-result-text');
+            textarea.select();
+            document.execCommand('copy');
+            showAlert('Daftar proxy aktif berhasil disalin ke clipboard!', true);
+        }
+
+        function importSandboxResults(callback) {
+            const text = document.getElementById('sandbox-result-text').value;
+            if (!text || text.startsWith('Tidak ada') || text.startsWith('Error')) {
+                if (callback) callback();
+                return;
+            }
+            
+            const protocol = document.getElementById('import-protocol').value;
+            const btnImport = document.getElementById('btn-import-sandbox');
+            btnImport.disabled = true;
+            btnImport.innerText = 'Sedang Mengimpor...';
+
+            fetch('/dashboard/proxies/scraper/import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    proxies: text,
+                    protocol: protocol
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnImport.disabled = false;
+                btnImport.innerText = '📥 Import ke Rotator';
+                
+                if (data.success) {
+                    const count = (data.success_count !== undefined) ? data.success_count : (data.count || 0);
+                    let msg = 'Sukses mengimpor/memperbarui ' + count + ' proxy.';
+                    if (data.failed_count > 0) {
+                        msg += ' Gagal: ' + data.failed_count + ' proxy.';
+                    }
+                    showAlert(msg, true);
+                    alert(msg);
+                } else {
+                    showAlert('Gagal mengimpor: ' + data.error, false);
+                    alert('Gagal mengimpor: ' + data.error);
+                }
+                if (callback) callback();
+            })
+            .catch(err => {
+                btnImport.disabled = false;
+                btnImport.innerText = '📥 Import ke Rotator';
+                showAlert('Gagal menghubungi server: ' + err, false);
+                alert('Gagal menghubungi server: ' + err);
+                if (callback) callback();
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        async function fetchScraperLogs() {
+            const container = document.getElementById('bg-scraper-console');
+            if (!container) return;
+            try {
+                const response = await fetch('/dashboard/proxies/scraper/logs');
+                if (!response.ok) throw new Error('Gagal mengambil data log.');
+                const logs = await response.json();
+                if (!logs || logs.length === 0) {
+                    container.innerHTML = '<div style="color: #8e8e93; font-style: italic; text-align: center; padding: 20px 0;">Belum ada log aktivitas latar belakang.</div>';
+                    return;
+                }
+
+                container.innerHTML = logs.map(log => {
+                    const date = new Date(log.timestamp);
+                    const timeStr = date.toLocaleTimeString('id-ID', { hour12: false }) + '.' + String(date.getMilliseconds()).padStart(3, '0');
+                    const dateStr = date.toLocaleDateString('id-ID') + ' ' + timeStr;
+
+                    let levelColor = '#0a84ff'; // Blue for INFO
+                    if (log.level === 'WARN') {
+                        levelColor = '#ff9f0a'; // Orange for WARN
+                    } else if (log.level === 'ERROR') {
+                        levelColor = '#ff453a'; // Red for ERROR
+                    }
+
+                    return `<div style="margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; display: flex; gap: 8px; align-items: flex-start;">
+                        <span style="color: #8e8e93; white-space: nowrap; font-size: 12px;">[${dateStr}]</span>
+                        <span style="color: ${levelColor}; font-weight: bold; white-space: nowrap; font-size: 12px;">[${log.level}]</span>
+                        <span style="color: #f2f2f7; word-break: break-all;">${escapeHtml(log.message)}</span>
+                    </div>`;
+                }).join('');
+
+                container.scrollTop = container.scrollHeight;
+            } catch (err) {
+                container.innerHTML = `<div style="color: #ff453a; font-weight: bold; text-align: center; padding: 20px 0;">Error memuat log: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        document.getElementById('btn-refresh-scraper-logs').addEventListener('click', fetchScraperLogs);
+
+        document.getElementById('btn-clear-scraper-logs').addEventListener('click', async function() {
+            if (!confirm('Apakah Anda yakin ingin menghapus semua log auto-scraper?')) {
+                return;
+            }
+            try {
+                const response = await fetch('/dashboard/proxies/scraper/logs/clear', { method: 'POST' });
+                if (!response.ok) throw new Error('Gagal membersihkan log');
+                fetchScraperLogs();
+            } catch (err) {
+                showAlert('Error: ' + err.message, false);
+            }
+        });
+
+        // Modal control helper functions
+        function showResultModal(activeCount) {
+            const modal = document.getElementById('result-modal');
+            const desc = document.getElementById('modal-success-desc');
+            const btnImportModal = document.getElementById('btn-modal-import');
+            
+            if (activeCount > 0) {
+                desc.innerHTML = `Menemukan <strong style="color: #27ae60;">${activeCount}</strong> proxy aktif yang siap digunakan.`;
+                btnImportModal.disabled = false;
+                btnImportModal.style.background = '#e63329';
+                btnImportModal.style.cursor = 'pointer';
+            } else {
+                desc.innerHTML = `Tidak menemukan proxy aktif yang berhasil terhubung ke target. Silakan coba scraping ulang.`;
+                btnImportModal.disabled = true;
+                btnImportModal.style.background = '#cbd5e1';
+                btnImportModal.style.cursor = 'not-allowed';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeResultModal() {
+            document.getElementById('result-modal').style.display = 'none';
+        }
+
+        function importFromModal() {
+            const btnModalImport = document.getElementById('btn-modal-import');
+            btnModalImport.disabled = true;
+            btnModalImport.innerText = '⏳ Sedang Mengimpor...';
+            
+            importSandboxResults(() => {
+                closeResultModal();
+                btnModalImport.disabled = false;
+                btnModalImport.innerText = '📥 Import Langsung ke Rotator';
+            });
+        }
+
+        function copyFromModal() {
+            copySandboxResults();
+        }
+
+        // Initial load and poll every 15 seconds
+        fetchScraperLogs();
+        setInterval(fetchScraperLogs, 15000);
+    </script>
+</body>
+</html>

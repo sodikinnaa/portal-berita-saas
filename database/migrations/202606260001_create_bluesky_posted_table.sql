@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS bluesky_posted_articles (
+    article_id VARCHAR(255) PRIMARY KEY REFERENCES articles(id) ON DELETE CASCADE,
+    bsky_post_uri VARCHAR(255) NOT NULL,
+    posted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

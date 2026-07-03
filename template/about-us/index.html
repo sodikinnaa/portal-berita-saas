@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil & Visi Misi - Akademi Keuangan dan Perbankan YAPIS Jayapura</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .page-header {
+            background: linear-gradient(rgba(15, 81, 50, 0.9), rgba(15, 81, 50, 0.95)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            padding: 80px 0 40px 0;
+            text-align: center;
+        }
+        .page-title {
+            font-family: var(--font-serif);
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .breadcrumb {
+            font-size: 14px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .main-content {
+            padding: 80px 0;
+        }
+        .about-grid {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+        .vision-mission-box {
+            background-color: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+        }
+        .vision-title {
+            color: var(--primary);
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .vision-text {
+            font-style: italic;
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            padding-left: 20px;
+            border-left: 3px solid var(--accent);
+        }
+        .mission-list {
+            padding-left: 20px;
+        }
+        .mission-list li {
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background-color: var(--border);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            border: 2px solid var(--white);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
+        }
+        .timeline-year {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .timeline-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="main-header" style="position: relative;">
+        <div class="container">
+            <div class="logo-container">
+                {{if index .Settings "site_favicon"}}
+                <img src="{{index .Settings "site_favicon"}}" alt="Logo" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;">
+                {{else}}
+                <div class="logo-symbol">Y</div>
+                {{end}}
+                <div class="logo-text">
+                    <span class="logo-title">{{if index .Settings "site_title"}}{{index .Settings "site_title"}}{{else}}AKUBANK YAPIS{{end}}</span>
+                    <span class="logo-subtitle">{{if index .Settings "site_tagline"}}{{index .Settings "site_tagline"}}{{else}}Jayapura, Papua{{end}}</span>
+                </div>
+            </div>
+            
+            <span class="menu-toggle" id="menu-toggle-btn">☰</span>
+            
+            <nav class="main-nav" id="main-navigation">
+                <a href="/" class="nav-link">Beranda</a>
+                <a href="/about-us" class="nav-link active">Profil Kampus</a>
+                <a href="/subpage" class="nav-link">Program Studi</a>
+                <a href="/#news" class="nav-link">Berita & Acara</a>
+                <a href="https://pmb.abankyapis.ac.id" class="btn-admission">PMB Online 🎓</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">Profil Akademi Keuangan & Perbankan</h1>
+            <div class="breadcrumb">
+                <a href="/">Beranda</a> &bull; 
+                <span>Profil Kampus</span> &bull; 
+                <span style="color: var(--accent); font-weight: 700;">Visi & Misi</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="container main-content">
+        <div class="about-grid">
+            <!-- Left Side: History & Vision/Mission -->
+            <div>
+                <div class="vision-mission-box">
+                    <h2 class="vision-title">🌟 Visi Kampus</h2>
+                    <p class="vision-text">
+                        "Menjadi akademi keuangan dan perbankan yang unggul, berdaya saing, berjiwa kewirausahaan, serta bernapaskan nilai-nilai Islam di Tanah Papua pada tahun 2030."
+                    </p>
+                    
+                    <h2 class="vision-title">🎯 Misi Kampus</h2>
+                    <ol class="mission-list">
+                        <li>Menyelenggarakan pendidikan vokasi di bidang keuangan dan perbankan yang bermutu tinggi dan relevan dengan kebutuhan dunia kerja nasional.</li>
+                        <li>Melaksanakan penelitian terapan dan pengabdian masyarakat guna mendukung kemajuan ekonomi daerah dan pemberdayaan masyarakat Papua.</li>
+                        <li>Membina karakter mahasiswa yang religius, berintegritas, beretika profesional bankir, serta berjiwa kemandirian ekonomi.</li>
+                        <li>Menjalin kemitraan strategis yang berkelanjutan dengan lembaga perbankan, BUMN, OJK, BI, dan pemerintah daerah.</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h2 style="font-family: var(--font-serif); font-size: 28px; color: var(--primary-dark); margin-bottom: 16px;">Sejarah Singkat Kampus</h2>
+                    <p>Akademi Keuangan dan Perbankan (Akubank) YAPIS Jayapura didirikan di bawah naungan Yayasan Pendidikan Islam (YAPIS) di Tanah Papua. YAPIS sendiri merupakan organisasi sosial keagamaan dan pendidikan Islam terbesar di Tanah Papua yang telah eksis membangun sumber daya manusia sejak dekade 1960-an.</p>
+                    <p style="margin-top: 12px;">Akubank YAPIS lahir guna merespon tingginya kebutuhan tenaga ahli madya perbankan lokal seiring dengan masifnya ekspansi kantor cabang bank pembangunan daerah, bank umum nasional, BUMN, dan lembaga keuangan non-bank di wilayah Papua dan Papua Barat.</p>
+                </div>
+            </div>
+
+            <!-- Right Side: Timeline & Partners -->
+            <div>
+                <div style="background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); padding: 30px; box-shadow: var(--box-shadow);">
+                    <h3 style="font-size: 20px; color: var(--primary-dark); font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">Milestones Kampus</h3>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-year">Mendirikan Vokasi Keuangan</div>
+                            <div class="timeline-desc">YAPIS meletakkan fondasi akademi vokasi khusus keuangan untuk melatih generasi muda Jayapura terampil administrasi kas.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year">Kemitraan Perbankan</div>
+                            <div class="timeline-desc">Kerja sama perdana program pemagangan mahasiswa dengan Bank Pembangunan Daerah (BPD) Papua.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year">Sertifikasi & Modernisasi</div>
+                            <div class="timeline-desc">Implementasi kurikulum berbasis Kerangka Kualifikasi Nasional Indonesia (KKNI) dan persiapan sertifikasi manajemen risiko OJK.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="partners" style="margin-top: 40px; text-align: center;">
+                    <h3 style="font-size: 18px; color: var(--primary-dark); font-weight: 700; margin-bottom: 20px;">Mitra Penempatan Magang & Kerja</h3>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                        <span style="background-color: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border);">BANK PAPUA</span>
+                        <span style="background-color: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border);">BANK MANDIRI</span>
+                        <span style="background-color: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border);">BNI</span>
+                        <span style="background-color: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border);">BRI</span>
+                        <span style="background-color: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border);">OJK PAPUA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0; text-align: center;">
+                <p>&copy; 2026 Akademi Keuangan dan Perbankan YAPIS Jayapura. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>

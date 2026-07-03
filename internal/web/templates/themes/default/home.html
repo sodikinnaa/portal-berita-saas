@@ -1,0 +1,2394 @@
+<!doctype html>
+
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }} - {{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Breaking News Today{{ end }}</title>
+
+        {{template "cdn_styles" .}}
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        {{if index .Settings "seo_google_verification"}}
+        <meta name="google-site-verification" content="{{index .Settings "seo_google_verification"}}" />
+        {{end}}
+        {{if index .Settings "seo_bing_verification"}}
+        <meta name="msvalidate.01" content="{{index .Settings "seo_bing_verification"}}" />
+        {{end}}
+
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --red: #e63329;
+
+                --dark: #111111;
+
+                --mid: #333333;
+
+                --gray: #777777;
+
+                --light-gray: #f4f4f4;
+
+                --border: #e0e0e0;
+
+                --white: #ffffff;
+
+                --tag-bg: #e63329;
+
+                --tag-green: #2e7d32;
+
+                --tag-blue: #1565c0;
+
+                --tag-orange: #e65100;
+
+                --tag-purple: #6a1b9a;
+
+                --font-display: "Poppins", "Source Sans 3", sans-serif;
+
+                --font-body: "Source Sans 3", sans-serif;
+
+                --font-heading: "Poppins", "Oswald", sans-serif;
+            }
+
+            body {
+                font-family: var(--font-body);
+                color: var(--dark);
+                background: #fff;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+
+            a:hover {
+                color: var(--red);
+            }
+
+            img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            /* ── TOP BAR ── */
+
+            .topbar {
+                background: var(--dark);
+
+                color: #aaa;
+
+                font-size: 11px;
+
+                padding: 5px 0;
+
+                font-family: var(--font-body);
+            }
+
+            .topbar-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 16px;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .topbar-left {
+                display: flex;
+                gap: 16px;
+                align-items: center;
+            }
+
+            .topbar-date {
+                color: #ccc;
+            }
+
+            .topbar-weather {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .topbar-right {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .topbar-right a {
+                color: #aaa;
+                font-size: 12px;
+            }
+
+            .topbar-right a:hover {
+                color: var(--white);
+            }
+
+            /* ── HEADER ── */
+
+            .header {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .header-top {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 12px 16px;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+            }
+
+            .logo {
+                flex-shrink: 0;
+            }
+
+            .logo-text {
+                font-family: var(--font-display);
+                font-weight: 900;
+                font-size: 38px;
+
+                letter-spacing: -1px;
+                line-height: 1;
+                color: var(--dark);
+            }
+
+            .logo-text span {
+                color: var(--red);
+            }
+
+            .logo-sub {
+                font-size: 9px;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--gray);
+                margin-top: 2px;
+            }
+
+            .header-ad {
+                flex: 1;
+                max-width: 480px;
+                height: 80px;
+                background: linear-gradient(135deg, #1a1a2e, #16213e);
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 12px;
+
+                border-radius: 2px;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .header-ad-text {
+                text-align: center;
+            }
+
+            .header-ad-text .big {
+                font-size: 18px;
+                font-weight: 700;
+                color: #f9ca24;
+            }
+
+            .header-ad .ad-label {
+                position: absolute;
+                top: 4px;
+                right: 6px;
+                font-size: 9px;
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .header-actions {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .btn-subscribe {
+                background: var(--red);
+                color: #fff;
+                padding: 9px 18px;
+                font-size: 12px;
+                font-weight: 700;
+
+                font-family: var(--font-heading);
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                border: none;
+                cursor: pointer;
+
+                white-space: nowrap;
+            }
+
+            .btn-login {
+                border: 1px solid var(--border);
+                padding: 8px 14px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+
+                color: var(--mid);
+                background: transparent;
+                white-space: nowrap;
+            }
+
+            /* ── NAV ── */
+            .navbar {
+                border-top: 3px solid var(--red);
+            }
+
+            .navbar-dark .navbar-nav .nav-link {
+                color: rgba(255, 255, 255, 0.75);
+                font-family: var(--font-heading);
+                font-size: 13px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 12px 16px;
+                transition: all 0.2s;
+            }
+
+            .navbar-dark .navbar-nav .nav-link:hover,
+            .navbar-dark .navbar-nav .nav-link.active {
+                color: #fff;
+                background-color: var(--red);
+            }
+
+            /* ── BREAKING TICKER ── */
+
+            .ticker {
+                background: var(--red);
+                color: #fff;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .ticker-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 16px;
+                display: flex;
+                align-items: center;
+            }
+
+            .ticker-label {
+                background: rgba(0, 0, 0, 0.25);
+                font-family: var(--font-heading);
+                font-size: 11px;
+                font-weight: 600;
+
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                padding: 7px 14px;
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+
+            .ticker-track {
+                overflow: hidden;
+                flex: 1;
+                padding: 0 12px;
+            }
+
+            .ticker-content {
+                display: flex;
+                gap: 60px;
+                animation: ticker 28s linear infinite;
+                white-space: nowrap;
+            }
+
+            .ticker-content span {
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .ticker-content span::before {
+                content: "● ";
+                opacity: 0.5;
+            }
+
+            @keyframes ticker {
+                0% {
+                    transform: translateX(0);
+                }
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+
+            /* ── LAYOUT ── */
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 16px;
+            }
+
+            .main-layout {
+                display: grid;
+                grid-template-columns: 1fr 280px;
+                gap: 28px;
+                padding: 24px 0;
+            }
+
+            .sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            /* ── SECTION LABELS ── */
+
+            .section-label {
+                display: flex;
+                align-items: center;
+                gap: 0;
+                margin-bottom: 14px;
+                border-bottom: 2px solid var(--border);
+
+                padding-bottom: 8px;
+            }
+
+            .section-label .label-tag {
+                background: var(--red);
+                color: #fff;
+                font-family: var(--font-heading);
+                font-size: 12px;
+
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                padding: 4px 12px;
+            }
+
+            .section-label .label-tag.green {
+                background: var(--tag-green);
+            }
+
+            .section-label .label-tag.blue {
+                background: var(--tag-blue);
+            }
+
+            .section-label .label-tag.orange {
+                background: var(--tag-orange);
+            }
+
+            .section-label .label-tag.dark {
+                background: var(--dark);
+            }
+
+            /* ── POST TAG ── */
+
+            .post-tag {
+                display: inline-block;
+                font-family: var(--font-heading);
+                font-size: 10px;
+                font-weight: 600;
+
+                letter-spacing: 0.8px;
+                text-transform: uppercase;
+                padding: 2px 7px;
+                color: #fff;
+
+                background: var(--red);
+                margin-bottom: 6px;
+            }
+
+            .post-tag.sport {
+                background: var(--tag-green);
+            }
+
+            .post-tag.tech {
+                background: var(--tag-blue);
+            }
+
+            .post-tag.travel {
+                background: var(--tag-orange);
+            }
+
+            .post-tag.fashion {
+                background: var(--tag-purple);
+            }
+
+            /* ── HERO SECTION ── */
+
+            .hero-section {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                grid-template-rows: auto auto;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .hero-main {
+                grid-row: 1 / 3;
+                position: relative;
+                height: 380px;
+                overflow: hidden;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+
+            .hero-main img,
+            .hero-side-item img,
+            .post-list-thumb img,
+            .post-grid-thumb img,
+            .big-feature-img img,
+            .popular-thumb img,
+            .footer-post-thumb img {
+                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .hero-main:hover img {
+                transform: scale(1.03);
+            }
+
+            .hero-overlay {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+
+                background: linear-gradient(
+                    transparent 0%,
+                    rgba(0, 0, 0, 0.85) 100%
+                );
+
+                padding: 20px 18px 18px;
+            }
+
+            .hero-title {
+                font-family: var(--font-display);
+                font-size: 22px;
+                font-weight: 700;
+                color: #fff;
+                line-height: 1.3;
+
+                margin-bottom: 8px;
+            }
+
+            .hero-meta {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.65);
+            }
+
+            .hero-meta span {
+                margin-right: 10px;
+            }
+
+            .hero-side-item {
+                position: relative;
+                height: 186px;
+                overflow: hidden;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+
+            .hero-side-item:hover img {
+                transform: scale(1.05);
+            }
+
+            .hero-side-overlay {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+
+                background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+                padding: 14px 12px 10px;
+            }
+
+            .hero-side-title {
+                font-family: var(--font-display);
+                font-size: 14px;
+                font-weight: 700;
+                color: #fff;
+                line-height: 1.3;
+            }
+
+            /* ── FEATURED TABS ── */
+
+            .tabs {
+                display: flex;
+                gap: 0;
+                margin-bottom: 14px;
+                border-bottom: 2px solid var(--border);
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                scrollbar-width: none; /* Firefox */
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tabs::-webkit-scrollbar {
+                display: none; /* Safari and Chrome */
+            }
+
+            .tab-btn {
+                font-family: var(--font-heading);
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+
+                text-transform: uppercase;
+                padding: 8px 14px;
+                border: none;
+                background: transparent;
+
+                color: var(--gray);
+                cursor: pointer;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -2px;
+
+                transition: all 0.2s;
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+
+            .tab-btn.active {
+                color: var(--red);
+                border-bottom-color: var(--red);
+            }
+
+            /* ── LIST POSTS ── */
+
+            .post-list {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .post-list-item {
+                display: grid;
+                grid-template-columns: 90px 1fr;
+                gap: 12px;
+                align-items: start;
+            }
+
+            .post-list-thumb {
+                width: 90px;
+                height: 65px;
+                overflow: hidden;
+                flex-shrink: 0;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .post-list-thumb:hover img {
+                transform: scale(1.08);
+            }
+
+            .post-list-title {
+                font-family: var(--font-display);
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1.4;
+
+                color: var(--dark);
+            }
+
+            .post-list-title:hover {
+                color: var(--red);
+            }
+
+            .post-meta {
+                font-size: 10px;
+                color: var(--gray);
+                margin-top: 4px;
+            }
+
+            .post-meta .author {
+                color: var(--red);
+                font-weight: 600;
+            }
+
+            /* ── GRID POSTS ── */
+
+            .post-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+                margin-bottom: 24px;
+            }
+
+            .post-grid-item {
+            }
+
+            .post-grid-thumb {
+                height: 150px;
+                overflow: hidden;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .post-grid-thumb:hover img {
+                transform: scale(1.06);
+            }
+
+            .post-grid-title {
+                font-family: var(--font-display);
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.4;
+
+                color: var(--dark);
+                margin-bottom: 6px;
+            }
+
+            .post-grid-title:hover {
+                color: var(--red);
+            }
+
+            .post-grid-excerpt {
+                font-size: 12px;
+                color: var(--gray);
+                line-height: 1.5;
+            }
+
+            .post-grid-4 {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .post-grid-4 .post-grid-thumb {
+                height: 120px;
+            }
+
+            .post-grid-4 .post-grid-title {
+                font-size: 13px;
+            }
+
+            /* ── BIG FEATURE ── */
+
+            .big-feature {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 24px;
+                align-items: start;
+            }
+
+            .big-feature-img {
+                height: 260px;
+                overflow: hidden;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+
+            .big-feature-img:hover img {
+                transform: scale(1.04);
+            }
+
+            .big-feature-content {
+            }
+
+            .big-feature-title {
+                font-family: var(--font-display);
+                font-size: 22px;
+                font-weight: 700;
+                line-height: 1.3;
+
+                margin-bottom: 10px;
+                color: var(--dark);
+            }
+
+            .big-feature-title:hover {
+                color: var(--red);
+            }
+
+            .big-feature-excerpt {
+                font-size: 13px;
+                color: var(--gray);
+                line-height: 1.7;
+                margin-bottom: 12px;
+            }
+
+            .read-more {
+                display: inline-block;
+                font-family: var(--font-heading);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--red);
+                border-bottom: 1px solid var(--red);
+                padding-bottom: 1px;
+                text-decoration: none;
+                transition: all 0.2s ease-in-out;
+            }
+
+            .read-more:hover {
+                color: var(--red-hover);
+                border-bottom-color: var(--red-hover);
+                padding-left: 4px;
+            }
+
+            /* ── DIVIDER SECTION ── */
+
+            .divider-banner {
+                background: var(--dark);
+                padding: 14px 0;
+                margin: 10px 0 24px;
+                text-align: center;
+            }
+
+            .divider-banner-text {
+                font-family: var(--font-heading);
+                font-size: 11px;
+                color: #aaa;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            .divider-banner-cta {
+                display: inline-block;
+                background: var(--red);
+                color: #fff;
+                font-family: var(--font-heading);
+
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+
+                padding: 6px 18px;
+                margin-left: 20px;
+            }
+
+            /* ── SIDEBAR WIDGETS ── */
+
+            .widget {
+                margin-bottom: 0;
+            }
+
+            .widget-title {
+                font-family: var(--font-heading);
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 1px;
+
+                text-transform: uppercase;
+                color: var(--dark);
+                border-left: 3px solid var(--red);
+
+                padding-left: 10px;
+                margin-bottom: 14px;
+            }
+
+            /* social counts */
+
+            .social-box {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .social-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                padding: 8px 12px;
+                border-radius: 2px;
+                color: #fff;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .social-item.fb {
+                background: #1877f2;
+            }
+
+            .social-item.tw {
+                background: #1da1f2;
+            }
+
+            .social-item.yt {
+                background: #ff0000;
+            }
+
+            .social-item.ig {
+                background: linear-gradient(
+                    135deg,
+                    #f09433,
+                    #e6683c,
+                    #dc2743,
+                    #cc2366,
+                    #bc1888
+                );
+            }
+
+            .social-item .soc-count {
+                font-size: 16px;
+                font-weight: 700;
+            }
+
+            /* popular posts */
+
+            .popular-list {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                counter-reset: pop-counter;
+            }
+
+            .popular-item {
+                display: grid;
+                grid-template-columns: 86px 1fr;
+                gap: 14px;
+                align-items: center;
+                position: relative;
+                padding-left: 8px;
+            }
+
+            .popular-item::before {
+                counter-increment: pop-counter;
+                content: counter(pop-counter);
+                position: absolute;
+                top: -6px;
+                left: -2px;
+                background: var(--red);
+                color: #fff;
+                font-family: var(--font-heading);
+                font-size: 12px;
+                font-weight: 700;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2;
+                box-shadow: 0 2px 6px rgba(230, 51, 41, 0.4);
+            }
+
+            .popular-thumb {
+                width: 86px;
+                height: 64px;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            }
+
+            .popular-thumb img {
+                transition: transform 0.3s;
+            }
+
+            .popular-thumb:hover img {
+                transform: scale(1.08);
+            }
+
+            .popular-title {
+                font-family: var(--font-display);
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.35;
+                color: var(--dark);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .popular-title:hover {
+                color: var(--red);
+            }
+
+            .popular-meta {
+                font-size: 10px;
+                color: var(--gray);
+                margin-top: 3px;
+            }
+
+            /* stars */
+
+            .stars {
+                color: #f5a623;
+                font-size: 11px;
+            }
+
+            /* must read */
+
+            .must-read-item {
+                padding: 10px 0;
+                border-bottom: 1px solid var(--border);
+                display: grid;
+                grid-template-columns: 70px 1fr;
+                gap: 10px;
+            }
+
+            .must-read-item:last-child {
+                border-bottom: none;
+            }
+
+            /* ── AD BANNER ── */
+
+            .ad-banner {
+                background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+
+                padding: 16px;
+                text-align: center;
+                color: #fff;
+                margin: 0 0 24px;
+            }
+
+            .ad-banner .ad-inner {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .ad-banner .ad-headline {
+                font-family: var(--font-heading);
+                font-size: 20px;
+                font-weight: 700;
+                margin: 6px 0;
+            }
+
+            .ad-banner .ad-sub {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.7);
+                margin-bottom: 10px;
+            }
+
+            .ad-btn {
+                display: inline-block;
+                background: #f9ca24;
+                color: #000;
+                font-family: var(--font-heading);
+
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                padding: 8px 22px;
+            }
+
+            /* ── HORIZONTAL DIVIDER ── */
+
+            .section-divider {
+                height: 3px;
+                background: var(--border);
+                margin: 24px 0;
+                position: relative;
+            }
+
+            .section-divider::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 60px;
+                height: 3px;
+                background: var(--red);
+            }
+
+            /* ── FOOTER ── */
+
+            .footer {
+                background: #1a1a1a;
+                color: #ccc;
+                margin-top: 32px;
+            }
+
+            .footer-top {
+                border-bottom: 1px solid #333;
+                padding: 30px 0;
+            }
+
+            .footer-grid {
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr 1fr;
+                gap: 28px;
+            }
+
+            .footer-about-logo {
+                font-family: var(--font-display);
+                font-size: 26px;
+                font-weight: 900;
+                color: #fff;
+                margin-bottom: 10px;
+            }
+
+            .footer-about-logo span {
+                color: var(--red);
+            }
+
+            .footer-about-text {
+                font-size: 12px;
+                line-height: 1.7;
+                color: #999;
+            }
+
+            .footer-col-title {
+                font-family: var(--font-heading);
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: #fff;
+                margin-bottom: 14px;
+                border-bottom: 1px solid #333;
+                padding-bottom: 8px;
+            }
+
+            .footer-links {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .footer-links li a {
+                font-size: 12px;
+                color: #999;
+                transition: color 0.2s;
+            }
+
+            .footer-links li a:hover {
+                color: var(--red);
+                padding-left: 4px;
+            }
+
+            .footer-post-list {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .footer-post-item {
+                display: grid;
+                grid-template-columns: 64px 1fr;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .footer-post-thumb {
+                width: 64px;
+                height: 46px;
+                overflow: hidden;
+                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .footer-post-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.25s ease;
+            }
+
+            .footer-post-item:hover .footer-post-thumb img {
+                transform: scale(1.1);
+            }
+
+            .footer-post-title {
+                font-size: 13.5px;
+                font-weight: 600;
+                color: #cbd5e1;
+                line-height: 1.45;
+                text-decoration: none;
+                transition: color 0.2s ease;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .footer-post-item:hover .footer-post-title {
+                color: #ef4444;
+            }
+
+            .footer-post-date {
+                font-size: 11px;
+                color: #64748b;
+                margin-top: 4px;
+            }
+
+            .footer-bottom {
+                padding: 14px 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .footer-copy {
+                font-size: 11px;
+                color: #666;
+            }
+
+            .footer-socials {
+                display: flex;
+                gap: 10px;
+            }
+
+            .footer-socials a {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: #333;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                font-size: 11px;
+                color: #ccc;
+                transition: background 0.2s;
+            }
+
+            .footer-socials a:hover {
+                background: var(--red);
+                color: #fff;
+            }
+
+            /* ── SIDE BLOCKS ── */
+
+            .side-block {
+                margin-bottom: 24px;
+                background: var(--light-gray);
+                padding: 14px;
+            }
+
+            /* ── SMALL UTILITIES ── */
+
+            .separator {
+                height: 1px;
+                background: var(--border);
+                margin: 14px 0;
+            }
+
+            .text-red {
+                color: var(--red);
+            }
+
+            .text-gray {
+                color: var(--gray);
+            }
+
+            .text-sm {
+                font-size: 11px;
+            }
+
+            .mt-4 {
+                margin-top: 4px;
+            }
+
+            .mt-8 {
+                margin-top: 8px;
+            }
+
+            .mt-12 {
+                margin-top: 12px;
+            }
+
+            .mb-16 {
+                margin-bottom: 16px;
+            }
+
+            /* ── PLACEHOLDER IMAGES (CSS gradients) ── */
+
+            .img-placeholder {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                padding: 10px !important;
+                box-sizing: border-box !important;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                text-decoration: none !important;
+                color: #fff !important;
+            }
+
+            .placeholder-text {
+                color: #fff !important;
+                font-family: var(--font-body), sans-serif !important;
+                font-size: 14px !important;
+                font-weight: 700 !important;
+                line-height: 1.35 !important;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+                margin: 0 !important;
+            }
+
+            .placeholder-text-large {
+                color: #fff !important;
+                font-family: var(--font-display), serif !important;
+                font-size: 24px !important;
+                font-weight: 700 !important;
+                line-height: 1.35 !important;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
+                margin: 0 !important;
+            }
+
+            .placeholder-text-medium {
+                color: #fff !important;
+                font-family: var(--font-display), serif !important;
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                line-height: 1.35 !important;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+                margin: 0 !important;
+            }
+
+            .placeholder-text-small {
+                color: #fff !important;
+                font-family: var(--font-body), sans-serif !important;
+                font-size: 10px !important;
+                font-weight: 600 !important;
+                line-height: 1.2 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                max-height: 100% !important;
+                overflow: hidden !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                margin: 0 !important;
+            }
+
+            /* ── COLORED IMG PLACEHOLDERS ── */
+
+            .ph-1 {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+            .ph-2 {
+                background: linear-gradient(135deg, #f093fb, #f5576c);
+            }
+
+            .ph-3 {
+                background: linear-gradient(135deg, #4facfe, #00f2fe);
+            }
+
+            .ph-4 {
+                background: linear-gradient(135deg, #43e97b, #38f9d7);
+            }
+
+            .ph-5 {
+                background: linear-gradient(135deg, #fa709a, #fee140);
+            }
+
+            .ph-6 {
+                background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+            }
+
+            .ph-7 {
+                background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            }
+
+            .ph-8 {
+                background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            }
+
+            .ph-9 {
+                background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            }
+
+            .ph-10 {
+                background: linear-gradient(135deg, #fd7043, #ff8a65);
+            }
+
+            .ph-11 {
+                background: linear-gradient(135deg, #26c6da, #00acc1);
+            }
+
+            .ph-12 {
+                background: linear-gradient(135deg, #66bb6a, #43a047);
+            }
+
+            .ph-person {
+                background: linear-gradient(135deg, #37474f, #546e7a);
+                position: relative;
+            }
+
+            .ph-city {
+                background: linear-gradient(135deg, #1565c0, #0d47a1);
+            }
+
+            /* ── RESPONSIVE ── */
+
+            @media (max-width: 900px) {
+                .main-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    order: 2;
+                }
+
+                .hero-section {
+                    grid-template-columns: 1fr;
+                }
+
+                .hero-main {
+                    grid-row: 1;
+                    height: 260px;
+                }
+
+                .hero-side-item {
+                    height: 150px;
+                }
+
+                .post-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .post-grid-4 {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .footer-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @media (max-width: 600px) {
+                body {
+                    overflow-x: hidden;
+                }
+
+                .topbar {
+                    display: none;
+                }
+
+                .container,
+                .header-top,
+                .nav-inner {
+                    padding-left: 12px;
+                    padding-right: 12px;
+                }
+
+                .header-top {
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 12px 0;
+                }
+
+                .footer-bottom {
+                    align-items: stretch;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+
+                .header-actions {
+                    display: flex;
+                    width: auto;
+                }
+
+                .btn-login {
+                    width: auto;
+                    padding: 6px 14px;
+                    min-height: auto;
+                }
+
+                .logo-text {
+                    font-size: 28px;
+                }
+
+                .header-ad {
+                    display: none;
+                }
+
+                .nav-inner {
+                    align-items: stretch;
+                }
+
+                .nav-list {
+                    overflow-x: auto;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+
+                .nav-list::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .nav-list li a {
+                    padding: 11px 10px;
+                    font-size: 11px;
+                    white-space: nowrap;
+                }
+
+                .nav-search {
+                    display: none;
+                }
+
+                .ticker-label {
+                    padding: 7px 10px;
+                    font-size: 10px;
+                }
+
+                .main-layout {
+                    gap: 20px;
+                    padding-top: 16px;
+                }
+
+                .main-layout > * {
+                    min-width: 0;
+                }
+
+                .hero-section {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+
+                .hero-main {
+                    grid-row: 1;
+                    height: 280px;
+                }
+
+                .hero-overlay {
+                    background: linear-gradient(
+                        transparent 0%,
+                        rgba(0, 0, 0, 0.5) 40%,
+                        rgba(0, 0, 0, 0.92) 100%
+                    );
+                    padding: 24px 16px 20px;
+                }
+
+                .hero-title {
+                    font-size: 20px;
+                    line-height: 1.25;
+                    margin-bottom: 10px;
+                }
+
+                .hero-meta {
+                    font-size: 12px;
+                }
+
+                .hero-side-item {
+                    height: 160px;
+                }
+
+                .hero-side-overlay {
+                    background: linear-gradient(
+                        transparent 0%,
+                        rgba(0, 0, 0, 0.4) 35%,
+                        rgba(0, 0, 0, 0.88) 100%
+                    );
+                    padding: 16px 14px 12px;
+                }
+
+                .hero-side-title {
+                    font-size: 14px;
+                    line-height: 1.3;
+                }
+
+                .post-grid,
+                .post-grid-4,
+                .big-feature {
+                    grid-template-columns: 1fr;
+                }
+
+                .post-list-item,
+                .must-read-item {
+                    display: grid;
+                    grid-template-columns: 26% 1fr;
+                    gap: 16px;
+                    align-items: center;
+                    padding: 14px 0;
+                    border-bottom: 1px solid #f0f0f0;
+                }
+
+                .post-list-item:last-child,
+                .must-read-item:last-child {
+                    border-bottom: none;
+                }
+
+                /* ── UNGGULAN & News List Mobile Premium Fixes ── */
+                .tabs {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none; /* Firefox */
+                    margin-bottom: 16px;
+                    border-bottom: 2px solid var(--border);
+                    gap: 4px;
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                }
+
+                .tabs::-webkit-scrollbar {
+                    display: none; /* Safari and Chrome */
+                }
+
+                .tab-btn {
+                    flex: 0 0 auto;
+                    white-space: nowrap;
+                    padding: 10px 14px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--gray);
+                    border-bottom: 2px solid transparent;
+                    margin-bottom: -2px;
+                    transition: all 0.2s ease;
+                }
+
+                .tab-btn.active {
+                    color: var(--red);
+                    border-bottom-color: var(--red);
+                }
+
+                .post-list {
+                    gap: 0;
+                }
+
+                .post-list-thumb {
+                    width: 100%;
+                    aspect-ratio: 4 / 3;
+                    height: auto;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+                }
+
+                .post-list-thumb .img-placeholder {
+                    height: 100% !important;
+                }
+
+                .post-list-title {
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 1.4;
+                    color: var(--dark);
+                    margin-bottom: 4px;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                .post-tag {
+                    font-size: 9px;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    margin-bottom: 5px;
+                }
+
+                .post-meta {
+                    font-size: 11px;
+                    color: var(--gray);
+                    margin-top: 4px;
+                }
+
+                .post-grid-thumb,
+                .post-grid-4 .post-grid-thumb,
+                .big-feature-img {
+                    height: 210px;
+                }
+
+                .divider-banner-cta {
+                    display: block;
+                    width: fit-content;
+                    margin: 10px auto 0;
+                }
+
+                .footer-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 420px) {
+                .logo-text {
+                    font-size: 26px;
+                }
+
+                .hero-main {
+                    height: 300px;
+                }
+
+                .hero-overlay {
+                    padding: 20px 14px 16px;
+                }
+
+                .hero-title {
+                    font-size: 20px;
+                }
+
+                .hero-side-item,
+                .post-grid-thumb,
+                .post-grid-4 .post-grid-thumb,
+                .big-feature-img {
+                    height: 190px;
+                }
+
+                .hero-side-overlay {
+                    padding: 14px 12px 10px;
+                }
+
+                .hero-side-title {
+                    font-size: 15px;
+                }
+
+                .post-list-item,
+                .must-read-item {
+                    grid-template-columns: 82px minmax(0, 1fr);
+                }
+
+                .post-list-thumb {
+                    width: 82px;
+                    height: 62px;
+                }
+
+                .header-actions {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- TOP BAR -->
+
+        <div class="topbar">
+            <div class="topbar-inner">
+                <div class="topbar-left">
+                    <span class="topbar-date" id="topbar-date">Selasa, 16 Juni 2026</span>
+                    <span class="topbar-weather" id="topbar-weather">32°C Jakarta</span>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a>
+
+                    <a href="/tentang">Tentang</a>
+
+                    <a href="/kontak">Kontak</a>
+
+                    <a href="/iklan">Iklan</a>
+
+                    <a href="/privasi">Privasi</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-text">{{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}</div>
+
+                    <div class="logo-sub">{{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Berita Terkini &amp; Terpercaya{{ end }}</div>
+                </div>
+
+                <div class="header-ad d-none d-lg-flex bg-dark text-white rounded position-relative align-items-center justify-content-center flex-column px-4 py-2" style="width: 480px; height: 80px; overflow: hidden; background: linear-gradient(135deg, #1a1a2e, #16213e); border: 1px solid rgba(255,255,255,0.1); max-width: 480px;">
+                    <span class="position-absolute top-0 end-0 bg-secondary text-white px-2 py-0.5" style="font-size: 8px; border-bottom-left-radius: 4px; opacity: 0.8;">AD</span>
+                    <small class="text-white-50 text-uppercase" style="font-size: 10px; letter-spacing: 2px; line-height: 1;">Advertisement</small>
+                    <strong class="fw-bold my-1" style="font-size: 16px; color: #f9ca24; line-height: 1.2;">Daftar Sekarang — Gratis 30 Hari</strong>
+                    <small class="text-white-50" style="font-size: 11px; line-height: 1;">Akses premium tanpa batas</small>
+                </div>
+
+                <div class="header-actions">
+                    {{if .AppUser}}
+                    <form action="/app/logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">Keluar ({{.AppUser.Name}})</button>
+                    </form>
+                    {{else}}
+                    <a class="btn-login" href="/app/login">Masuk</a>
+                    {{end}}
+                </div>
+            </div>
+        </header>
+
+        <!-- NAV -->
+        {{template "navbar" dict "Categories" .Categories "Settings" .Settings "IsHome" true}}
+
+        <!-- TICKER -->
+
+        <div class="ticker">
+            <div class="ticker-inner">
+                <div class="ticker-label">BERITA TERKINI</div>
+
+                <div class="ticker-track">
+                    <div class="ticker-content">
+                        {{range .Articles}}
+                        <span>{{.Title}}</span>
+                        {{else}}
+                        <span
+                            >Artikel yang dipublish dari panel admin akan tampil
+                            di sini</span
+                        >
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+
+        <div class="container">
+            <!-- HERO -->
+
+            <div style="padding-top: 20px; margin-bottom: 24px">
+                <div class="hero-section">
+                    <!-- Main hero -->
+
+                    {{if .HasFeatured}}
+                    <a href="/artikel/{{.Featured.Slug}}" class="hero-main">
+                        {{if .Featured.HeroImageURL}}
+                        <img
+                            src="{{proxyURL .Featured.HeroImageURL}}"
+                            alt="{{.Featured.Title}}"
+                        />
+                        {{else}}
+                        <div
+                            class="ph-person img-placeholder"
+                            style="height: 100%"
+                        ></div>
+                        {{end}}
+
+                        <div class="hero-overlay">
+                            <span class="post-tag">{{.Featured.Category}}</span>
+
+                            <div class="hero-title">{{.Featured.Title}}</div>
+
+                            <div class="hero-meta">
+                                <span
+                                    >{{formatDate .Featured.PublishedAt}}</span
+                                >
+                                <span>{{readTime .Featured.Content}}</span>
+                                <span>💬 0 komentar</span>
+                            </div>
+                        </div>
+                    </a>
+                    {{else}}
+                    <a href="/artikel" class="hero-main">
+                        <div
+                            class="ph-person img-placeholder"
+                            style="height: 100%"
+                        ></div>
+                        <div class="hero-overlay">
+                            <span class="post-tag">UNGGULAN</span>
+                            <div class="hero-title">
+                                Belum ada artikel terbit
+                            </div>
+                            <div class="hero-meta">
+                                <span>Publikasikan artikel dari dashboard</span>
+                            </div>
+                        </div>
+                    </a>
+                    {{end}} {{range .HeroSide}}
+                    <a href="/artikel/{{.Slug}}" class="hero-side-item">
+                        {{if .HeroImageURL}}
+                        <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" />
+                        {{else}}
+                        <div class="ph-3 img-placeholder"></div>
+                        {{end}}
+
+                        <div class="hero-side-overlay">
+                            <span class="post-tag travel">{{.Category}}</span>
+
+                            <div class="hero-side-title">{{.Title}}</div>
+                        </div>
+                    </a>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- MAIN LAYOUT -->
+
+            <div class="main-layout">
+                <!-- CONTENT -->
+
+                <div class="content">
+                    <!-- FEATURED TABS -->
+
+                    <div class="section-label">
+                        <span class="label-tag">UNGGULAN</span>
+                    </div>
+
+                    <div class="tabs">
+                        <a class="tab-btn active" href="/artikel">Semua</a>
+                        {{range .Categories}}
+                        {{if .ShowInNavbar}}
+                        <a
+                            class="tab-btn"
+                            href="/artikel?category={{urlquery .Name}}"
+                            >{{.Name}}</a
+                        >
+                        {{end}}
+                        {{end}}
+                    </div>
+
+                    <div class="post-list mb-16" id="tab-content">
+                        {{range .Articles}}
+                        <div class="post-list-item">
+                            <a
+                                href="/artikel/{{.Slug}}"
+                                class="post-list-thumb"
+                            >
+                                {{if .HeroImageURL}}
+                                <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" />
+                                {{else}}
+                                <div
+                                    class="ph-2 img-placeholder"
+                                ></div>
+                                {{end}}
+                            </a>
+
+                            <div>
+                                <span class="post-tag">{{.Category}}</span>
+
+                                <a
+                                    href="/artikel/{{.Slug}}"
+                                    class="post-list-title"
+                                    >{{.Title}}</a
+                                >
+
+                                <div class="post-meta">
+                                    {{formatDate .PublishedAt}} · {{readTime
+                                    .Content}}
+                                </div>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="post-list-item">
+                            <div
+                                class="ph-2 img-placeholder"
+                            ></div>
+                            <div>
+                                <span class="post-tag">INFO</span>
+                                <a
+                                    href="/dashboard/articles/new"
+                                    class="post-list-title"
+                                    >Tulis artikel pertama dari dashboard</a
+                                >
+                                <div class="post-meta">
+                                    Artikel yang dipublish akan tampil di sini.
+                                </div>
+                            </div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    {{range .CategorySections}}
+                    <div class="section-label" id="kategori-{{.Category.Slug}}">
+                        <span class="label-tag blue">{{.Category.Name}}</span>
+                    </div>
+
+                    <div class="big-feature">
+                        <a
+                            href="/artikel/{{.Featured.Slug}}"
+                            class="big-feature-img"
+                        >
+                            {{if .Featured.HeroImageURL}}
+                            <img
+                                src="{{proxyURL .Featured.HeroImageURL}}"
+                                alt="{{.Featured.Title}}"
+                            />
+                            {{else}}
+                            <div
+                                class="ph-1 img-placeholder"
+                            ></div>
+                            {{end}}
+                        </a>
+
+                        <div class="big-feature-content">
+                            <span class="post-tag tech"
+                                >{{.Featured.Category}}</span
+                            >
+
+                            <a
+                                href="/artikel/{{.Featured.Slug}}"
+                                class="big-feature-title"
+                                >{{.Featured.Title}}</a
+                            >
+
+                            <div class="post-meta mb-16">
+                                {{formatDate .Featured.PublishedAt}} ·
+                                {{readTime .Featured.Content}}
+                            </div>
+
+                            <div class="big-feature-excerpt">
+                                {{.Featured.Excerpt}}
+                            </div>
+
+                            <a
+                                href="/artikel/{{.Featured.Slug}}"
+                                class="read-more"
+                                >Baca Selengkapnya →</a
+                            >
+
+                            {{if .Rest}}
+                            <div class="separator"></div>
+
+                            <div class="post-list" style="margin-top: 0">
+                                {{range .Rest}}
+                                <div class="post-list-item">
+                                    <a
+                                        href="/artikel/{{.Slug}}"
+                                        class="post-list-thumb"
+                                    >
+                                        {{if .HeroImageURL}}
+                                        <img
+                                            src="{{proxyURL .HeroImageURL}}"
+                                            alt="{{.Title}}"
+                                        />
+                                        {{else}}
+                                        <div
+                                            class="ph-12 img-placeholder"
+                                        ></div>
+                                        {{end}}
+                                    </a>
+
+                                    <div>
+                                        <a
+                                            href="/artikel/{{.Slug}}"
+                                            class="post-list-title"
+                                            >{{.Title}}</a
+                                        >
+
+                                        <div class="post-meta">
+                                            {{formatDate .PublishedAt}} ·
+                                            {{readTime .Content}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {{end}}
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+                    {{end}}
+                </div>
+                <!-- end content -->
+
+                <!-- SIDEBAR -->
+
+                <aside class="sidebar">
+                    <!-- SOCIAL COUNTS -->
+
+                    <div class="widget">
+                        <div class="widget-title">Ikuti Kami</div>
+
+                        <div class="social-box">
+                            <a href="{{index .Settings "social_facebook_url"}}" target="_blank" class="social-item fb">
+                                <span>👍 Facebook</span><span class="soc-count">{{index .Settings "social_facebook_count"}}</span>
+                            </a>
+
+                            <a href="{{index .Settings "social_twitter_url"}}" target="_blank" class="social-item tw">
+                                <span>🐦 Twitter / X</span><span class="soc-count">{{index .Settings "social_twitter_count"}}</span>
+                            </a>
+
+                            <a href="{{index .Settings "social_youtube_url"}}" target="_blank" class="social-item yt">
+                                <span>▶ YouTube</span><span class="soc-count">{{index .Settings "social_youtube_count"}}</span>
+                            </a>
+
+                            <a href="{{index .Settings "social_instagram_url"}}" target="_blank" class="social-item ig">
+                                <span>📸 Instagram</span><span class="soc-count">{{index .Settings "social_instagram_count"}}</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- POPULAR POSTS -->
+
+                    <div class="widget">
+                        <div class="widget-title">Berita Populer</div>
+
+                        <div class="popular-list">
+                            {{range .Popular}}
+                            <div class="popular-item">
+                                <a
+                                    href="/artikel/{{.Slug}}"
+                                    class="popular-thumb"
+                                >
+                                    {{if .HeroImageURL}}
+                                    <img
+                                        src="{{proxyURL .HeroImageURL}}"
+                                        alt="{{.Title}}"
+                                    />
+                                    {{else}}
+                                    <div
+                                        class="ph-1 img-placeholder"
+                                    ></div>
+                                    {{end}}
+                                </a>
+
+                                <div>
+                                    <a
+                                        href="/artikel/{{.Slug}}"
+                                        class="popular-title"
+                                        >{{.Title}}</a
+                                    >
+
+                                    <div class="popular-meta">
+                                        {{formatDate .PublishedAt}}
+                                    </div>
+
+                                    <div class="stars">★★★★★</div>
+                                </div>
+                            </div>
+                            {{else}}
+                            <div class="popular-item">
+                                <div
+                                    class="ph-1 img-placeholder"
+                                    style="
+                                        border-radius: 8px;
+                                    "
+                                ></div>
+                                <div>
+                                    <a
+                                        href="/dashboard/articles/new"
+                                        class="popular-title"
+                                        >Publish artikel dari dashboard</a
+                                    >
+                                    <div class="popular-meta">
+                                        Belum ada artikel
+                                    </div>
+                                </div>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <!-- AD WIDGET -->
+
+                    <div
+                        style="
+                            background: linear-gradient(
+                                135deg,
+                                #e63329,
+                                #c0392b
+                            );
+                            padding: 18px;
+                            text-align: center;
+                            color: #fff;
+                        "
+                    >
+                        <div
+                            style="
+                                font-size: 10px;
+                                letter-spacing: 2px;
+                                opacity: 0.7;
+                                text-transform: uppercase;
+                                margin-bottom: 8px;
+                            "
+                        >
+                            Penawaran Spesial
+                        </div>
+
+                        <div
+                            style="
+                                font-family: var(--font-display);
+                                font-size: 20px;
+                                font-weight: 700;
+                                margin-bottom: 6px;
+                            "
+                        >
+                            Berlangganan Premium
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 12px;
+                                opacity: 0.8;
+                                margin-bottom: 14px;
+                            "
+                        >
+                            Baca semua artikel tanpa batas hanya Rp 29.000/bulan
+                        </div>
+
+                        <a
+                            href="#"
+                            style="
+                                display: inline-block;
+                                background: #fff;
+                                color: var(--red);
+                                font-family: var(--font-heading);
+                                font-size: 12px;
+                                font-weight: 700;
+                                letter-spacing: 1px;
+                                text-transform: uppercase;
+                                padding: 8px 20px;
+                            "
+                            >MULAI SEKARANG</a
+                        >
+                    </div>
+
+
+                </aside>
+            </div>
+            <!-- end main-layout -->
+
+            <!-- DIVIDER BANNER -->
+
+            <div class="divider-banner">
+                <div
+                    class="container"
+                    style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 0;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <span class="divider-banner-text"
+                        >Dapatkan Berita Terbaik Setiap Pagi — Langsung ke Email
+                        Anda</span
+                    >
+
+                    <a href="#" class="divider-banner-cta">DAFTAR NEWSLETTER</a>
+                </div>
+            </div>
+        </div>
+        <!-- end container -->
+
+        <!-- FOOTER -->
+
+        <footer class="footer">
+            <div class="footer-top">
+                <div class="container">
+                    <div class="footer-grid">
+                        <!-- About -->
+
+                        <div>
+                            <div class="footer-about-logo">
+                                {{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}
+                            </div>
+
+                            <div class="footer-about-text">
+                                {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}NewsPaper adalah portal berita terpercaya yang menyajikan informasi terkini, mendalam, dan berimbang dari seluruh penjuru dunia. Kami berkomitmen pada jurnalisme berkualitas tinggi sejak 2005.{{ end }}
+                            </div>
+                        </div>
+
+                        <!-- Editor Picks -->
+
+                        <div>
+                            <div class="footer-col-title">Pilihan Editor</div>
+
+                            <div class="footer-post-list">
+                                {{range .EditorPicks}}
+                                <div class="footer-post-item">
+                                    <a
+                                        href="/artikel/{{.Slug}}"
+                                        class="footer-post-thumb"
+                                    >
+                                        {{if .HeroImageURL}}
+                                        <img
+                                            src="{{proxyURL .HeroImageURL}}"
+                                            alt="{{.Title}}"
+                                        />
+                                        {{else}}
+                                        <div
+                                            class="ph-2 img-placeholder"
+                                        ></div>
+                                        {{end}}
+                                    </a>
+
+                                    <div>
+                                        <a
+                                            href="/artikel/{{.Slug}}"
+                                            class="footer-post-title"
+                                            >{{.Title}}</a
+                                        >
+
+                                        <div class="footer-post-date">
+                                            {{formatDate .PublishedAt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {{end}}
+                            </div>
+                        </div>
+
+                        <!-- Popular Posts -->
+
+                        <div>
+                            <div class="footer-col-title">Populer</div>
+
+                            <div class="footer-post-list">
+                                {{range .Popular}}
+                                <div class="footer-post-item">
+                                    <a
+                                        href="/artikel/{{.Slug}}"
+                                        class="footer-post-thumb"
+                                    >
+                                        {{if .HeroImageURL}}
+                                        <img
+                                            src="{{proxyURL .HeroImageURL}}"
+                                            alt="{{.Title}}"
+                                        />
+                                        {{else}}
+                                        <div
+                                            class="ph-11 img-placeholder"
+                                        ></div>
+                                        {{end}}
+                                    </a>
+
+                                    <div>
+                                        <a
+                                            href="/artikel/{{.Slug}}"
+                                            class="footer-post-title"
+                                            >{{.Title}}</a
+                                        >
+
+                                        <div class="footer-post-date">
+                                            {{formatDate .PublishedAt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {{end}}
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+
+                        <div>
+                            <div class="footer-col-title">Kategori Populer</div>
+
+                            <ul class="footer-links">
+                                {{range .Categories}}
+                                <li>
+                                    <a
+                                        href="/artikel?category={{urlquery .Name}}"
+                                        >{{.Name}}</a
+                                    >
+                                </li>
+                                {{else}}
+                                <li>
+                                    <a href="/dashboard/categories"
+                                        >Tambah kategori</a
+                                    >
+                                </li>
+                                {{end}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="footer-bottom">
+                    <div class="footer-copy">
+                        © 2026 {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}. Hak cipta dilindungi. Dibuat dengan ❤
+                        untuk pembaca setia.
+                    </div>
+
+                    <div class="footer-socials">
+                        <a href="#">f</a>
+
+                        <a href="#">t</a>
+
+                        <a href="#">in</a>
+
+                        <a href="#">yt</a>
+
+                        <a href="#">ig</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const placeholders = document.querySelectorAll('.img-placeholder');
+                placeholders.forEach(ph => {
+                    if (ph.children.length > 0 || ph.textContent.trim() !== '') return;
+                    let titleText = '';
+                    let item = ph.closest('.post-item, .post-list-item, .hero-side-item, .big-feature, .popular-item, .footer-post-item') || ph.closest('a');
+                    if (!item) return;
+                    const titleElement = item.querySelector('.post-title, .post-list-title, .hero-side-title, .big-feature-title, .popular-title, .footer-post-title, .featured-title');
+                    if (titleElement) {
+                        titleText = titleElement.textContent.trim();
+                    } else {
+                        const parentLink = ph.closest('a');
+                        if (parentLink && parentLink.getAttribute('title')) {
+                            titleText = parentLink.getAttribute('title');
+                        } else {
+                            const img = item.querySelector('img');
+                            if (img && img.getAttribute('alt')) {
+                                titleText = img.getAttribute('alt');
+                            }
+                        }
+                    }
+                    if (titleText) {
+                        const span = document.createElement('span');
+                        const height = ph.clientHeight || parseInt(ph.style.height) || 0;
+                        if (height >= 300 || ph.classList.contains('ph-1') || ph.classList.contains('ph-5')) {
+                            span.className = 'placeholder-text-large';
+                        } else if (height >= 120 || ph.classList.contains('ph-3') || ph.classList.contains('ph-6') || ph.classList.contains('ph-7')) {
+                            span.className = 'placeholder-text-medium';
+                        } else if (height > 0 && height <= 70) {
+                            span.className = 'placeholder-text-small';
+                        } else {
+                            span.className = 'placeholder-text';
+                        }
+                        span.textContent = titleText;
+                        ph.appendChild(span);
+                    }
+                });
+            });
+        </script>
+        <!-- Bootstrap 5 JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <!-- Auto Date and Weather Location Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // 1. Update Date automatically in Indonesian
+                const dateElement = document.getElementById("topbar-date");
+                if (dateElement) {
+                    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                    const today = new Date();
+                    const formattedDate = today.toLocaleDateString('id-ID', options);
+                    dateElement.innerHTML = formattedDate;
+                }
+
+                // 2. Update Location & Weather automatically
+                const weatherElement = document.getElementById("topbar-weather");
+                if (weatherElement) {
+                    fetch('/api/v1/proxy-image?url=https://ipapi.co/json/')
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to fetch location");
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data && data.city && data.latitude && data.longitude) {
+                                const city = data.city;
+                                const lat = data.latitude;
+                                const lon = data.longitude;
+                                return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Failed to fetch weather");
+                                        return res.json();
+                                    })
+                                    .then(weatherData => {
+                                        if (weatherData && weatherData.current_weather) {
+                                            const temp = Math.round(weatherData.current_weather.temperature);
+                                            weatherElement.innerHTML = `${temp}°C ${city}`;
+                                        }
+                                    });
+                            }
+                        })
+                        .catch(err => {
+                            console.warn("Weather/Location fetch error, keeping default:", err);
+                        });
+                }
+            });
+        </script>
+    </body>
+</html>

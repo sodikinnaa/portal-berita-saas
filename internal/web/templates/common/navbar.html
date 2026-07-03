@@ -1,0 +1,26 @@
+{{define "navbar"}}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm border-bottom border-secondary-subtle mb-4">
+    <div class="container">
+        <button class="navbar-toggler my-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {{if .IsHome}}active{{end}}" href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a>
+                </li>
+                {{range .Categories}}
+                {{if .ShowInNavbar}}
+                <li class="nav-item">
+                    <a class="nav-link {{if eq $.CategoryFilter .Name}}active{{end}}" href="/artikel?category={{urlquery .Name}}">{{.Name}}</a>
+                </li>
+                {{end}}
+                {{end}}
+                <li class="nav-item">
+                    <a class="nav-link {{if .IsAllArticles}}active{{end}}" href="/artikel">Semua Artikel</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{{end}}

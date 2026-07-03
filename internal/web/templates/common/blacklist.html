@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Situs Terblokir - NewsPaper CMS</title>
+    <link rel="stylesheet" href="/assets/global.css">
+    <style>
+        .text-right {
+            text-align: right;
+        }
+        .dashboard-pagination a:hover {
+            border-color: #e63329 !important;
+            color: #e63329 !important;
+            background: rgba(230, 51, 41, 0.05) !important;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+
+        <main class="dashboard-main">
+            <header class="dashboard-header compact">
+                <div>
+                    <p class="eyebrow">Admin</p>
+                    <h1>Domain Blacklist</h1>
+                    <p>Kelola domain dan subdomain situs web yang tidak bisa di-scrape atau yang Anda pilih untuk diblokir.</p>
+                </div>
+            </header>
+
+            {{if .Error}}
+            <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">{{.Error}}</div>
+            {{end}}
+            
+            {{if .Success}}
+            <div class="alert alert-success" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px;">{{.Success}}</div>
+            {{end}}
+
+            <div class="settings-stack" style="display: flex; flex-direction: column; gap: 24px;">
+                <section class="dashboard-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Tambah</p>
+                            <h2>Blokir Domain Baru</h2>
+                        </div>
+                    </div>
+                    <div class="settings-panel-body" style="padding: 20px;">
+                        <form class="form-grid" method="post" action="/dashboard/blacklist">
+                            <input type="hidden" name="page" value="{{.Page}}">
+                            <div class="form-field" style="margin-bottom: 20px;">
+                                <label for="blacklist-domain" style="font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-primary);">Nama Domain / URL</label>
+                                <input id="blacklist-domain" name="domain" placeholder="contoh: sindonews.com atau nasional.sindonews.com" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; box-sizing: border-box;">
+                                <small style="display: block; margin-top: 6px; color: var(--text-secondary); font-size: 12px; line-height: 1.4;">Masukkan nama domain atau URL lengkap. Sistem akan otomatis mengekstrak host/domain-nya.</small>
+                            </div>
+                            <button class="btn btn-primary" type="submit" style="background: #e63329; color: #fff; border: 0; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                <span>🔒</span> Blokir Domain
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="dashboard-panel">
+                    <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p class="eyebrow">Daftar</p>
+                            <h2>{{.TotalItems}} Situs Diblokir</h2>
+                        </div>
+                        {{if .Domains}}
+                        <form method="post" action="/dashboard/blacklist/clear">
+                            <button type="submit" onclick="return confirm('Apakah Anda yakin ingin MENGHAPUS SELURUH domain dari daftar blacklist? Tindakan ini tidak bisa dibatalkan.')" class="btn btn-danger" style="background: #e63329; color: #fff; border: 0; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;">
+                                <span>🗑️</span> Kosongkan Daftar
+                            </button>
+                        </form>
+                        {{end}}
+                    </div>
+                    <div class="panel-body" style="padding: 20px;">
+                        {{if .Domains}}
+                        <div class="table-responsive">
+                            <table class="dashboard-table" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color, #e5e5e5); text-align: left;">
+                                        <th style="padding: 12px 8px; color: var(--text-secondary); font-weight: 600;">Domain / Hostname</th>
+                                        <th style="padding: 12px 8px; color: var(--text-secondary); font-weight: 600;">Status</th>
+                                        <th class="text-right" style="padding: 12px 8px; color: var(--text-secondary); font-weight: 600;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .Domains}}
+                                    <tr style="border-bottom: 1px solid var(--border-color, #e5e5e5);">
+                                        <td style="padding: 12px 8px;">
+                                            <div class="domain-info" style="display: flex; align-items: center; gap: 10px;">
+                                                <div class="domain-icon" style="width: 32px; height: 32px; border-radius: 6px; background: rgba(230, 51, 41, 0.1); color: #e63329; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                                                    🌐
+                                                </div>
+                                                <span style="font-weight: 500; font-family: monospace; color: var(--text-primary); font-size: 14px;">{{.}}</span>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 12px 8px;">
+                                            <span class="badge badge-danger" style="background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Blocked</span>
+                                        </td>
+                                        <td class="text-right" style="padding: 12px 8px;">
+                                            <form method="post" action="/dashboard/blacklist/delete" style="display: inline-block;">
+                                                <input type="hidden" name="domain" value="{{.}}">
+                                                <input type="hidden" name="page" value="{{$.Page}}">
+                                                <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Apakah Anda yakin ingin membuka blokir domain {{.}}?')" style="padding: 6px 12px; font-size: 12px; border-radius: 4px; background: #e63329; color: #fff; border: 0; cursor: pointer; font-weight: 500;">Buka Blokir</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {{if gt .TotalPages 1}}
+                        <nav class="dashboard-pagination" style="margin-top: 24px; display: flex; justify-content: center; gap: 6px; align-items: center;">
+                            {{if .HasPrev}}
+                            <a href="?page={{.PrevPage}}" style="padding: 8px 12px; border: 1px solid var(--border-color, #e5e5e5); border-radius: 6px; text-decoration: none; color: var(--text-secondary); font-size: 13px; transition: all 0.2s;">← Prev</a>
+                            {{else}}
+                            <span style="padding: 8px 12px; border: 1px solid var(--border-color, #e5e5e5); border-radius: 6px; color: #ccc; font-size: 13px; cursor: not-allowed; background: #f9f9f9;">← Prev</span>
+                            {{end}}
+
+                            {{range .Pages}}
+                                {{if eq . -1}}
+                                <span style="padding: 8px 10px; color: var(--text-secondary); font-size: 13px;">...</span>
+                                {{else}}
+                                <a class="{{if eq . $.Page}}active{{end}}" href="?page={{.}}" style="padding: 8px 14px; border: 1px solid {{if eq . $.Page}}#e63329{{else}}var(--border-color, #e5e5e5){{end}}; background: {{if eq . $.Page}}#e63329{{else}}transparent{{end}}; color: {{if eq . $.Page}}#fff{{else}}var(--text-secondary){{end}}; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s;">{{.}}</a>
+                                {{end}}
+                            {{end}}
+
+                            {{if .HasNext}}
+                            <a href="?page={{.NextPage}}" style="padding: 8px 12px; border: 1px solid var(--border-color, #e5e5e5); border-radius: 6px; text-decoration: none; color: var(--text-secondary); font-size: 13px; transition: all 0.2s;">Next →</a>
+                            {{else}}
+                            <span style="padding: 8px 12px; border: 1px solid var(--border-color, #e5e5e5); border-radius: 6px; color: #ccc; font-size: 13px; cursor: not-allowed; background: #f9f9f9;">Next →</span>
+                            {{end}}
+                        </nav>
+                        {{end}}
+                        
+                        {{else}}
+                        <div class="empty-state table-empty" style="text-align: center; padding: 60px 20px; background: #fafafa; border-radius: 8px; border: 1px dashed var(--border-color, #e5e5e5);">
+                            <div style="font-size: 48px; margin-bottom: 12px;">🛡️</div>
+                            <h3 style="margin-bottom: 8px; color: var(--text-primary);">Belum ada situs yang diblokir</h3>
+                            <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto; font-size: 14px; line-height: 1.5;">Situs yang gagal di-scrape secara otomatis atau manual akan terdaftar di sini.</p>
+                        </div>
+                        {{end}}
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

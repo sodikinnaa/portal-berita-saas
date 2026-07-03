@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Migrasi WordPress - NewsPaper CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/global.css">
+<style>
+.migration-form-table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+}
+.migration-form-table td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    font-size: 14px;
+}
+.migration-form-table td:first-child {
+    width: 200px;
+    font-weight: 600;
+    color: #2c3338;
+}
+.migration-form-table input {
+    width: 100%;
+    max-width: 450px;
+}
+.progress-container {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+.progress-bar {
+    background: #2271b1;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+.progress-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #1d2327;
+    mix-blend-mode: difference;
+    color: #fff;
+}
+</style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">Alat & Utilitas</p>
+<h1>Migrasi WordPress</h1>
+<p>Impor artikel, kategori, beserta media dari situs WordPress Anda ke portal berita ini.</p>
+</div>
+<div style="display: flex; gap: 8px;">
+<a class="btn btn-secondary" href="/dashboard">Kembali</a>
+</div>
+</header>
+
+{{if .Success}}<div class="alert alert-success" role="alert" style="margin: 20px 0 10px; padding: 12px; background-color: #d1e7dd; border-color: #badbcc; color: #0f5132; border-radius: 4px;">{{.Success}}</div>{{end}}
+{{if .Error}}<div class="alert alert-error" role="alert" style="margin: 20px 0 10px; padding: 12px; background-color: #f8d7da; border-color: #f5c2c7; color: #842029; border-radius: 4px;">{{.Error}}</div>{{end}}
+
+<!-- SECTION 1: Migration Progress Panel (Visible only when running) -->
+<section id="progress-panel" class="dashboard-panel postbox" style="margin-top: 20px; padding: 25px !important; display: {{if eq .Job.Status "running"}}block{{else}}none{{end}};">
+    <h2 style="font-size: 18px; font-weight: 400; border-bottom: 1px solid #c3c4c7; padding-bottom: 8px; margin-bottom: 15px; color: #1d2327;">Status Migrasi Latar Belakang</h2>
+    
+    <p id="progress-description" style="font-size: 13.5px; line-height: 1.5; color: #50575e; margin: 0 0 10px;">
+        Proses migrasi sedang berjalan secara asinkron di latar belakang. Anda dapat menutup halaman ini, proses akan terus berlanjut.
+    </p>
+
+    <div class="progress-container">
+        <div id="progress-bar-indicator" class="progress-bar" style="width: 0%;"></div>
+        <div id="progress-text-display" class="progress-text">0% (0 / 0)</div>
+    </div>
+
+    <div style="margin-top: 25px; display: flex; gap: 12px; align-items: center;">
+        <button type="button" id="btn-cancel" class="btn btn-danger" style="background-color: #b32d2e; border-color: #b32d2e; color: #fff; padding: 8px 16px; border-radius: 4px; border: 1px solid transparent; cursor: pointer;">Batalkan Migrasi</button>
+        <span id="sync-spinner" style="font-size: 13px; color: #646970;">🔄 Sinkronisasi data...</span>
+    </div>
+</section>
+
+<!-- SECTION 2: Configuration Form Panel (Visible when idle, completed, failed, cancelled) -->
+<section id="config-panel" class="dashboard-panel postbox" style="margin-top: 20px; padding: 25px !important; display: {{if eq .Job.Status "running"}}none{{else}}block{{end}};">
+    <h2 style="font-size: 18px; font-weight: 400; border-bottom: 1px solid #c3c4c7; padding-bottom: 8px; margin-bottom: 15px; color: #1d2327;">Konfigurasi Migrasi WordPress</h2>
+    
+    {{if eq .Job.Status "completed"}}
+    <div style="margin-bottom: 20px; padding: 12px; background-color: #d1e7dd; border-left: 4px solid #0f5132; color: #0f5132; font-size: 13.5px;">
+        <strong>Migrasi Terakhir Selesai!</strong> Berhasil mengimpor <strong>{{.Job.Imported}}</strong> dari total <strong>{{.Job.TotalPosts}}</strong> artikel ke database.
+    </div>
+    {{end}}
+
+    {{if eq .Job.Status "cancelled"}}
+    <div style="margin-bottom: 20px; padding: 12px; background-color: #fff3cd; border-left: 4px solid #664d03; color: #664d03; font-size: 13.5px;">
+        <strong>Migrasi Dibatalkan!</strong> Proses dihentikan secara manual. Sebanyak <strong>{{.Job.Imported}}</strong> artikel telah berhasil disimpan sebelum pembatalan.
+    </div>
+    {{end}}
+
+    {{if eq .Job.Status "failed"}}
+    <div style="margin-bottom: 20px; padding: 12px; background-color: #f8d7da; border-left: 4px solid #842029; color: #842029; font-size: 13.5px;">
+        <strong>Migrasi Gagal!</strong> Terjadi kesalahan: <em>{{.Job.ErrorMsg}}</em>. (Berhasil menyimpan {{.Job.Imported}} artikel sebelum gagal).
+    </div>
+    {{end}}
+
+    <p style="font-size: 13.5px; line-height: 1.5; color: #50575e; margin: 0 0 20px;">
+        Pastikan Anda telah memasang dan mengaktifkan plugin <strong>WP to Portal Migration</strong> di WordPress Anda, serta menyalin API Secret Key dari halaman pengaturan plugin tersebut.
+    </p>
+
+    <form method="post" action="/dashboard/migration">
+        <table class="migration-form-table">
+            <tr>
+                <td><label for="wp_url">URL WordPress / API Endpoint</label></td>
+                <td>
+                    <input type="url" name="wp_url" id="wp_url" placeholder="http://0.0.0.0:8085/index.php?rest_route=/wp-to-portal/v1/posts" required value="{{.WpURL}}">
+                    <p class="description" style="margin: 4px 0 0;">Masukkan URL WordPress dasar atau langsung tempel <strong>API Endpoint</strong> yang Anda salin dari plugin WordPress.</p>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="wp_api_key">API Secret Key</label></td>
+                <td>
+                    <input type="text" name="wp_api_key" id="wp_api_key" placeholder="Masukkan API Key hasil regenerasi plugin" required style="font-family: monospace;" value="{{.WpAPIKey}}">
+                    <p class="description" style="margin: 4px 0 0;">API token rahasia yang digenerasi oleh plugin WordPress.</p>
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 30px; border-top: 1px solid #c3c4c7; padding-top: 20px;">
+            <button type="submit" class="btn btn-primary" id="btn-migrate">Mulai Migrasi</button>
+        </div>
+    </form>
+</section>
+
+<!-- Log Console Section (Visible for any job that has logs) -->
+{{if .Job.Logs}}
+<section class="dashboard-panel postbox" style="margin-top: 20px; padding: 0 !important; overflow: hidden;">
+    <h3 style="font-size: 14px; padding: 12px 15px; margin: 0; border-bottom: 1px solid #c3c4c7; background: #f6f7f7; font-weight: 600; color: #1d2327;">Log Aktivitas Migrasi</h3>
+    <div id="migration-log-console" style="background: #1d2327; color: #39b54a; font-family: monospace; font-size: 12px; padding: 15px; height: 320px; overflow-y: scroll; line-height: 1.6; white-space: pre-wrap; text-align: left;">{{range .Job.Logs}}{{.}}
+{{end}}</div>
+</section>
+{{else}}
+<section id="log-panel-container" class="dashboard-panel postbox" style="margin-top: 20px; padding: 0 !important; overflow: hidden; display: none;">
+    <h3 style="font-size: 14px; padding: 12px 15px; margin: 0; border-bottom: 1px solid #c3c4c7; background: #f6f7f7; font-weight: 600; color: #1d2327;">Log Aktivitas Migrasi</h3>
+    <div id="migration-log-console" style="background: #1d2327; color: #39b54a; font-family: monospace; font-size: 12px; padding: 15px; height: 320px; overflow-y: scroll; line-height: 1.6; white-space: pre-wrap; text-align: left;"></div>
+</section>
+{{end}}
+</main>
+</div>
+
+<script>
+var pollInterval = null;
+
+function checkMigrationStatus() {
+    fetch('/dashboard/migration/status')
+        .then(response => response.json())
+        .then(job => {
+            if (job.status === 'running') {
+                document.getElementById('progress-panel').style.display = 'block';
+                document.getElementById('config-panel').style.display = 'none';
+                
+                var total = job.total_posts || 0;
+                var imported = job.imported || 0;
+                var pct = total > 0 ? Math.round((imported / total) * 100) : 0;
+                
+                document.getElementById('progress-bar-indicator').style.width = pct + '%';
+                document.getElementById('progress-text-display').innerText = pct + '% (' + imported + ' / ' + total + ')';
+                
+                if (job.logs && job.logs.length > 0) {
+                    var logContainer = document.getElementById('log-panel-container');
+                    if (logContainer) {
+                        logContainer.style.display = 'block';
+                    }
+                    var consoleDiv = document.getElementById('migration-log-console');
+                    if (consoleDiv) {
+                        consoleDiv.innerText = job.logs.join('\n');
+                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    }
+                }
+            } else {
+                if (pollInterval) {
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                    window.location.reload();
+                }
+            }
+        })
+        .catch(err => console.error("Error polling migration status:", err));
+}
+
+// Start polling if status is running
+{{if eq .Job.Status "running"}}
+pollInterval = setInterval(checkMigrationStatus, 1500);
+checkMigrationStatus();
+{{end}}
+
+document.getElementById('btn-cancel').addEventListener('click', function() {
+    if (confirm("Apakah Anda yakin ingin menghentikan proses migrasi?")) {
+        this.disabled = true;
+        this.innerText = 'Menghentikan...';
+        
+        fetch('/dashboard/migration/cancel', { method: 'POST' })
+            .then(response => response.json())
+            .then(job => {
+                window.location.reload();
+            })
+            .catch(err => {
+                alert("Gagal membatalkan migrasi: " + err);
+                this.disabled = false;
+                this.innerText = 'Batalkan Migrasi';
+            });
+    }
+});
+
+// Auto-scroll on initial load
+window.addEventListener('DOMContentLoaded', (event) => {
+    var consoleDiv = document.getElementById('migration-log-console');
+    if (consoleDiv) {
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+});
+</script>
+</body>
+</html>

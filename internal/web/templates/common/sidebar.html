@@ -1,0 +1,291 @@
+{{define "sidebar"}}
+<div class="wp-admin-bar">
+    <div class="wp-admin-bar-left">
+        <a href="/portal" class="wp-bar-logo">W</a>
+        <a href="/portal" class="wp-bar-site">NewsPaper</a>
+        <a href="/dashboard/articles/new" class="wp-bar-new">+ Baru</a>
+    </div>
+    <div class="wp-admin-bar-right">
+        <span class="wp-bar-howdy">Halo, {{.User.Name}}</span>
+        <form method="post" action="/logout" style="display:inline; margin:0; padding:0;">
+            <button type="submit" class="wp-bar-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<aside class="dashboard-sidebar">
+    <a href="/" class="dashboard-logo">News<span>Paper</span></a>
+    <p class="dashboard-role">{{.User.Role}}</p>
+
+    <nav class="dashboard-nav" aria-label="Navigasi dashboard">
+        <!-- Overview -->
+        <a href="/dashboard">Overview</a>
+        
+        <!-- Dropdown 1: Manajemen Konten -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-content">Konten</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/articles">Semua Artikel</a>
+                <a href="/dashboard/articles?filter=no_thumbnail">🖼️ Tanpa Thumbnail</a>
+                <a href="/dashboard/articles/new">Tulis Artikel</a>
+                <a href="/dashboard/categories">Kategori</a>
+                <a href="/dashboard/premium">Konten Premium</a>
+                <a href="/dashboard/duplicates">Deteksi Duplikat</a>
+            </div>
+        </div>
+        
+        <!-- Dropdown 2: Fitur AI -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-ai">Fitur AI</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/articles/wizard">Wizard Rewrite</a>
+                <a href="/dashboard/prompts">Prompt Kustom</a>
+            </div>
+        </div>
+
+        <!-- Dropdown 3: Tampilan -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-tampilan">Tampilan</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/themes">Tema &amp; Template</a>
+                <a href="/dashboard/categories/navbar">Menu Navbar</a>
+            </div>
+        </div>
+        
+        <!-- Dropdown 4: Auto-Post & Sosial -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-sosial">Sosial &amp; Sharing</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/facebook">Auto-Post Facebook</a>
+                <a href="/dashboard/bluesky">Auto-Post Bluesky</a>
+            </div>
+        </div>
+
+        <!-- Dropdown 5: Manajemen Akses & User -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-users">Pengguna &amp; Akses</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/users">Writer (Redaksi)</a>
+                <a href="/dashboard/app-users">User Android</a>
+                <a href="/dashboard/api-keys">API Keys (Integrasi)</a>
+            </div>
+        </div>
+
+        <!-- Dropdown 6: Infrastruktur & Jaringan -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-network">Jaringan &amp; Domain</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/custom-domains">Kustom Domain (Kelola)</a>
+                <a href="/dashboard/custom-domain">Domain Kustom (Lokal)</a>
+                <a href="/dashboard/cron">Cron Auto-Post</a>
+                <a href="/dashboard/proxies">Proxy Rotator</a>
+                <a href="/dashboard/proxies/scraper">Proxy Scraper</a>
+                {{if eq .User.Role "admin"}}
+                <a href="/dashboard/blacklist">Situs Terblokir</a>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Dropdown 7: Konfigurasi Sistem -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-config">Konfigurasi</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/settings">Pengaturan Situs</a>
+                <a href="/dashboard/options-permalink">Permalinks</a>
+                <a href="/dashboard/migration">Migrasi WordPress</a>
+            </div>
+        </div>
+
+        <!-- Dropdown 8: Email & Komunikasi -->
+        <div class="sidebar-dropdown">
+            <button type="button" class="dropdown-toggle">
+                <span class="dropdown-label dropdown-label-email">Email &amp; Komunikasi</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="/dashboard/mail/inbox">📥 Kotak Masuk</a>
+                <a href="/dashboard/mail/compose">✏️ Tulis Email</a>
+                <a href="/dashboard/mail/settings">⚙️ Pengaturan Email</a>
+            </div>
+        </div>
+
+        <!-- Personal & View Site -->
+        <a href="/dashboard/profile">Profile</a>
+        <a href="/artikel">Lihat Situs</a>
+    </nav>
+
+    <form method="post" action="/logout">
+        <button class="sidebar-logout" type="submit">Logout</button>
+    </form>
+</aside>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Toggle Dropdowns with Smooth Accordion Transition
+    const toggles = document.querySelectorAll(".dropdown-toggle");
+    toggles.forEach(toggle => {
+        toggle.addEventListener("click", function(e) {
+            e.preventDefault();
+            const content = this.nextElementSibling;
+            const isOpen = content.classList.contains("open");
+            
+            // Close all other dropdowns
+            document.querySelectorAll(".dropdown-content").forEach(c => {
+                c.classList.remove("open");
+                c.style.maxHeight = null;
+                c.previousElementSibling.classList.remove("open");
+            });
+            
+            if (!isOpen) {
+                content.classList.add("open");
+                content.style.maxHeight = content.scrollHeight + "px";
+                this.classList.add("open");
+            } else {
+                content.classList.remove("open");
+                content.style.maxHeight = null;
+                this.classList.remove("open");
+            }
+        });
+    });
+
+    // 2. Highlight Active Page Link and Expand its Parent Dropdown
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll(".dashboard-nav a");
+    
+    // Clear active classes first
+    navLinks.forEach(link => link.classList.remove("active"));
+
+    let activeLink = null;
+    let maxMatchLen = -1;
+
+    navLinks.forEach(link => {
+        const href = link.getAttribute("href");
+        if (href) {
+            const [linkPath, linkQuery] = href.split("?");
+            
+            const isPathExact = currentPath === linkPath;
+            const isPathSub = (linkPath !== "/dashboard" && linkPath !== "/artikel" && currentPath.startsWith(linkPath));
+            
+            if (isPathExact || isPathSub) {
+                let score = linkPath.length;
+                let isMatch = true;
+                
+                if (linkQuery) {
+                    if (!window.location.search.includes(linkQuery)) {
+                        isMatch = false;
+                    } else {
+                        score += 100;
+                    }
+                } else {
+                    if (linkPath === '/dashboard/articles' && window.location.search.includes('filter=')) {
+                        isMatch = false;
+                    }
+                }
+                
+                if (isMatch && score > maxMatchLen) {
+                    activeLink = link;
+                    maxMatchLen = score;
+                }
+            }
+        }
+    });
+
+    if (activeLink) {
+        activeLink.classList.add("active");
+        
+        // If it is inside a dropdown, auto-expand the dropdown parent
+        const dropdownContent = activeLink.closest(".dropdown-content");
+        if (dropdownContent) {
+            dropdownContent.classList.add("open");
+            dropdownContent.style.maxHeight = dropdownContent.scrollHeight + "px";
+            const toggle = dropdownContent.previousElementSibling;
+            if (toggle) {
+                toggle.classList.add("open");
+            }
+        }
+    }
+});
+</script>
+
+<!-- Global Modal: Loading & Status Info -->
+<div id="global-loading-modal" style="display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div style="background: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 90%; max-width: 420px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;">
+        <!-- Loading Spinner Container -->
+        <div id="global-modal-spinner" style="display: block;">
+            <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #ff453a; border-radius: 50%; animation: global-spin 1s linear infinite; margin: 0 auto 20px;"></div>
+            <h3 id="global-modal-title" style="margin: 0 0 10px; font-weight: 700; color: #1c1c1e; font-size: 18px; border: none; padding: 0;">Memproses Permintaan...</h3>
+            <p id="global-modal-text" style="margin: 0; color: #8e8e93; font-size: 14px; line-height: 1.5;">Mohon tunggu beberapa saat sementara sistem memproses tindakan Anda.</p>
+        </div>
+        <!-- Status Detail Container -->
+        <div id="global-modal-status" style="display: none;">
+            <div id="global-modal-icon" style="font-size: 50px; margin-bottom: 20px;">✅</div>
+            <h3 id="global-modal-status-title" style="margin: 0 0 10px; font-weight: 700; color: #1c1c1e; font-size: 18px; border: none; padding: 0;">Selesai!</h3>
+            <div style="background: #f2f2f7; border-radius: 10px; padding: 16px; margin: 15px 0; text-align: left; font-family: monospace; font-size: 13px; max-height: 150px; overflow-y: auto; color: #3a3a3c; word-break: break-all; line-height: 1.5;" id="global-modal-details">
+                Detail info...
+            </div>
+            <button class="btn btn-primary" onclick="closeGlobalModal()" style="background: #007aff; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%; transition: background-color 0.2s; margin-top: 10px;">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes global-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+function showGlobalLoading(title, text) {
+    const modal = document.getElementById('global-loading-modal');
+    document.getElementById('global-modal-spinner').style.display = 'block';
+    document.getElementById('global-modal-status').style.display = 'none';
+    
+    document.getElementById('global-modal-title').textContent = title || "Memproses...";
+    document.getElementById('global-modal-text').textContent = text || "Mohon tunggu beberapa saat...";
+    
+    modal.style.display = 'flex';
+    setTimeout(() => { modal.style.opacity = '1'; }, 10);
+}
+
+function showGlobalStatus(isSuccess, title, detailsHTML) {
+    const modal = document.getElementById('global-loading-modal');
+    document.getElementById('global-modal-spinner').style.display = 'none';
+    document.getElementById('global-modal-status').style.display = 'block';
+    
+    document.getElementById('global-modal-icon').textContent = isSuccess ? '✅' : '❌';
+    document.getElementById('global-modal-status-title').textContent = title || (isSuccess ? "Sukses!" : "Gagal!");
+    document.getElementById('global-modal-details').innerHTML = detailsHTML || "";
+    
+    modal.style.display = 'flex';
+    modal.style.opacity = '1';
+}
+
+function closeGlobalModal() {
+    const modal = document.getElementById('global-loading-modal');
+    modal.style.opacity = '0';
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+</script>
+{{end}}

@@ -1,0 +1,128 @@
+{{define "cdn_styles"}}
+    <!-- Custom Head / AdSense CMP Script -->
+    {{if index .Settings "adsense_head_script"}}{{index .Settings "adsense_head_script" | safeHTML}}{{end}}
+
+    <!-- Google Fonts via CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&family=Oswald:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    
+    <!-- Bootstrap 5 CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    
+    <!-- Common Shared Navbar Styles -->
+    <style>
+        .navbar {
+            border-top: 3px solid var(--red);
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            font-family: var(--font-heading);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            transition: all 0.2s;
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link.active {
+            color: #fff !important;
+            background-color: var(--red) !important;
+        }
+    </style>
+
+    <!-- Dynamic Theme Styling based on active_theme -->
+    {{$activeTheme := index .Settings "active_theme"}}
+    {{if eq $activeTheme "minimal-clean"}}
+        <link rel="stylesheet" href="/assets/article-clean.css" />
+    {{else if eq $activeTheme "editorial-dark"}}
+        <link rel="stylesheet" href="/assets/article.css" />
+        <!-- Editorial Dark specific styles to avoid large inlined blocks in html -->
+        <style>
+            :root {
+                --red: #05da9c;
+                --red-hover: #02b881;
+                --dark: #f8fafc;
+                --mid: #94a3b8;
+                --gray: #64748b;
+                --light-gray: #1e293b;
+                --border: #334155;
+                --white: #0f172a;
+            }
+
+            body {
+                background: #090d16 !important;
+                color: var(--dark) !important;
+            }
+
+            .topbar {
+                background: #090d16 !important;
+                border-bottom: 1px solid var(--border) !important;
+            }
+
+            .header {
+                background: #090d16 !important;
+                border-bottom: 1px solid var(--border) !important;
+            }
+
+            .ticker {
+                background: var(--light-gray) !important;
+                border-bottom: 1px solid var(--border) !important;
+            }
+
+            .ticker-label {
+                background: var(--red) !important;
+                color: #090d16 !important;
+                font-weight: 700 !important;
+            }
+
+            .navbar-dark .navbar-nav .nav-link:hover,
+            .navbar-dark .navbar-nav .nav-link.active {
+                color: #090d16 !important;
+                background-color: var(--red) !important;
+            }
+
+            .navbar {
+                border-top: 3px solid var(--red) !important;
+                background-color: #0f172a !important;
+            }
+
+            /* Article Detail color overrides */
+            .article-title {
+                color: var(--dark) !important;
+            }
+
+            .article-dek {
+                color: var(--mid) !important;
+            }
+
+            .article-body p,
+            .article-body li,
+            .article-body h2,
+            .article-body h3,
+            .article-body h4 {
+                color: var(--dark) !important;
+            }
+
+            .rewrite-disclaimer {
+                background: var(--light-gray) !important;
+                border: 1px solid var(--border) !important;
+                color: var(--dark) !important;
+            }
+
+            .rewrite-disclaimer p,
+            .rewrite-disclaimer a {
+                color: var(--dark) !important;
+            }
+
+            .rewrite-disclaimer a {
+                color: var(--red) !important;
+            }
+        </style>
+    {{else if eq $activeTheme "yapis"}}
+        <link rel="stylesheet" href="/assets/yapis.css" />
+    {{else}}
+        <link rel="stylesheet" href="/assets/article.css" />
+    {{end}}
+{{end}}

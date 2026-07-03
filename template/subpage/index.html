@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Keuangan & Perbankan - Akademi Keuangan dan Perbankan YAPIS Jayapura</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .page-header {
+            background: linear-gradient(rgba(15, 81, 50, 0.9), rgba(15, 81, 50, 0.95)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            padding: 80px 0 40px 0;
+            text-align: center;
+        }
+        .page-title {
+            font-family: var(--font-serif);
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .breadcrumb {
+            font-size: 14px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .main-content {
+            padding: 80px 0;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 50px;
+        }
+        .detail-section {
+            margin-bottom: 40px;
+        }
+        .detail-title {
+            font-family: var(--font-heading);
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+        }
+        .sidebar {
+            background-color: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            height: fit-content;
+            box-shadow: var(--box-shadow);
+        }
+        .sidebar-title {
+            font-size: 18px;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .curriculum-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .curriculum-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .curriculum-list li:last-child {
+            border-bottom: none;
+        }
+        .badge-sks {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .career-card {
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 3px solid var(--accent);
+        }
+        .career-name {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .career-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="main-header" style="position: relative;">
+        <div class="container">
+            <div class="logo-container">
+                {{if index .Settings "site_favicon"}}
+                <img src="{{index .Settings "site_favicon"}}" alt="Logo" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;">
+                {{else}}
+                <div class="logo-symbol">Y</div>
+                {{end}}
+                <div class="logo-text">
+                    <span class="logo-title">{{if index .Settings "site_title"}}{{index .Settings "site_title"}}{{else}}AKUBANK YAPIS{{end}}</span>
+                    <span class="logo-subtitle">{{if index .Settings "site_tagline"}}{{index .Settings "site_tagline"}}{{else}}Jayapura, Papua{{end}}</span>
+                </div>
+            </div>
+            
+            <span class="menu-toggle" id="menu-toggle-btn">☰</span>
+            
+            <nav class="main-nav" id="main-navigation">
+                <a href="/" class="nav-link">Beranda</a>
+                <a href="/about-us" class="nav-link">Profil Kampus</a>
+                <a href="/subpage" class="nav-link active">Program Studi</a>
+                <a href="/#news" class="nav-link">Berita & Acara</a>
+                <a href="https://pmb.abankyapis.ac.id" class="btn-admission">PMB Online 🎓</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">Program Studi D3 Keuangan & Perbankan</h1>
+            <div class="breadcrumb">
+                <a href="/">Beranda</a> &bull; 
+                <span>Program Studi</span> &bull; 
+                <span style="color: var(--accent); font-weight: 700;">D3 Keuangan & Perbankan</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="container main-content">
+        <div class="content-grid">
+            <!-- Left Panel: Program Details -->
+            <div>
+                <div class="detail-section">
+                    <h2 class="detail-title">Deskripsi Program Studi</h2>
+                    <p>Program Studi D3 Keuangan dan Perbankan Akubank YAPIS Jayapura dirancang khusus untuk menghasilkan lulusan yang mahir, profesional, religius, and siap diterjunkan langsung ke industri perbankan baik konvensional maupun syariah, lembaga pembiayaan, and lembaga keuangan mikro khususnya di Tanah Papua.</p>
+                    <p style="margin-top: 12px;">Mahasiswa dibekali dengan keahlian teknis operasional perbankan (teller, customer service, back office), administrasi kredit, analisis laporan keuangan, serta pengenalan mendalam pada teknologi finansial (Fintech).</p>
+                </div>
+
+                <div class="detail-section" id="curriculum">
+                    <h2 class="detail-title">Kurikulum Unggulan (Vokasi 70% Praktik)</h2>
+                    <p>Sistem pembelajaran di Akubank YAPIS menekankan pada praktik langsung melalui laboratorium simulasi mini bank terpadu. Berikut beberapa mata kuliah kunci:</p>
+                    
+                    <ul class="curriculum-list">
+                        <li>
+                            <span>Operasional Teller & Layanan Pelanggan (CS)</span>
+                            <span class="badge-sks">Praktikum - 3 SKS</span>
+                        </li>
+                        <li>
+                            <span>Analisis Kredit & Manajemen Risiko Perbankan</span>
+                            <span class="badge-sks">Teori & Praktik - 3 SKS</span>
+                        </li>
+                        <li>
+                            <span>Akuntansi Perbankan Syariah & Konvensional</span>
+                            <span class="badge-sks">Teori - 3 SKS</span>
+                        </li>
+                        <li>
+                            <span>Teknologi Finansial & E-Banking</span>
+                            <span class="badge-sks">Praktikum - 2 SKS</span>
+                        </li>
+                        <li>
+                            <span>Etika Profesi & Komunikasi Jasa Keuangan</span>
+                            <span class="badge-sks">Praktik - 2 SKS</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="detail-section" id="certifications">
+                    <h2 class="detail-title">Sertifikasi Keahlian Tambahan</h2>
+                    <p>Setiap lulusan D3 Keuangan & Perbankan dipersiapkan untuk mendapatkan sertifikasi kompetensi profesi sebelum kelulusan mereka, untuk memastikan daya saing instan:</p>
+                    <div style="background-color: #eff6ff; border-left: 4px solid var(--primary); padding: 15px; border-radius: 4px; margin-top: 15px; font-size: 14px; color: var(--primary-dark);">
+                        <strong>Sertifikasi BSMR Level 1:</strong> Sertifikasi keahlian Manajemen Risiko Perbankan yang diakui secara nasional oleh Otoritas Jasa Keuangan (OJK).
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h2 class="detail-title">Prospek Karier Lulusan</h2>
+                    <div class="career-grid">
+                        <div class="career-card">
+                            <h3 class="career-name">Customer Service & Teller</h3>
+                            <p class="career-desc">Menjadi garda terdepan pelayanan transaksi kasir, kliring, pembukaan rekening, and konsultasi produk nasabah perbankan.</p>
+                        </div>
+                        <div class="career-card">
+                            <h3 class="career-name">Account Officer / Analis Kredit</h3>
+                            <p class="career-desc">Melakukan survei kelayakan nasabah pemohon pinjaman, administrasi data kredit, and monitoring kolektibilitas.</p>
+                        </div>
+                        <div class="career-card">
+                            <h3 class="career-name">Funding Officer</h3>
+                            <p class="career-desc">Pemasaran produk tabungan, giro, and investasi perbankan kepada masyarakat dan lembaga mitra.</p>
+                        </div>
+                        <div class="career-card">
+                            <h3 class="career-name">Staf Keuangan & Kasir BUMN</h3>
+                            <p class="career-desc">Mengelola arus kas masuk dan keluar perusahaan, pembayaran pajak, and administrasi keuangan umum.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Sidebar Info & Live Articles -->
+            <aside>
+                <div class="sidebar" style="margin-bottom: 30px;">
+                    <h3 class="sidebar-title">Informasi Prodi</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 10px 0; font-weight: 700; color: var(--primary);">Gelar Kelulusan</td>
+                            <td style="padding: 10px 0; text-align: right;">A.Md.B. (Ahli Madya Perbankan)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 10px 0; font-weight: 700; color: var(--primary);">Akreditasi</td>
+                            <td style="padding: 10px 0; text-align: right; color: var(--success); font-weight: 700;">BAIK</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 10px 0; font-weight: 700; color: var(--primary);">Lama Studi</td>
+                            <td style="padding: 10px 0; text-align: right;">3 Tahun (6 Semester)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; font-weight: 700; color: var(--primary);">Metode Kuliah</td>
+                            <td style="padding: 10px 0; text-align: right;">Reguler & Kelas Karyawan</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="sidebar">
+                    <h3 class="sidebar-title">Pengumuman Terkini</h3>
+                    <!-- Live Dynamic News Loop in Sidebar -->
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        {{range .LatestArticles}}
+                        <div style="border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                            <span style="font-size: 11px; color: var(--accent); font-weight: 700;">📅 {{.CreatedAt.Format "02 Jan 2006"}}</span>
+                            <h4 style="font-size: 14px; font-weight: 700; margin: 4px 0;"><a href="/artikel/{{.Slug}}" style="color: var(--text-primary);">{{.Title}}</a></h4>
+                        </div>
+                        {{else}}
+                        <p style="font-size: 13px; color: var(--text-muted);">Belum ada warta akademik terbaru.</p>
+                        {{end}}
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0; text-align: center;">
+                <p>&copy; 2026 Akademi Keuangan dan Perbankan YAPIS Jayapura. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>

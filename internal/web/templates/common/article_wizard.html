@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wizard Auto-Rewrite AI - NewsPaper CMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/global.css">
+<style>
+.wizard-steps-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.wizard-steps-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #e5e5e5;
+    z-index: 1;
+    transform: translateY(-50%);
+}
+.wizard-step-node {
+    position: relative;
+    z-index: 2;
+    background: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #e5e5e5;
+    font-weight: bold;
+    color: #888;
+    transition: all 0.3s ease;
+}
+.wizard-step-node.active {
+    border-color: #e63329;
+    color: #e63329;
+    box-shadow: 0 0 10px rgba(230, 51, 41, 0.2);
+}
+.wizard-step-node.completed {
+    background: #e63329;
+    border-color: #e63329;
+    color: #fff;
+}
+.wizard-step-label {
+    position: absolute;
+    top: 45px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.wizard-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    padding: 30px;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    margin-bottom: 24px;
+}
+.wizard-section {
+    display: none;
+}
+.wizard-section.active {
+    display: block;
+}
+.wizard-loader {
+    display: none;
+    text-align: center;
+    padding: 30px;
+}
+.wizard-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #e63329;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+.wizard-loader-text {
+    font-weight: 600;
+    color: #444;
+    animation: pulse 1.5s infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+.wizard-preview-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+@media (min-width: 768px) {
+    .wizard-preview-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.fetched-meta-box {
+    background: #f9f9f9;
+    border: 1px dashed #ccc;
+    padding: 15px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.fetched-meta-box strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #222;
+}
+.btn-wizard-action {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+.wizard-details-logs {
+    margin-top: 25px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+.wizard-details-logs summary {
+    font-weight: 600;
+    padding: 12px 15px;
+    cursor: pointer;
+    color: #444;
+    user-select: none;
+    outline: none;
+}
+.wizard-details-logs summary:hover {
+    background: #f0f0f0;
+}
+.wizard-details-logs[open] summary {
+    border-bottom: 1px solid #e5e5e5;
+}
+.wizard-details-logs-content {
+    padding: 15px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+    border-radius: 0 0 4px 4px;
+}
+.thumb-card {
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    background: #fafafa;
+    transition: all 0.2s ease;
+    position: relative;
+}
+.thumb-card:hover {
+    border-color: #ccc;
+    background: #f5f5f5;
+}
+.thumb-card.selected {
+    border-color: #e63329;
+    background: #fff8f8;
+    box-shadow: 0 0 8px rgba(230, 51, 41, 0.15);
+}
+.thumb-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.thumb-card-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #e63329;
+    color: white;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: none;
+}
+.thumb-card.selected .thumb-card-badge {
+    display: block;
+}
+.thumb-card {
+    border: 2px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    text-align: center;
+    background: #fafafa;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 150px;
+    box-sizing: border-box;
+}
+.thumb-card:hover {
+    border-color: #ccc;
+    background: #f5f5f5;
+}
+.thumb-card.selected {
+    border-color: #e63329;
+    background: #fffcfc;
+    box-shadow: 0 4px 12px rgba(230, 51, 41, 0.08);
+}
+.thumb-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.thumb-card-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #e63329;
+    color: white;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: none;
+    z-index: 5;
+}
+.thumb-card.selected .thumb-card-badge {
+    display: block;
+}
+.thumb-card-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+.thumb-card-sub {
+    font-size: 10px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 3px;
+}
+#original_content_display {
+    height: 335px;
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    width: 100%;
+    box-sizing: border-box;
+}
+.wizard-step-2-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.wizard-column-config, .wizard-column-fetched {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+@media (min-width: 768px) {
+    .wizard-step-2-layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 30px;
+    }
+    #original_content_display {
+        height: 450px;
+    }
+}
+</style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">AI Assistant</p>
+<h1>Wizard Auto-Rewrite AI</h1>
+<p>Salin URL artikel berita lain, tarik isinya, gubah bahasa, dan langsung buat draf artikel lokal dalam hitungan detik.</p>
+</div>
+<a class="btn btn-secondary" href="/dashboard/articles">Kembali</a>
+</header>
+
+<div class="wizard-card" style="max-width: 900px; margin: 0 auto 30px;">
+    <!-- Step Tracker Header -->
+    <div class="wizard-steps-container">
+        <div class="wizard-step-node active" id="step_node_1">
+            1
+            <span class="wizard-step-label">Tarik Konten</span>
+        </div>
+        <div class="wizard-step-node" id="step_node_2">
+            2
+            <span class="wizard-step-label">Pilih Model & AI</span>
+        </div>
+        <div class="wizard-step-node" id="step_node_3">
+            3
+            <span class="wizard-step-label">Tinjau & Terapkan</span>
+        </div>
+    </div>
+
+    <div style="height: 35px;"></div>
+
+    <!-- Step 1: Input URL -->
+    <div class="wizard-section active" id="wizard_step_1">
+        <h2 style="margin-top:0;">Langkah 1: Tempel URL Rujukan</h2>
+        <p style="color: #666; font-size: 14px;">Masukkan URL artikel berita rujukan asal yang ingin Anda tulis ulang dengan AI.</p>
+        <div class="form-field">
+            <label for="input_source_url">URL Artikel Rujukan</label>
+            <input type="url" id="input_source_url" placeholder="https://news.detik.com/berita/..." required>
+            <small>Pastikan URL dapat diakses publik. Konten utama berita akan ditarik secara otomatis.</small>
+        </div>
+        <div class="btn-wizard-action">
+            <button class="btn btn-primary" id="btn_fetch_content">Tarik Konten →</button>
+        </div>
+    </div>
+
+    <!-- Step 2: Config and Model -->
+    <div class="wizard-section" id="wizard_step_2">
+        <h2 style="margin-top:0;">Langkah 2: Konfigurasi Rewrite AI</h2>
+        <p style="color: #666; font-size: 14px;">Tinjau konten yang berhasil ditarik lalu pilih model AI yang ingin Anda gunakan untuk melakukan penulisan ulang.</p>
+        
+        <div class="wizard-step-2-layout">
+            <!-- Left Column: Configs -->
+            <div class="wizard-column-config">
+                <div class="form-field">
+                    <label>Model Kecerdasan Buatan (LLM)</label>
+                    <select id="select_ai_model">
+                        {{if .DefaultModel}}
+                          {{if and (ne .DefaultModel "gemini-2.5-flash") (ne .DefaultModel "gemini-1.5-flash") (ne .DefaultModel "gemini-1.5-pro") (ne .DefaultModel "mock-rewrite")}}
+                            <option value="{{.DefaultModel}}" selected>Model Kustom: {{.DefaultModel}}</option>
+                          {{end}}
+                        {{end}}
+                        <option value="gemini-2.5-flash" {{if eq .DefaultModel "gemini-2.5-flash"}}selected{{end}}>Gemini 2.5 Flash (Tercepat & Direkomendasikan)</option>
+                        <option value="gemini-1.5-flash" {{if eq .DefaultModel "gemini-1.5-flash"}}selected{{end}}>Gemini 1.5 Flash (Ringan & Cepat)</option>
+                        <option value="gemini-1.5-pro" {{if eq .DefaultModel "gemini-1.5-pro"}}selected{{end}}>Gemini 1.5 Pro (Analisis Lebih Dalam)</option>
+                        <option value="mock-rewrite" {{if eq .DefaultModel "mock-rewrite"}}selected{{end}}>Mock AI (Tanpa API Key - Untuk Keperluan Demo/Testing)</option>
+                    </select>
+                </div>
+
+                <div class="form-field" id="thumbnail_selector_container" style="display: none;">
+                    <label for="thumbnail_source_select">Pilih Metode Gambar Utama (Thumbnail)</label>
+                    <select id="thumbnail_source_select" style="margin-bottom: 15px;">
+                        <option value="source">Gunakan Gambar dari Sumber Rujukan</option>
+                        <option value="bing">Cari Gambar di Bing (Otomatis)</option>
+                        <option value="upload">Upload Gambar Baru</option>
+                        <option value="custom">Gunakan Custom URL Gambar</option>
+                    </select>
+
+                    <!-- Panel 1: Dari Sumber Rujukan -->
+                    <div id="panel_thumb_source" class="thumb-panel" style="margin-top: 5px;">
+                        <div style="display: flex; gap: 15px; align-items: center; background: #fafafa; border: 1px solid #e5e5e5; padding: 12px; border-radius: 4px;">
+                            <img id="thumb_img_source" src="" alt="Source Thumbnail" style="height: 80px; width: 120px; border-radius: 4px; object-fit: cover; background: #eee; border: 1px solid #ddd;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: bold; font-size: 13px; color: #222; margin-bottom: 5px;">Gambar dari Website Rujukan</div>
+                                <div class="thumb-card-sub" id="thumb_url_source_txt" style="font-size: 11px; color: #666; word-break: break-all;">og:image metadata</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Cari di Bing -->
+                    <div id="panel_thumb_bing" class="thumb-panel" style="display: none; margin-top: 5px;">
+                        <div style="display: flex; gap: 15px; align-items: center; background: #fafafa; border: 1px solid #e5e5e5; padding: 12px; border-radius: 4px;">
+                            <img id="thumb_img_bing" src="" alt="Bing Thumbnail" style="height: 80px; width: 120px; border-radius: 4px; object-fit: cover; background: #eee; border: 1px solid #ddd;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: bold; font-size: 13px; color: #222; margin-bottom: 5px;">Gambar Hasil Pencarian Bing</div>
+                                <div class="thumb-card-sub" id="thumb_url_bing_txt" style="font-size: 11px; color: #666; word-break: break-all;">Gambar Pencarian Bing</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: Upload Gambar Baru -->
+                    <div id="panel_thumb_upload" class="thumb-panel" style="display: none; margin-top: 5px;">
+                        <div style="background: #fafafa; border: 1px dashed #ccc; padding: 15px; border-radius: 4px;">
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input id="wizard_media_file" type="file" accept="image/*" style="flex: 1; font-size: 13px;">
+                                <button id="wizard_media_upload_btn" class="btn btn-secondary" type="button" style="padding: 8px 16px; font-size: 13px;">Upload</button>
+                            </div>
+                            <p id="wizard_media_upload_status" style="font-size: 12px; margin: 8px 0 0; color: #e63329; display: none;"></p>
+                            <div id="wizard_upload_preview_container" style="display: none; margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; align-items: center; gap: 15px;">
+                                <img id="thumb_img_upload" src="" alt="Uploaded Thumbnail" style="height: 80px; width: 120px; border-radius: 4px; object-fit: cover; background: #eee; border: 1px solid #ddd;">
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-weight: bold; font-size: 13px; color: #222; margin-bottom: 5px;">Gambar Berhasil Diupload</div>
+                                    <div id="thumb_url_upload_txt" style="font-size: 11px; color: #666; word-break: break-all;">/uploads/...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 4: Custom URL -->
+                    <div id="panel_thumb_custom" class="thumb-panel" style="display: none; margin-top: 5px;">
+                        <div style="background: #fafafa; border: 1px solid #e5e5e5; padding: 15px; border-radius: 4px;">
+                            <div style="margin-bottom: 10px;">
+                                <input type="url" id="wizard_custom_image_url" placeholder="Masukkan URL gambar kustom (https://...)" style="padding: 10px; font-size: 13px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+                            </div>
+                            <div id="wizard_custom_preview_container" style="display: none; align-items: center; gap: 15px; margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px;">
+                                <img id="thumb_img_custom" src="" alt="Custom Thumbnail" style="height: 80px; width: 120px; border-radius: 4px; object-fit: cover; background: #eee; border: 1px solid #ddd;">
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-weight: bold; font-size: 13px; color: #222; margin-bottom: 5px;">Preview Gambar Custom</div>
+                                    <div id="thumb_url_custom_txt" style="font-size: 11px; color: #666; word-break: break-all;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="form-field">
+                    <label for="custom_prompt_instruction">Instruksi Tambahan AI (Opsional)</label>
+                    <select id="predefined_prompts_select" style="margin-bottom: 10px; display: none; width: 100%;">
+                        <option value="">-- Pilih Template Instruksi Kustom --</option>
+                    </select>
+                    <textarea id="custom_prompt_instruction" rows="3" placeholder="Contoh: Gunakan bahasa yang lebih santai, fokuskan pada aspek ekonomi, hindari singkatan..." style="padding: 10px; font-size: 13px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                    <small>Instruksi khusus tambahan untuk mengarahkan bagaimana AI jurnalis menulis ulang artikel.</small>
+                </div>
+            </div>
+
+            <!-- Right Column: Fetched content -->
+            <div class="wizard-column-fetched">
+                <div class="form-field">
+                    <label>Judul Asli (Referensi)</label>
+                    <input type="text" id="original_title_display" readonly style="background: #f5f5f5; cursor: not-allowed;">
+                </div>
+
+                <div class="form-field" style="display: flex; flex-direction: column; flex: 1;">
+                    <label>Teks Konten Asli yang Ditarik</label>
+                    <textarea id="original_content_display" readonly style="background: #f5f5f5; cursor: not-allowed;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-wizard-action">
+            <button class="btn btn-secondary" id="btn_back_to_1">← Kembali</button>
+            <button class="btn btn-secondary" id="btn_refetch_content" style="border: 1px solid #ccc; background: #fff; color: #333;">Tarik Ulang 🔄</button>
+            <button class="btn btn-primary" id="btn_start_rewrite">Mulai Rewrite AI ✨</button>
+        </div>
+    </div>
+
+    <!-- Step 3: Editor Apply -->
+    <div class="wizard-section" id="wizard_step_3">
+        <h2 style="margin-top:0;">Langkah 3: Review Hasil Rewrite AI</h2>
+        <p style="color: #666; font-size: 14px;">Silakan sunting dan sesuaikan hasil penulisan ulang AI sebelum disimpan sebagai draf editorial.</p>
+        
+        <form id="wizard_apply_form" method="post" action="/dashboard/articles">
+            <!-- Hidden inputs mapped to actual Article creation schema -->
+            <input type="hidden" name="source_url" id="final_source_url">
+            <input type="hidden" name="status" value="draft">
+
+            <div class="form-field">
+                <label for="final_title">Judul Hasil Rewrite</label>
+                <input type="text" id="final_title" name="title" required placeholder="Judul tulisan ulang">
+            </div>
+
+            <div class="form-grid two" style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-field">
+                    <label for="final_category">Kategori Artikel</label>
+                    <select id="final_category" name="category" required>
+                        <option value="">Pilih kategori</option>
+                        {{range .Categories}}<option value="{{.Name}}">{{.Name}}</option>{{end}}
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="final_image_source">Sumber Gambar Utama (Opsional)</label>
+                    <input type="text" id="final_image_source" name="image_source" placeholder="Contoh: Foto: Antara / Detikcom">
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="final_hero_image_url">Hero Image URL (Opsional)</label>
+                <input type="text" id="final_hero_image_url" name="hero_image_url" placeholder="https://...">
+            </div>
+
+            <div class="form-field">
+                <label for="final_excerpt">Ringkasan / Excerpt</label>
+                <textarea id="final_excerpt" name="excerpt" rows="2" maxlength="220" required placeholder="Ringkasan singkat maksimal 220 karakter"></textarea>
+            </div>
+
+            <div class="form-field">
+                <label for="final_content">Konten Lengkap</label>
+                <textarea id="final_content" name="content" rows="12" required placeholder="Hasil rewrite konten berita lengkap"></textarea>
+            </div>
+
+            <div class="btn-wizard-action">
+                <button type="button" class="btn btn-secondary" id="btn_back_to_2">← Kembali</button>
+                <button type="submit" class="btn btn-primary">Simpan Draft & Edit Lanjutan →</button>
+            </div>
+        </form>
+
+        <details class="wizard-details-logs">
+            <summary>📋 Lihat Log AI & Response Mentah</summary>
+            <div class="wizard-details-logs-content" id="wizard_step3_logs">
+                <span style="color: #888;">Belum ada log rewrite AI yang direkam.</span>
+            </div>
+        </details>
+    </div>
+
+    <!-- Loader Panel -->
+    <div class="wizard-loader" id="wizard_loading_panel">
+        <div class="wizard-spinner"></div>
+        <p class="wizard-loader-text" id="wizard_loader_message">Menghubungi server...</p>
+    </div>
+
+    <!-- Terminal Window Console Logger -->
+    <div id="terminal_window" style="display: none; margin: 20px auto 0; max-width: 100%; border: 1px solid #333; border-radius: 6px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+        <div style="background: #222; padding: 10px 15px; display: flex; align-items: center; border-bottom: 1px solid #333;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+                <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+            </div>
+            <div style="color: #888; font-family: monospace; font-size: 11px; margin-left: 20px; font-weight: bold; letter-spacing: 0.5px;">SYSTEM & AI CONSOLE LOGGER</div>
+        </div>
+        <div id="wizard_terminal_logs" style="background: #151515; color: #a9b7c6; font-family: 'Courier New', Courier, monospace; font-size: 13px; padding: 16px; text-align: left; max-height: 250px; overflow-y: auto; line-height: 1.6; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);"></div>
+    </div>
+</div>
+</main>
+</div>
+
+<script>
+(function() {
+    var step1 = document.getElementById('wizard_step_1');
+    var step2 = document.getElementById('wizard_step_2');
+    var step3 = document.getElementById('wizard_step_3');
+    var loader = document.getElementById('wizard_loading_panel');
+
+    var node1 = document.getElementById('step_node_1');
+    var node2 = document.getElementById('step_node_2');
+    var node3 = document.getElementById('step_node_3');
+
+    var originalTitle = '';
+    var originalContent = '';
+    var originalImageUrl = '';
+    var selectedImageUrl = '';
+    var rujukanUrl = '';
+
+    var logBox = document.getElementById('wizard_terminal_logs');
+    var terminalWindow = document.getElementById('terminal_window');
+
+    function clearLogs() {
+        logBox.innerHTML = '';
+        terminalWindow.style.display = 'block';
+    }
+
+    function addLogLine(text, type) {
+        var line = document.createElement('div');
+        var color = '#a9b7c6';
+        if (type === 'error') color = '#ff6b68';
+        if (type === 'success') color = '#a5c261';
+        if (type === 'wait') color = '#e8c15a';
+        if (type === 'info') color = '#62b1f6';
+        
+        var timestamp = new Date().toLocaleTimeString();
+        line.innerHTML = `<span style="color: #555;">[${timestamp}]</span> <span style="color: ${color};">${text}</span>`;
+        logBox.appendChild(line);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function showLoader(message, showTerminal) {
+        document.getElementById('wizard_loader_message').textContent = message;
+        step1.style.display = 'none';
+        step2.style.display = 'none';
+        step3.style.display = 'none';
+        loader.style.display = 'block';
+        if (showTerminal) {
+            terminalWindow.style.display = 'block';
+        } else {
+            terminalWindow.style.display = 'none';
+        }
+    }
+
+    function hideLoader(currentStep, keepLogs) {
+        loader.style.display = 'none';
+        if (currentStep === 1) {
+            step1.style.display = 'block';
+        } else if (currentStep === 2) {
+            step2.style.display = 'block';
+        } else if (currentStep === 3) {
+            step3.style.display = 'block';
+        }
+        if (!keepLogs) {
+            terminalWindow.style.display = 'none';
+        }
+    }
+
+    function setStep(stepNum) {
+        node1.className = 'wizard-step-node';
+        node2.className = 'wizard-step-node';
+        node3.className = 'wizard-step-node';
+
+        if (stepNum === 1) {
+            node1.classList.add('active');
+            step1.classList.add('active');
+            step2.classList.remove('active');
+            step3.classList.remove('active');
+        } else if (stepNum === 2) {
+            node1.classList.add('completed');
+            node2.classList.add('active');
+            step1.classList.remove('active');
+            step2.classList.add('active');
+            step3.classList.remove('active');
+        } else if (stepNum === 3) {
+            node1.classList.add('completed');
+            node2.classList.add('completed');
+            node3.classList.add('active');
+            step1.classList.remove('active');
+            step2.classList.remove('active');
+            step3.classList.add('active');
+        }
+    }
+
+    // Step 1 -> Step 2
+    document.getElementById('btn_fetch_content').addEventListener('click', async function() {
+        var url = document.getElementById('input_source_url').value.trim();
+        if (!url) {
+            alert('Masukkan URL rujukan terlebih dahulu.');
+            return;
+        }
+        rujukanUrl = url;
+        showLoader('Membaca website rujukan...', true);
+        clearLogs();
+        addLogLine('Mengirim permintaan fetch ke server...', 'info');
+        addLogLine('URL rujukan: ' + url, 'info');
+        
+        var fetchTimer = setTimeout(() => addLogLine('Membaca metadata HTML halaman...', 'wait'), 1200);
+        var fetchTimer2 = setTimeout(() => addLogLine('Ekstraksi teks utama menggunakan parser...', 'wait'), 2400);
+
+        try {
+            var response = await fetch('/dashboard/articles/wizard/fetch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            });
+            var data = await response.json();
+            clearTimeout(fetchTimer);
+            clearTimeout(fetchTimer2);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Gagal menarik konten.');
+            }
+
+            addLogLine('Konten berhasil ditarik!', 'success');
+            addLogLine('Judul rujukan: "' + data.title + '"', 'success');
+            addLogLine('Ukuran konten: ' + (data.content || '').length + ' karakter', 'success');
+
+            originalTitle = data.title || '';
+            originalContent = data.content || '';
+            originalImageUrl = data.image_url || '';
+
+            document.getElementById('original_title_display').value = originalTitle;
+            document.getElementById('original_content_display').value = originalContent;
+
+            updateThumbnailSelector(originalTitle, originalImageUrl);
+
+            setTimeout(() => {
+                hideLoader(2);
+                setStep(2);
+            }, 1000);
+        } catch (err) {
+            clearTimeout(fetchTimer);
+            clearTimeout(fetchTimer2);
+            addLogLine('ERROR: ' + err.message, 'error');
+            setTimeout(() => {
+                alert('Gagal mengambil konten: ' + err.message);
+                hideLoader(1, true);
+                setStep(1);
+            }, 2500);
+        }
+    });
+
+    // Step 2 -> Step 3
+    document.getElementById('btn_start_rewrite').addEventListener('click', async function() {
+        var model = document.getElementById('select_ai_model').value;
+        showLoader('Sedang melakukan rewrite berita...', true);
+        clearLogs();
+
+        addLogLine('Menginisialisasi modul rewrite AI...', 'info');
+        addLogLine('Membaca artikel rujukan: "' + originalTitle.substring(0, 45) + '..."', 'info');
+        addLogLine('Memilih model AI: ' + model, 'info');
+
+        var isGemini = model.indexOf('gemini') >= 0;
+        addLogLine('Mengirim payload prompt ke AI provider...', 'info');
+
+        var waitMessages = [
+            'AI sedang membaca & menganalisis teks berita rujukan...',
+            'AI sedang menggubah ulang judul berita agar menarik & informatif...',
+            'AI sedang menyusun ringkasan (excerpt) berita...',
+            'AI sedang menulis ulang konten dengan gaya jurnalistik bahasa Indonesia...',
+            'AI sedang memformat respons menjadi JSON terstruktur...'
+        ];
+        
+        var waitIndex = 0;
+        var waitTimer = setInterval(function() {
+            if (waitIndex < waitMessages.length) {
+                addLogLine(waitMessages[waitIndex], 'wait');
+                waitIndex++;
+            } else {
+                addLogLine('Memperpanjang batas waktu tunggu (waiting)...', 'wait');
+            }
+        }, 1500);
+
+        var customPrompt = document.getElementById('custom_prompt_instruction').value.trim();
+
+        try {
+            var response = await fetch('/dashboard/articles/wizard/rewrite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: model,
+                    title: originalTitle,
+                    content: originalContent,
+                    prompt_instruction: customPrompt
+                })
+            });
+            var data = await response.json();
+            clearInterval(waitTimer);
+
+            if (data && data.backend_logs && data.backend_logs.length > 0) {
+                addLogLine('--- LOG DARI BACKEND / AI SERVER ---', 'info');
+                data.backend_logs.forEach(function(l) {
+                    addLogLine(l, 'info');
+                });
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Proses rewrite gagal.');
+            }
+
+            addLogLine('AI Rewrite berhasil diselesaikan!', 'success');
+            
+            if (data.latency_ms) {
+                addLogLine('Waktu Respons API: ' + data.latency_ms + ' ms', 'info');
+            }
+            if (data.token_usage) {
+                addLogLine('Token Digunakan: ' + data.token_usage.total_tokens + 
+                           ' (Input: ' + data.token_usage.prompt_tokens + 
+                           ', Output: ' + data.token_usage.completion_tokens + ')', 'info');
+            }
+            
+            // Tampilkan output hasil parsing di terminal logs
+            addLogLine('--- HASIL REWRITE EDITORIAL ---', 'success');
+            addLogLine('Judul Baru: ' + (data.title || ''), 'success');
+            addLogLine('Excerpt Baru: ' + (data.excerpt || ''), 'success');
+            
+            var contentPreview = data.content || '';
+            if (contentPreview.length > 300) {
+                contentPreview = contentPreview.substring(0, 300) + '...';
+            }
+            var safeContentPreview = contentPreview.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            addLogLine('Konten Baru (Preview):<br><div style="background:#222; padding:8px; border-radius:3px; margin-top:5px; font-size:12px; color:#d4d4d4; white-space:pre-wrap;">' + safeContentPreview + '</div>', 'success');
+
+            if (data.raw_output) {
+                addLogLine('Respons JSON mentah dari AI:', 'info');
+                var safeRawOutput = data.raw_output.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                addLogLine('<pre style="margin:5px 0 0; background:#222; padding:8px; border-radius:3px; overflow-x:auto; white-space:pre-wrap; word-break:break-all;">' + safeRawOutput + '</pre>', 'info');
+            }
+
+            document.getElementById('final_title').value = data.title || '';
+            document.getElementById('final_excerpt').value = data.excerpt || '';
+            document.getElementById('final_content').value = data.content || '';
+            document.getElementById('final_source_url').value = rujukanUrl;
+            
+            if (selectedImageUrl) {
+                document.getElementById('final_hero_image_url').value = selectedImageUrl;
+            }
+            document.getElementById('final_image_source').value = 'Sumber: ' + new URL(rujukanUrl).hostname;
+
+            // Copy terminal logs to the Step 3 collapsible logs box
+            var step3Logs = document.getElementById('wizard_step3_logs');
+            if (step3Logs) {
+                step3Logs.innerHTML = logBox.innerHTML;
+            }
+
+            setTimeout(() => {
+                hideLoader(3);
+                setStep(3);
+            }, 3500);
+        } catch (err) {
+            clearInterval(waitTimer);
+            addLogLine('ERROR: ' + err.message, 'error');
+            setTimeout(() => {
+                alert('Gagal rewrite AI: ' + err.message);
+                hideLoader(2, true);
+                setStep(2);
+            }, 2500);
+        }
+    });
+
+    // Fetch available models from backend on page load
+    async function loadAvailableModels() {
+        try {
+            var response = await fetch('/dashboard/articles/wizard/models');
+            if (response.ok) {
+                var models = await response.json();
+                var selectEl = document.getElementById('select_ai_model');
+                var currentVal = selectEl.value;
+                selectEl.innerHTML = '';
+                models.forEach(function(m) {
+                    var opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.name;
+                    if (m.id === currentVal) {
+                        opt.selected = true;
+                    }
+                    selectEl.appendChild(opt);
+                });
+            }
+        } catch (err) {
+            console.error('Gagal memuat list model kustom:', err);
+        }
+    }
+    loadAvailableModels();
+
+    // Re-fetch content
+    document.getElementById('btn_refetch_content').addEventListener('click', async function() {
+        if (!rujukanUrl) {
+            alert('Tidak ada URL rujukan yang tersimpan. Silakan kembali ke Langkah 1.');
+            return;
+        }
+        showLoader('Menarik ulang konten website rujukan...', true);
+        clearLogs();
+        addLogLine('Mengirim permintaan re-fetch ke server...', 'info');
+        addLogLine('URL rujukan: ' + rujukanUrl, 'info');
+        
+        var fetchTimer = setTimeout(() => addLogLine('Membaca metadata HTML halaman...', 'wait'), 1200);
+        var fetchTimer2 = setTimeout(() => addLogLine('Ekstraksi teks utama menggunakan parser...', 'wait'), 2400);
+
+        try {
+            var response = await fetch('/dashboard/articles/wizard/fetch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: rujukanUrl })
+            });
+            var data = await response.json();
+            clearTimeout(fetchTimer);
+            clearTimeout(fetchTimer2);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Gagal menarik ulang konten.');
+            }
+
+            addLogLine('Konten berhasil ditarik ulang!', 'success');
+            addLogLine('Judul rujukan: "' + data.title + '"', 'success');
+            addLogLine('Ukuran konten: ' + (data.content || '').length + ' karakter', 'success');
+
+            originalTitle = data.title || '';
+            originalContent = data.content || '';
+            originalImageUrl = data.image_url || '';
+
+            document.getElementById('original_title_display').value = originalTitle;
+            document.getElementById('original_content_display').value = originalContent;
+
+            updateThumbnailSelector(originalTitle, originalImageUrl);
+
+            setTimeout(() => {
+                hideLoader(2);
+                setStep(2);
+            }, 1000);
+        } catch (err) {
+            clearTimeout(fetchTimer);
+            clearTimeout(fetchTimer2);
+            addLogLine('ERROR: ' + err.message, 'error');
+            setTimeout(() => {
+                alert('Gagal mengambil konten: ' + err.message);
+                hideLoader(2, true);
+                setStep(2);
+            }, 2500);
+        }
+    });
+
+    function updateThumbnailSelector(title, sourceImgUrl) {
+        var selectorContainer = document.getElementById('thumbnail_selector_container');
+        var selectEl = document.getElementById('thumbnail_source_select');
+        var sourceOpt = selectEl.querySelector('option[value="source"]');
+
+        var imgSource = document.getElementById('thumb_img_source');
+        var txtSource = document.getElementById('thumb_url_source_txt');
+
+        var imgBing = document.getElementById('thumb_img_bing');
+        var txtBing = document.getElementById('thumb_url_bing_txt');
+
+        // Ganti spasi dengan underscore untuk Bing URL
+        var titleUnderscore = title.trim().replace(/\s+/g, '_');
+        var bingUrl = 'https://tse1.mm.bing.net/th?q=' + encodeURIComponent(titleUnderscore);
+
+        // Set opsi Bing
+        imgBing.src = bingUrl;
+        txtBing.textContent = bingUrl;
+
+        // Set opsi Sumber Rujukan
+        if (sourceImgUrl) {
+            imgSource.src = sourceImgUrl;
+            txtSource.textContent = sourceImgUrl;
+            sourceOpt.disabled = false;
+            sourceOpt.textContent = "Gunakan Gambar dari Sumber Rujukan";
+            
+            // Set value dropdown & active panel
+            selectEl.value = 'source';
+            selectedImageUrl = sourceImgUrl;
+            showThumbnailPanel('source');
+        } else {
+            imgSource.src = '';
+            txtSource.textContent = 'Gambar rujukan tidak ditemukan';
+            sourceOpt.disabled = true;
+            sourceOpt.textContent = "Gunakan Gambar dari Sumber Rujukan (Tidak Tersedia)";
+            
+            // Set value dropdown ke Bing & active panel
+            selectEl.value = 'bing';
+            selectedImageUrl = bingUrl;
+            showThumbnailPanel('bing');
+        }
+
+        // Reset custom & upload preview containers, and custom prompt
+        document.getElementById('wizard_upload_preview_container').style.display = 'none';
+        document.getElementById('thumb_img_upload').removeAttribute('src');
+        document.getElementById('wizard_media_file').value = '';
+        document.getElementById('wizard_custom_image_url').value = '';
+        document.getElementById('wizard_custom_preview_container').style.display = 'none';
+        document.getElementById('thumb_img_custom').removeAttribute('src');
+        document.getElementById('wizard_media_upload_status').style.display = 'none';
+        document.getElementById('custom_prompt_instruction').value = '';
+
+        selectorContainer.style.display = 'block';
+    }
+
+    function showThumbnailPanel(type) {
+        document.querySelectorAll('.thumb-panel').forEach(function(p) {
+            p.style.display = 'none';
+        });
+        if (type === 'source') {
+            document.getElementById('panel_thumb_source').style.display = 'block';
+        } else if (type === 'bing') {
+            document.getElementById('panel_thumb_bing').style.display = 'block';
+        } else if (type === 'upload') {
+            document.getElementById('panel_thumb_upload').style.display = 'block';
+        } else if (type === 'custom') {
+            document.getElementById('panel_thumb_custom').style.display = 'block';
+        }
+    }
+
+    // Dropdown change listener
+    document.getElementById('thumbnail_source_select').addEventListener('change', function() {
+        var val = this.value;
+        showThumbnailPanel(val);
+        
+        if (val === 'source') {
+            selectedImageUrl = originalImageUrl;
+        } else if (val === 'bing') {
+            var titleUnderscore = originalTitle.trim().replace(/\s+/g, '_');
+            selectedImageUrl = 'https://tse1.mm.bing.net/th?q=' + encodeURIComponent(titleUnderscore);
+        } else if (val === 'upload') {
+            var uploadSrc = document.getElementById('thumb_img_upload').src;
+            selectedImageUrl = (uploadSrc && uploadSrc.indexOf('data:') !== 0 && !uploadSrc.endsWith('/...')) ? uploadSrc : '';
+        } else if (val === 'custom') {
+            selectedImageUrl = document.getElementById('wizard_custom_image_url').value.trim();
+        }
+    });
+
+    // Upload button listener
+    document.getElementById('wizard_media_upload_btn').addEventListener('click', async function() {
+        var fileInput = document.getElementById('wizard_media_file');
+        var file = fileInput.files && fileInput.files[0];
+        var status = document.getElementById('wizard_media_upload_status');
+        var uploadBtn = document.getElementById('wizard_media_upload_btn');
+        var previewContainer = document.getElementById('wizard_upload_preview_container');
+        var previewImg = document.getElementById('thumb_img_upload');
+        var previewTxt = document.getElementById('thumb_url_upload_txt');
+
+        if (!file) {
+            status.textContent = 'Pilih file gambar terlebih dahulu.';
+            status.style.color = '#e63329';
+            status.style.display = 'block';
+            return;
+        }
+
+        var data = new FormData();
+        data.append('file', file);
+        uploadBtn.disabled = true;
+        status.textContent = 'Mengupload...';
+        status.style.color = '#666';
+        status.style.display = 'block';
+
+        try {
+            var res = await fetch('/dashboard/media/upload', { method: 'POST', body: data });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            var json = await res.json();
+            if (!json.url) throw new Error('Response tanpa url');
+            
+            previewImg.src = json.url;
+            previewTxt.textContent = json.url;
+            previewContainer.style.display = 'flex';
+            
+            selectedImageUrl = json.url;
+            
+            status.textContent = 'Berhasil diupload!';
+            status.style.color = '#a5c261';
+        } catch (err) {
+            status.textContent = 'Upload gagal: ' + err.message;
+            status.style.color = '#e63329';
+        } finally {
+            uploadBtn.disabled = false;
+        }
+    });
+
+    // Custom URL Input listener
+    var customUrlInput = document.getElementById('wizard_custom_image_url');
+    customUrlInput.addEventListener('input', function() {
+        var url = this.value.trim();
+        var previewContainer = document.getElementById('wizard_custom_preview_container');
+        var previewImg = document.getElementById('thumb_img_custom');
+        var previewTxt = document.getElementById('thumb_url_custom_txt');
+
+        if (url) {
+            previewImg.src = url;
+            previewTxt.textContent = url;
+            previewContainer.style.display = 'flex';
+            selectedImageUrl = url;
+        } else {
+            previewContainer.style.display = 'none';
+            selectedImageUrl = '';
+        }
+    });
+
+    // Fetch and load predefined custom prompts
+    async function loadPredefinedPrompts() {
+        try {
+            var response = await fetch('/dashboard/prompts/list');
+            if (response.ok) {
+                var prompts = await response.json();
+                var selectEl = document.getElementById('predefined_prompts_select');
+                if (prompts && prompts.length > 0) {
+                    selectEl.innerHTML = '<option value="">-- Pilih Template Instruksi Kustom --</option>';
+                    prompts.forEach(function(p) {
+                        var opt = document.createElement('option');
+                        opt.value = p.instruction;
+                        opt.textContent = p.name;
+                        selectEl.appendChild(opt);
+                    });
+                    selectEl.style.display = 'block';
+
+                    // Listen to predefined select changes
+                    selectEl.addEventListener('change', function() {
+                        var instruction = this.value;
+                        document.getElementById('custom_prompt_instruction').value = instruction;
+                    });
+                } else {
+                    selectEl.style.display = 'none';
+                }
+            }
+        } catch (err) {
+            console.error('Gagal memuat list template prompt:', err);
+        }
+    }
+    loadPredefinedPrompts();
+
+    // Back buttons
+    document.getElementById('btn_back_to_1').addEventListener('click', function() {
+        setStep(1);
+        hideLoader(1);
+    });
+
+    document.getElementById('btn_back_to_2').addEventListener('click', function() {
+        setStep(2);
+        hideLoader(2);
+    });
+})();
+</script>
+</body>
+</html>

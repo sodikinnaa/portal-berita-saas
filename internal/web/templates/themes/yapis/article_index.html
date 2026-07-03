@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{if .CategoryFilter}}Kategori: {{.CategoryFilter}}{{else}}Semua Berita{{end}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/yapis.css">
+    
+    <style>
+        .archive-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            padding: 60px 0;
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 4px solid var(--accent);
+        }
+        
+        .archive-title {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 50px 0 80px;
+        }
+
+        .pagination-link {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--primary);
+            background: #fff;
+            transition: var(--transition);
+        }
+
+        .pagination-link:hover, .pagination-link.active {
+            background: var(--accent);
+            color: var(--primary-dark);
+            border-color: var(--accent);
+        }
+    </style>
+    {{if index .Settings "seo_google_verification"}}
+    <meta name="google-site-verification" content="{{index .Settings "seo_google_verification"}}" />
+    {{end}}
+    {{if index .Settings "seo_bing_verification"}}
+    <meta name="msvalidate.01" content="{{index .Settings "seo_bing_verification"}}" />
+    {{end}}
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="main-header">
+        <div class="container nav-container">
+            <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="{{if index .Settings "site_favicon"}}{{index .Settings "site_favicon"}}{{else}}/assets/logo.jpg{{end}}" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;">
+                <span class="logo-bold">{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Jatim Aktual{{ end }}</span>
+            </a>
+            
+            <nav class="nav-menu" id="navMenu">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="nav-link">Beranda</a>
+                {{range .Categories}}
+                {{if .ShowInNavbar}}
+                <a href="/artikel?category={{urlquery .Name}}" class="nav-link {{if eq $.CategoryFilter .Name}}active{{end}}">{{.Name}}</a>
+                {{end}}
+                {{end}}
+                <a href="/login" class="btn btn-primary btn-mobile-only">Masuk</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-primary btn-desktop-only">Masuk</a>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Archive Banner Header -->
+    <header class="archive-header">
+        <div class="container">
+            <h1 class="archive-title">
+                {{if .CategoryFilter}}
+                    Kategori: {{.CategoryFilter}}
+                {{else}}
+                    Semua Informasi &amp; Kabar Berita
+                {{end}}
+            </h1>
+            <p style="opacity: 0.9; max-width: 600px; margin: 0 auto; font-size: 1rem;">
+                Menyajikan informasi terbaru, artikel edukasi, agenda, dan pengumuman resmi dari portal {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Yapis{{ end }}.
+            </p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- News Grid Layout -->
+        <div class="news-grid">
+            {{range .Articles}}
+            <article class="news-card reveal">
+                <div class="news-img-box">
+                    {{if .Article.HeroImageURL}}
+                    <img src="{{proxyURL .Article.HeroImageURL}}" alt="{{.Article.Title}}">
+                    {{else}}
+                    <img src="/assets/hero.jpg" alt="{{.Article.Title}}">
+                    {{end}}
+                    <span class="news-category">{{.Article.Category}}</span>
+                </div>
+                <div class="news-body">
+                    <span class="news-date"><i class="fa-regular fa-calendar"></i> {{formatDate .Article.PublishedAt}}</span>
+                    <h3 class="news-title"><a href="{{articleURL .Article $.Settings}}">{{.Article.Title}}</a></h3>
+                    <p class="news-excerpt">{{.Article.Excerpt}}</p>
+                    <a href="{{articleURL .Article $.Settings}}" class="read-more">Baca Selengkapnya <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </article>
+            {{else}}
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--text-muted);">
+                <i class="fa-regular fa-folder-open" style="font-size: 40px; margin-bottom: 12px; display: block; color: var(--primary-light);"></i>
+                Tidak ada artikel dalam kategori ini.
+            </div>
+            {{end}}
+        </div>
+
+        <!-- Pagination -->
+        {{if gt .TotalPages 1}}
+        <div class="pagination">
+            {{if .HasPrev}}
+            <a href="?page={{.PrevPage}}{{if .CategoryFilter}}&category={{urlquery .CategoryFilter}}{{end}}" class="pagination-link">&laquo; Sebelumnya</a>
+            {{end}}
+            
+            <span class="pagination-link active">Halaman {{.Page}} dari {{.TotalPages}}</span>
+            
+            {{if .HasNext}}
+            <a href="?page={{.NextPage}}{{if .CategoryFilter}}&category={{urlquery .CategoryFilter}}{{end}}" class="pagination-link">Berikutnya &raquo;</a>
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer" id="contact">
+        <div class="container footer-grid">
+            <div class="footer-info-col">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo footer-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 20px;">
+                    <img src="{{if index .Settings "site_favicon"}}{{index .Settings "site_favicon"}}{{else}}/assets/logo.jpg{{end}}" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;">
+                    <span class="logo-bold">{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Jatim Aktual{{ end }}</span>
+                </a>
+                <p class="footer-about-text">
+                    {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}Yayasan Pendidikan Islam (YAPIS) berkomitmen tinggi menyelenggarakan pelayanan pendidikan jenjang menengah yang bermutu, inklusresif, dan berkarakter akhlak mulia.{{ end }}
+                </p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links-col">
+                <h3 class="footer-title">Navigasi Cepat</h3>
+                <div class="footer-links-list">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a>
+                    {{range .Categories}}
+                    {{if .ShowInNavbar}}
+                    <a href="/artikel?category={{urlquery .Name}}">{{.Name}}</a>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+
+            <div class="footer-contact-col">
+                <h3 class="footer-title">Hubungi Kami</h3>
+                <ul class="contact-info-list">
+                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Jl. Pendidikan Islam No. 7, Kec. Jayapura Utara, Kota Jayapura, Papua</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-phone"></i>
+                        <span>(0967) 532107 / 0812-3456-7890</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>info@abankyapis.ac.id</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container footer-bottom-content">
+                <p>&copy; 2026 Yayasan Pendidikan Islam (YAPIS). Hak Cipta Dilindungi Undang-Undang.</p>
+                <p>Designed with <i class="fa-solid fa-heart text-accent"></i> for Yapis Community</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu & Scroll Reveal Script -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                } else {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Scroll Reveal logic
+        document.addEventListener("DOMContentLoaded", function() {
+            const reveals = document.querySelectorAll(".reveal");
+            function checkReveal() {
+                const triggerBottom = window.innerHeight * 0.95;
+                reveals.forEach(reveal => {
+                    const revealTop = reveal.getBoundingClientRect().top;
+                    if (revealTop < triggerBottom) {
+                        reveal.classList.add("active");
+                    }
+                });
+            }
+            window.addEventListener("scroll", checkReveal);
+            checkReveal(); // Trigger once on load
+        });
+    </script>
+</body>
+</html>

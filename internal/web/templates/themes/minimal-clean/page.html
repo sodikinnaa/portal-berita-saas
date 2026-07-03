@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{.Title}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}</title>
+        <meta name="description" content="{{.Title}} - {{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Portal Berita{{ end }}" />
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="{{.Title}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}" />
+        <meta property="og:description" content="{{.Title}} - {{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Portal Berita{{ end }}" />
+        <meta property="og:url" content="{{.BaseURL}}/{{.ActivePage}}" />
+        
+        {{template "cdn_styles" .}}
+        <style>
+            .topbar-right a.active {
+                color: var(--red) !important;
+                font-weight: bold;
+            }
+        </style>
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    </head>
+    <body>
+        <div class="topbar">
+            <div class="topbar-inner">
+                <div class="topbar-left">
+                    <span class="topbar-date" id="topbar-date">Selasa, 16 Juni 2026</span>
+                    <span class="topbar-weather" id="topbar-weather">32°C Jakarta</span>
+                </div>
+                <div class="topbar-right">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a>
+                    <a href="/artikel">Semua Artikel</a>
+                    <a href="/tentang" class="{{if eq .ActivePage "tentang"}}active{{end}}">Tentang Kami</a>
+                    <a href="/kontak" class="{{if eq .ActivePage "kontak"}}active{{end}}">Kontak</a>
+                    <a href="/privasi" class="{{if eq .ActivePage "privasi"}}active{{end}}">Privasi</a>
+                </div>
+            </div>
+        </div>
+
+        <header class="header">
+            <div class="header-top">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo">
+                    <div class="logo-text">{{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}</div>
+                    <div class="logo-sub">{{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Berita Terkini &amp; Terpercaya{{ end }}</div>
+                </a>
+                <div class="header-actions">
+                    <a class="btn-login" href="/login">Masuk</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAV -->
+        {{template "navbar" dict "Categories" .Categories "Settings" .Settings}}
+
+        <!-- TICKER -->
+        <div class="ticker">
+            <div class="ticker-inner">
+                <div class="ticker-label">BERITA TERKINI</div>
+                <div class="ticker-track">
+                    <div class="ticker-content">
+                        {{range .Popular}}
+                        <span>{{.Title}}</span>
+                        {{else}}
+                        <span>Artikel populer akan tampil di sini</span>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="container">
+            <div class="breadcrumb">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a> / {{.Title}}
+            </div>
+
+            <div class="page-layout">
+                <article class="article-card">
+                    <h1 class="article-title" style="margin-bottom: 24px; border-bottom: 2px solid var(--red); padding-bottom: 12px;">{{.Title}}</h1>
+
+                    <div class="article-body">
+                        {{if .Content}}
+                            {{articleHTML .Content}}
+                        {{else}}
+                            <p class="lead text-muted text-center py-5">Konten halaman belum diisi oleh Administrator. Silakan isi melalui dashboard admin.</p>
+                        {{end}}
+                    </div>
+
+                    <div class="article-share" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);">
+                        <span>Bagikan</span>
+                        <a class="share-btn fb" href="#">Facebook</a>
+                        <a class="share-btn tw" href="#">Twitter / X</a>
+                        <a class="share-btn wa" href="#">WhatsApp</a>
+                        <a class="share-btn copy" href="#">Salin Link</a>
+                    </div>
+                </article>
+
+                <aside class="sidebar">
+                    <!-- Widget Berita Populer -->
+                    <section class="widget">
+                        <div class="widget-title">Berita Populer</div>
+                        <div class="popular-list">
+                            {{range .Popular}}
+                            <div class="popular-item">
+                                <a href="/artikel/{{.Slug}}" class="popular-thumb">
+                                    {{if .HeroImageURL}}
+                                    <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" loading="lazy">
+                                    {{else}}
+                                    <div class="popular-thumb-placeholder">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                    </div>
+                                    {{end}}
+                                </a>
+                                <div>
+                                    <a href="/artikel/{{.Slug}}" class="popular-title">{{.Title}}</a>
+                                    <div class="popular-meta">{{formatDate .PublishedAt}}</div>
+                                </div>
+                            </div>
+                            {{end}}
+                        </div>
+                    </section>
+
+                    <!-- Widget Newsletter -->
+                    <section class="newsletter">
+                        <h3>Dapatkan berita pilihan setiap pagi</h3>
+                        <p>
+                            Ringkasan berita penting, analisis singkat, dan
+                            rekomendasi artikel langsung ke email kamu.
+                        </p>
+                        <input type="email" placeholder="Email kamu" />
+                        <button>Daftar Newsletter</button>
+                    </section>
+
+                    <!-- Widget Berlangganan Premium -->
+                    <section class="ad-box">
+                        <small>Penawaran Spesial</small>
+                        <strong>Berlangganan Premium</strong>
+                        <p>
+                            Baca semua artikel tanpa batas hanya Rp
+                            29.000/bulan.
+                        </p>
+                    </section>
+                </aside>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-top">
+                <div class="container footer-grid">
+                    <div>
+                        <div class="footer-about-logo">
+                            {{ if eq (index .Settings "site_title") "NewsPaper" }}News<span>Paper</span>{{ else if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}News<span>Paper</span>{{ end }}
+                        </div>
+                        <div class="footer-about-text">
+                            {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}NewsPaper adalah portal berita terpercaya yang menyajikan informasi terkini, mendalam, dan berimbang dari seluruh penjuru dunia. Kami berkomitmen pada jurnalisme berkualitas tinggi sejak 2005.{{ end }}
+                        </div>
+                    </div>
+
+                    <!-- Editor Picks -->
+                    <div>
+                        <div class="footer-col-title">Pilihan Editor</div>
+                        <div class="footer-post-list">
+                            {{range .EditorPicks}}
+                            <div class="footer-post-item">
+                                <a href="/artikel/{{.Slug}}" class="footer-post-thumb">
+                                    {{if .HeroImageURL}}
+                                    <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" />
+                                    {{else}}
+                                    <div class="ph-2 img-placeholder"></div>
+                                    {{end}}
+                                </a>
+                                <div>
+                                    <a href="/artikel/{{.Slug}}" class="footer-post-title">{{.Title}}</a>
+                                    <div class="footer-post-date">
+                                        {{formatDate .PublishedAt}}
+                                    </div>
+                                </div>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <!-- Popular -->
+                    <div>
+                        <div class="footer-col-title">Populer</div>
+                        <div class="footer-post-list">
+                            {{range .Popular}}
+                            <div class="footer-post-item">
+                                <a href="/artikel/{{.Slug}}" class="footer-post-thumb">
+                                    {{if .HeroImageURL}}
+                                    <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" />
+                                    {{else}}
+                                    <div class="ph-2 img-placeholder"></div>
+                                    {{end}}
+                                </a>
+                                <div>
+                                    <a href="/artikel/{{.Slug}}" class="footer-post-title">{{.Title}}</a>
+                                    <div class="footer-post-date">
+                                        {{formatDate .PublishedAt}}
+                                    </div>
+                                </div>
+                            </div>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <!-- Popular Categories -->
+                    <div>
+                        <div class="footer-col-title">Kategori Populer</div>
+                        <ul class="footer-links">
+                            {{range .Categories}}
+                            <li><a href="/artikel?category={{.Name}}">{{.Name}}</a></li>
+                            {{end}}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="container footer-bottom">
+                <div>© 2026 {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}. Hak cipta dilindungi.</div>
+                <div>Dibuat dengan ❤ untuk pembaca setia.</div>
+            </div>
+        </footer>
+
+        <!-- Floating Text Resizer (Khusus Android/Mobile) -->
+        <div class="mobile-resizer-container" id="mobileResizer">
+            <button class="resizer-toggle-btn" id="resizerToggle" aria-label="Pengaturan Teks">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+                <span>Aa</span>
+            </button>
+            <div class="resizer-panel" id="resizerPanel">
+                <div class="resizer-panel-header">
+                    <h3>Ukuran Tulisan</h3>
+                    <span id="fontSizeDisplay">17px</span>
+                </div>
+                <div class="resizer-controls">
+                    <button class="resizer-btn" id="decFont" aria-label="Perkecil Ukuran">A-</button>
+                    <div class="slider-wrapper">
+                        <input type="range" id="fontSizeSlider" min="14" max="26" value="17" step="1" aria-label="Slider Ukuran Font">
+                        <div class="slider-ticks">
+                            <span>14px</span>
+                            <span>|</span>
+                            <span>20px</span>
+                            <span>|</span>
+                            <span>26px</span>
+                        </div>
+                    </div>
+                    <button class="resizer-btn" id="incFont" aria-label="Perbesar Ukuran">A+</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.popularArticles = [
+                {{range .Popular}}
+                { title: {{.Title}}, slug: {{.Slug}} },
+                {{end}}
+            ];
+        </script>
+        <script src="/assets/article.js" defer></script>
+        <!-- Bootstrap 5 JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <!-- Auto Date and Weather Location Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // 1. Update Date automatically in Indonesian
+                const dateElement = document.getElementById("topbar-date");
+                if (dateElement) {
+                    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                    const today = new Date();
+                    const formattedDate = today.toLocaleDateString('id-ID', options);
+                    dateElement.innerHTML = formattedDate;
+                }
+
+                // 2. Update Location & Weather automatically
+                const weatherElement = document.getElementById("topbar-weather");
+                if (weatherElement) {
+                    fetch('/api/v1/proxy-image?url=https://ipapi.co/json/')
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to fetch location");
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data && data.city && data.latitude && data.longitude) {
+                                const city = data.city;
+                                const lat = data.latitude;
+                                const lon = data.longitude;
+                                return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Failed to fetch weather");
+                                        return res.json();
+                                    })
+                                    .then(weatherData => {
+                                        if (weatherData && weatherData.current_weather) {
+                                            const temp = Math.round(weatherData.current_weather.temperature);
+                                            weatherElement.innerHTML = `${temp}°C ${city}`;
+                                        }
+                                    });
+                            }
+                        })
+                        .catch(err => {
+                            console.warn("Weather/Location fetch error, keeping default:", err);
+                        });
+                }
+            });
+        </script>
+    </body>
+</html>

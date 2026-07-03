@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewrite Kustom Domain - NewsPaper CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/global.css">
+    <style>
+        .domain-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        @media(max-width: 992px) {
+            .domain-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card-panel {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #eef2f5;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .card-panel:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.035);
+            border-color: #e2e8f0;
+        }
+        .card-panel h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: #0f172a;
+            border-bottom: 2px solid #f8fafc;
+            padding-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group {
+            margin-bottom: 22px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14.5px;
+            color: #1e293b;
+            background-color: #f8fafc;
+            transition: all 0.25s ease;
+        }
+        .form-group select:hover,
+        .form-group input:hover,
+        .form-group textarea:hover {
+            border-color: #cbd5e1;
+            background-color: #ffffff;
+        }
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2f54eb;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(47, 84, 235, 0.08);
+        }
+        .form-group .help-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        
+        /* Modern Switch Toggle styling */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input:checked + .slider {
+            background-color: #2f54eb;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Domain lists card */
+        .domain-card {
+            border: 1px solid #f1f5f9;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            background: #f8fafc;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .domain-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: #cbd5e1;
+            transition: all 0.25s;
+        }
+        .domain-card.active::before {
+            background: #2f54eb;
+        }
+        .domain-card:hover {
+            border-color: #e2e8f0;
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            transform: translateY(-2px);
+        }
+        .domain-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .domain-card-title {
+            font-weight: 700;
+            font-size: 17px;
+            color: #0f172a;
+            margin: 0;
+        }
+        .domain-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+        .domain-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .domain-card-prompt {
+            font-size: 13px;
+            background: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: #475569;
+            margin-bottom: 18px;
+            line-height: 1.5;
+            border-left: 3px solid #94a3b8;
+        }
+        .domain-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 14px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-active {
+            background: #e0e7ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+        }
+        .badge-inactive {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Log console styling */
+        .log-console {
+            background: #0f172a;
+            color: #cbd5e1;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 13px;
+            border-radius: 12px;
+            padding: 20px;
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+            margin-top: 18px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .log-line {
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 4px;
+        }
+        .log-line.INFO { color: #38bdf8; }
+        .log-line.WARN { color: #fbbf24; }
+        .log-line.ERROR { color: #f87171; }
+
+        .btn-flex {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        /* Premium Buttons */
+        .btn-outline {
+            background: #ffffff;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .btn-outline:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+        .btn-outline-danger {
+            background: #ffffff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            transition: all 0.2s ease;
+        }
+        .btn-outline-danger:hover {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #f87171;
+        }
+
+        /* Spinner animation */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+
+        <main class="dashboard-main">
+            <header class="dashboard-header compact">
+                <div>
+                    <p class="eyebrow">Otomatisasi Kustom</p>
+                    <h1>Rewrite Kustom Domain</h1>
+                    <p>Scrape RSS feed dari domain pilihan Anda, lakukan AI rewrite secara otomatis, dan publikasikan.</p>
+                </div>
+            </header>
+
+            {{if .Success}}
+                <div class="alert alert-success">{{.Success}}</div>
+            {{end}}
+            {{if .Error}}
+                <div class="alert alert-danger">{{.Error}}</div>
+            {{end}}
+
+            <div class="domain-grid">
+                <!-- Left Side: Settings, Manual Trigger, and Logs -->
+                <div style="display: flex; flex-direction: column; gap: 30px;">
+                    <!-- Cron Settings -->
+                    <div class="card-panel">
+                        <h2>Konfigurasi Auto-Post</h2>
+                        <form method="post" action="/dashboard/custom-domains/settings">
+                            <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                                <div>
+                                    <label style="margin-bottom: 0; cursor: pointer;" for="custom_domains_cron_enabled">Auto-Post Latar Belakang</label>
+                                    <div class="help-text" style="margin-top: 4px;">Jalankan mesin scraping otomatis</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="custom_domains_cron_enabled" name="custom_domains_cron_enabled" value="true" {{if eq (index .Settings "custom_domains_cron_enabled") "true"}}checked{{end}}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="custom_domains_cron_interval">Interval Pemeriksaan</label>
+                                <select name="custom_domains_cron_interval" id="custom_domains_cron_interval">
+                                    <option value="15" {{if eq (index .Settings "custom_domains_cron_interval") "15"}}selected{{end}}>Setiap 15 Menit</option>
+                                    <option value="30" {{if eq (index .Settings "custom_domains_cron_interval") "30"}}selected{{end}}>Setiap 30 Menit</option>
+                                    <option value="60" {{if eq (index .Settings "custom_domains_cron_interval") "60"}}{{else if not (index .Settings "custom_domains_cron_interval")}}selected{{else}}{{end}} selected>Setiap 1 Jam</option>
+                                    <option value="120" {{if eq (index .Settings "custom_domains_cron_interval") "120"}}selected{{end}}>Setiap 2 Jam</option>
+                                    <option value="360" {{if eq (index .Settings "custom_domains_cron_interval") "360"}}selected{{end}}>Setiap 6 Jam</option>
+                                    <option value="720" {{if eq (index .Settings "custom_domains_cron_interval") "720"}}selected{{end}}>Setiap 12 Jam</option>
+                                </select>
+                                <div class="help-text">Seberapa sering sistem akan memeriksa feed RSS kustom untuk artikel baru.</div>
+                            </div>
+                            
+                            {{if index .Settings "custom_domains_cron_last_run"}}
+                            <div class="form-group" style="margin-bottom: 20px; font-size: 12.5px; color: #64748b; background: #f8fafc; padding: 12px; border-radius: 8px;">
+                                <strong>Eksekusi Terakhir:</strong> <span class="local-time" data-utc="{{index .Settings "custom_domains_cron_last_run"}}">{{index .Settings "custom_domains_cron_last_run"}}</span>
+                            </div>
+                            {{end}}
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan Konfigurasi 💾</button>
+                        </form>
+                    </div>
+
+                    <!-- Manual Trigger and Logs -->
+                    <div class="card-panel">
+                        <h2>
+                            Log &amp; Kontrol Manual
+                            <button id="clear-logs-btn" class="btn btn-sm btn-outline-danger" style="margin-left: auto; padding: 6px 12px; font-size: 12px;">Bersihkan Log 🗑️</button>
+                        </h2>
+                        
+                        <div class="btn-flex">
+                            <button id="run-manual-btn" class="btn btn-success" style="flex: 1; background-color: #10b981; border: none; color: white;">⚡ Jalankan Auto-Post Sekarang</button>
+                            <button id="refresh-logs-btn" class="btn btn-outline" style="padding: 10px 14px;" title="Perbarui Log">🔄</button>
+                        </div>
+
+                        <div class="carbon-wrapper" style="margin-top: 15px;">
+                            <div class="ios-console">
+                                <div class="ios-console-header">
+                                    <div class="ios-console-dots">
+                                        <div class="ios-console-dot red"></div>
+                                        <div class="ios-console-dot yellow"></div>
+                                        <div class="ios-console-dot green"></div>
+                                    </div>
+                                    <div class="ios-console-title">custom_domains.log</div>
+                                </div>
+                                <div class="ios-console-body" id="log-display" style="height: 250px;">
+                                    <div class="log-line" style="color: #8e8e93; font-style: italic;">Memuat log aktivitas...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Domains Management -->
+                <div style="display: flex; flex-direction: column; gap: 30px;">
+                    <!-- Add Custom Domain -->
+                    <div class="card-panel">
+                        <h2 id="form-title">Tambah Kustom Domain / RSS Feed</h2>
+                        <form id="domain-form" method="post" action="/dashboard/custom-domains/add">
+                            <input type="hidden" name="id" id="field-id">
+                            
+                            <div class="form-group">
+                                <label for="field-name">Nama Sumber / Portal</label>
+                                <input type="text" name="name" id="field-name" placeholder="Contoh: Koran Bernas Pendidikan" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="field-rss-url">RSS Feed URL(s)</label>
+                                <textarea name="rss_url" id="field-rss-url" rows="3" placeholder="Masukkan satu atau lebih URL RSS (satu per baris)&#10;Contoh:&#10;https://domain1.com/rss&#10;https://domain2.com/rss" required></textarea>
+                                <div class="help-text">Anda bisa memasukkan beberapa URL RSS sekaligus (satu per baris).</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="field-category">Kategori Target</label>
+                                <select name="category" id="field-category">
+                                    <option value="auto">Pilih Otomatis (AI)</option>
+                                    {{range .Categories}}
+                                        <option value="{{.Name}}">{{.Name}}</option>
+                                    {{end}}
+                                </select>
+                                <div class="help-text">Artikel baru dari RSS ini akan otomatis dikategorikan ke sini.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="field-prompt">AI Prompt Khusus (Opsional)</label>
+                                <textarea name="custom_prompt" id="field-prompt" rows="3" placeholder="Instruksi penulisan ulang khusus domain ini. Kosongkan untuk menggunakan panduan prompt global."></textarea>
+                                <div class="help-text">Contoh: "Rewrite dengan gaya akademis yang ramah guru. Fokuskan pada kebijakan kurikulum baru."</div>
+                            </div>
+
+                            <div class="btn-flex">
+                                <button type="submit" id="submit-btn" class="btn btn-primary" style="flex: 1;">Tambah Sumber</button>
+                                <button type="button" id="cancel-edit-btn" class="btn btn-outline-danger" style="display: none;">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Domain List -->
+                    <div class="card-panel">
+                        <h2>Daftar Sumber Kustom ({{len .Domains}})</h2>
+                        
+                        {{if not .Domains}}
+                            <div class="empty-state">
+                                <p style="font-size: 48px; margin-bottom: 14px;">🌐</p>
+                                <h3>Belum ada domain kustom</h3>
+                                <p>Daftarkan RSS feed kustom Anda pada form di atas untuk memulai.</p>
+                            </div>
+                        {{else}}
+                            <div class="domain-list">
+                                {{range .Domains}}
+                                    <div class="domain-card {{if eq .Status "active"}}active{{end}}" id="domain-{{.ID}}">
+                                        <div class="domain-card-header">
+                                            <h3 class="domain-card-title">{{.Name}}</h3>
+                                            <span class="badge {{if eq .Status "active"}}badge-active{{else}}badge-inactive{{end}}" id="badge-{{.ID}}">{{.Status}}</span>
+                                        </div>
+                                        
+                                        <div class="domain-card-meta" style="margin-bottom: 8px;">
+                                            <span>📂 Kategori: <strong style="color: #0f172a;">{{if eq .Category "auto"}}Pilih Otomatis (AI){{else}}{{.Category}}{{end}}</strong></span>
+                                        </div>
+                                        <div style="font-size: 11.5px; color: #64748b; margin-bottom: 14px; max-height: 80px; overflow-y: auto; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; white-space: pre-wrap; font-family: Consolas, monospace; border: 1px solid #e2e8f0; line-height: 1.4;">{{.RSSURL}}</div>
+
+                                        {{if .CustomPrompt}}
+                                            <div class="domain-card-prompt">
+                                                <strong>AI Instruction:</strong> {{.CustomPrompt}}
+                                            </div>
+                                        {{end}}
+
+                                        <div class="domain-card-actions">
+                                            <button class="btn btn-sm btn-outline toggle-status-btn" data-id="{{.ID}}">
+                                                {{if eq .Status "active"}}Nonaktifkan{{else}}Aktifkan{{end}}
+                                            </button>
+                                            <button class="btn btn-sm btn-outline edit-btn" 
+                                                    data-id="{{.ID}}"
+                                                    data-name="{{.Name}}"
+                                                    data-rss="{{.RSSURL}}"
+                                                    data-category="{{.Category}}"
+                                                    data-prompt="{{.CustomPrompt}}"
+                                                    data-status="{{.Status}}">
+                                                Edit
+                                            </button>
+                                            <form method="post" action="/dashboard/custom-domains/delete" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sumber ini?');">
+                                                <input type="hidden" name="id" value="{{.ID}}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {{end}}
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Local Time conversion
+            document.querySelectorAll(".local-time").forEach(el => {
+                const utc = el.getAttribute("data-utc");
+                if (utc) {
+                    const date = new Date(utc);
+                    el.textContent = date.toLocaleString('id-ID', {
+                        year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    });
+                }
+            });
+
+            // Edit Handling
+            const form = document.getElementById("domain-form");
+            const formTitle = document.getElementById("form-title");
+            const submitBtn = document.getElementById("submit-btn");
+            const cancelEditBtn = document.getElementById("cancel-edit-btn");
+            
+            const fieldId = document.getElementById("field-id");
+            const fieldName = document.getElementById("field-name");
+            const fieldRssUrl = document.getElementById("field-rss-url");
+            const fieldCategory = document.getElementById("field-category");
+            const fieldPrompt = document.getElementById("field-prompt");
+
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", function() {
+                    const id = this.getAttribute("data-id");
+                    const name = this.getAttribute("data-name");
+                    const rss = this.getAttribute("data-rss");
+                    const category = this.getAttribute("data-category");
+                    const promptText = this.getAttribute("data-prompt");
+
+                    fieldId.value = id;
+                    fieldName.value = name;
+                    fieldRssUrl.value = rss;
+                    fieldCategory.value = category;
+                    fieldPrompt.value = promptText;
+
+                    formTitle.textContent = "Edit Kustom Domain / RSS Feed";
+                    submitBtn.textContent = "Simpan Perubahan 💾";
+                    form.action = "/dashboard/custom-domains/edit";
+                    cancelEditBtn.style.display = "block";
+                    
+                    form.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            cancelEditBtn.addEventListener("click", function() {
+                fieldId.value = "";
+                form.reset();
+                formTitle.textContent = "Tambah Kustom Domain / RSS Feed";
+                submitBtn.textContent = "Tambah Sumber";
+                form.action = "/dashboard/custom-domains/add";
+                cancelEditBtn.style.display = "none";
+            });
+
+            // Toggle Status AJAX
+            document.querySelectorAll(".toggle-status-btn").forEach(btn => {
+                btn.addEventListener("click", function() {
+                    const id = this.getAttribute("data-id");
+                    const self = this;
+                    
+                    self.disabled = true;
+                    self.textContent = "Processing...";
+
+                    const formData = new FormData();
+                    formData.append("id", id);
+
+                    fetch("/dashboard/custom-domains/toggle", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        self.disabled = false;
+                        if (data.success) {
+                            const badge = document.getElementById("badge-" + id);
+                            const card = document.getElementById("domain-" + id);
+                            if (data.status === "active") {
+                                badge.textContent = "active";
+                                badge.className = "badge badge-active";
+                                self.textContent = "Nonaktifkan";
+                                card.classList.add("active");
+                            } else {
+                                badge.textContent = "inactive";
+                                badge.className = "badge badge-inactive";
+                                self.textContent = "Aktifkan";
+                                card.classList.remove("active");
+                            }
+                        } else {
+                            alert("Gagal mengubah status: " + data.message);
+                        }
+                    })
+                    .catch(err => {
+                        self.disabled = false;
+                        self.textContent = "Error";
+                        console.error(err);
+                    });
+                });
+            });
+
+            // Logs operations
+            const logDisplay = document.getElementById("log-display");
+            
+            function loadLogs() {
+                fetch("/dashboard/custom-domains/logs")
+                .then(res => res.json())
+                .then(logs => {
+                    logDisplay.innerHTML = "";
+                    if (logs.length === 0) {
+                        logDisplay.innerHTML = '<div style="color: #8e8e93; font-style: italic; text-align: center; padding: 20px 0;">Belum ada log aktivitas.</div>';
+                        return;
+                    }
+                    logs.forEach(log => {
+                        const line = document.createElement("div");
+                        line.style.marginBottom = '6px';
+                        line.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                        line.style.paddingBottom = '4px';
+                        line.style.display = 'flex';
+                        line.style.gap = '8px';
+                        line.style.alignItems = 'flex-start';
+                        
+                        const date = new Date(log.timestamp);
+                        const timeStr = date.toLocaleTimeString('id-ID', { hour12: false });
+                        
+                        let levelColor = '#8e8e93'; // iOS Gray
+                        if (log.level === 'ERROR') levelColor = '#ff453a'; // iOS Red
+                        else if (log.level === 'WARN') levelColor = '#ff9f0a'; // iOS Orange
+                        else if (log.level === 'INFO') levelColor = '#0a84ff'; // iOS Blue
+                        
+                        line.innerHTML = `<span style="color: #8e8e93; white-space: nowrap; font-size: 12px;">[${timeStr}]</span> <span style="color: ${levelColor}; font-weight: bold; white-space: nowrap; font-size: 12px;">[${log.level || "INFO"}]</span> <span style="color: #f2f2f7; word-break: break-all;">${log.message}</span>`;
+                        logDisplay.appendChild(line);
+                    });
+                    // Auto scroll
+                    logDisplay.scrollTop = logDisplay.scrollHeight;
+                })
+                .catch(err => {
+                    logDisplay.innerHTML = `<div class="log-line ERROR">Gagal memuat log: ${err.message}</div>`;
+                });
+            }
+
+            // Initial load
+            loadLogs();
+
+            // Run Manual
+            const runBtn = document.getElementById("run-manual-btn");
+            runBtn.addEventListener("click", function() {
+                if (!confirm("Apakah Anda yakin ingin menjalankan scraping kustom domain sekarang di latar belakang?")) {
+                    return;
+                }
+                
+                runBtn.disabled = true;
+                runBtn.innerHTML = '<span class="spinner"></span> Memulai...';
+
+                fetch("/dashboard/custom-domains/run", {
+                    method: "POST"
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    setTimeout(loadLogs, 1000);
+                    // Poll logs
+                    let intervalCount = 0;
+                    const pollInterval = setInterval(() => {
+                        loadLogs();
+                        intervalCount++;
+                        if (intervalCount >= 12) {
+                            clearInterval(pollInterval);
+                            runBtn.disabled = false;
+                            runBtn.innerHTML = '⚡ Jalankan Auto-Post Sekarang';
+                        }
+                    }, 3000);
+                })
+                .catch(err => {
+                    runBtn.disabled = false;
+                    runBtn.innerHTML = '⚡ Jalankan Auto-Post Sekarang';
+                    alert("Gagal memicu pekerjaan: " + err.message);
+                });
+            });
+
+            // Refresh Logs
+            document.getElementById("refresh-logs-btn").addEventListener("click", loadLogs);
+
+            // Clear Logs
+            document.getElementById("clear-logs-btn").addEventListener("click", function() {
+                if (!confirm("Apakah Anda yakin ingin menghapus semua log aktivitas kustom domain?")) {
+                    return;
+                }
+                fetch("/dashboard/custom-domains/logs/clear", {
+                    method: "POST"
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        loadLogs();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

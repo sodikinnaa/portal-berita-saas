@@ -1,0 +1,1 @@
+-- Deleted dummy seed articles migration

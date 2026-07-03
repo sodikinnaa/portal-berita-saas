@@ -1,0 +1,1 @@
+-- Deleted dummy articles seeder

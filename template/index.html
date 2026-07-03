@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKUBANK YAPIS JAYAPURA | Akademi Keuangan dan Perbankan Yapis</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Situs Resmi Akademi Keuangan dan Perbankan (Akubank) YAPIS Jayapura. Kampus vokasi perbankan terbaik di Tanah Papua dengan program studi D3 Keuangan dan Perbankan.">
+    <meta name="keywords" content="akubank yapis, yapis jayapura, akademi keuangan dan perbankan yapis, kuliah perbankan papua, kampus vokasi jayapura">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div>
+                <span>📍 Jl. Pendidikan Islam No. 7, Tanjung Ria, Jayapura Utara, Kota Jayapura</span>
+            </div>
+            <div class="top-bar-links">
+                <a href="/portal">Portal Berita 📰</a>
+                <a href="#contact">Kontak Kami</a>
+                <a href="https://pddikti.kemdikbud.go.id/" target="_blank">PDDikti 🔍</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-container">
+                {{if index .Settings "site_favicon"}}
+                <img src="{{index .Settings "site_favicon"}}" alt="Logo" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;">
+                {{else}}
+                <div class="logo-symbol">Y</div>
+                {{end}}
+                <div class="logo-text">
+                    <span class="logo-title">{{if index .Settings "site_title"}}{{index .Settings "site_title"}}{{else}}AKUBANK YAPIS{{end}}</span>
+                    <span class="logo-subtitle">{{if index .Settings "site_tagline"}}{{index .Settings "site_tagline"}}{{else}}Jayapura, Papua{{end}}</span>
+                </div>
+            </div>
+            
+            <span class="menu-toggle" id="menu-toggle-btn">☰</span>
+            
+            <nav class="main-nav" id="main-navigation">
+                <a href="/" class="nav-link active">Beranda</a>
+                <a href="/about-us" class="nav-link">Profil Kampus</a>
+                <a href="/subpage" class="nav-link">Program Studi</a>
+                <a href="#news" class="nav-link">Berita & Acara</a>
+                <a href="https://pmb.abankyapis.ac.id" class="btn-admission">PMB Online 🎓</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Slider -->
+    <section class="hero-section">
+        <div class="hero-slider">
+            <!-- Slide 1 -->
+            <div class="hero-slide active" style="background-image: linear-gradient(to right, rgba(15, 81, 50, 0.8) 40%, rgba(15, 81, 50, 0.3) 100%), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80');">
+                <div class="container">
+                    <div class="hero-content">
+                        <span class="hero-tag">Penerimaan Mahasiswa Baru</span>
+                        <h1 class="hero-title">Membangun Karier Profesional di Sektor Keuangan & Perbankan</h1>
+                        <p class="hero-excerpt">Bergabunglah bersama Akubank YAPIS Jayapura, pelopor pendidikan vokasi perbankan terkemuka dan siap kerja di Tanah Papua.</p>
+                        <div class="hero-actions">
+                            <a href="https://pmb.abankyapis.ac.id" class="btn-primary">Daftar Kuliah (PMB)</a>
+                            <a href="/about-us" class="btn-secondary">Pelajari Selengkapnya</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 2 -->
+            <div class="hero-slide" style="background-image: linear-gradient(to right, rgba(15, 81, 50, 0.8) 40%, rgba(15, 81, 50, 0.3) 100%), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80');">
+                <div class="container">
+                    <div class="hero-content">
+                        <span class="hero-tag">Program Vokasi Unggulan</span>
+                        <h1 class="hero-title">Kurikulum Berbasis Kompetensi & Industri Digital</h1>
+                        <p class="hero-excerpt">Kami mempersiapkan lulusan yang tangguh, adaptif, serta menguasai teknologi perbankan modern dan etika profesi keuangan syariah maupun konvensional.</p>
+                        <div class="hero-actions">
+                            <a href="/subpage" class="btn-primary">Lihat Kurikulum D3</a>
+                            <a href="#featured-stats" class="btn-secondary">Lihat Akreditasi</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section" id="featured-stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-number" data-target="92" data-suffix="%">0%</div>
+                    <div class="stat-label">Lulusan Langsung Kerja</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏛️</div>
+                    <div class="stat-number" data-target="2" data-suffix=" Prodi">0</div>
+                    <div class="stat-label">Akreditasi Baik</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏢</div>
+                    <div class="stat-number" data-target="15" data-suffix="+ Mitra">0</div>
+                    <div class="stat-label">Mitra BUMN & Perbankan</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🤝</div>
+                    <div class="stat-number" data-target="1500" data-suffix="+">0</div>
+                    <div class="stat-label">Alumni Sukses di Papua</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Vokasi Section -->
+    <section id="academics">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Pilihan Program Studi</span>
+                <h2 class="section-title">Program Pendidikan Terbaik</h2>
+                <p class="section-desc">Mencetak tenaga ahli madya yang kompeten di bidang keuangan operasional bank umum, analisis kredit, and perencanaan keuangan.</p>
+            </div>
+            
+            <div class="programs-grid">
+                <!-- Program 1: D3 Perbankan -->
+                <div class="program-card">
+                    <div class="program-img" style="background-image: url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=600&q=80');">
+                        <div class="program-overlay">
+                            <span class="program-badge">D3 Vokasi</span>
+                        </div>
+                    </div>
+                    <div class="program-body">
+                        <h3 class="program-name">D3 Keuangan & Perbankan</h3>
+                        <p class="program-desc">Fokus pada operasional teller, customer service perbankan, administrasi perkantoran bank, kepatuhan, serta analisis kredit dasar.</p>
+                        <a href="/subpage" class="program-link">Lihat Detail Program &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- Program 2: Sertifikasi Keuangan -->
+                <div class="program-card">
+                    <div class="program-img" style="background-image: url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80');">
+                        <div class="program-overlay">
+                            <span class="program-badge">Non-Gelar</span>
+                        </div>
+                    </div>
+                    <div class="program-body">
+                        <h3 class="program-name">Pusat Sertifikasi Kompetensi</h3>
+                        <p class="program-desc">Pelatihan sertifikasi profesi perbankan seperti LSP LPK, manajemen risiko (BSMR), keuangan syariah, dan akuntansi dasar.</p>
+                        <a href="/subpage#certifications" class="program-link">Lihat Informasi &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- Program 3: Kuliah Praktik / Magang -->
+                <div class="program-card">
+                    <div class="program-img" style="background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=600&q=80');">
+                        <div class="program-overlay">
+                            <span class="program-badge">Magang Kerja</span>
+                        </div>
+                    </div>
+                    <div class="program-body">
+                        <h3 class="program-name">Program Magang BUMN & Swasta</h3>
+                        <p class="program-desc">Kerja sama magang industri di Bank Papua, Bank Mandiri, BNI, BRI, serta instansi pemerintahan daerah di Provinsi Papua.</p>
+                        <a href="/about-us#partners" class="program-link">Lihat Mitra Kami &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News & Event Section (Dinamis dari Database) -->
+    <section id="news" style="background-color: #f1f5f9; padding: 40px 0;">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Warta Kampus</span>
+                <h2 class="section-title">Berita & Informasi Terkini</h2>
+                <p class="section-desc">Ikuti terus perkembangan aktivitas akademik, pengumuman perkuliahan, dan prestasi mahasiswa Akubank YAPIS Jayapura.</p>
+            </div>
+            
+            <div class="news-grid">
+                <!-- Looping Berita Dinamis Go Template -->
+                {{range .LatestArticles}}
+                <article class="news-card">
+                    <div class="news-img" style="background-image: url('{{if .HeroImageURL}}{{.HeroImageURL}}{{else}}https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=600&q=80{{end}}');"></div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span>📅 {{.CreatedAt.Format "02 Jan 2006"}}</span>
+                            <span>🏷️ {{if .Category}}{{.Category}}{{else}}Kampus{{end}}</span>
+                        </div>
+                        <h3 class="news-title"><a href="/artikel/{{.Slug}}">{{.Title}}</a></h3>
+                        <p class="news-excerpt">{{.Excerpt}}</p>
+                        <a href="/artikel/{{.Slug}}" style="color: var(--primary); font-weight: 700; font-size: 13px;">Baca Detail &rarr;</a>
+                    </div>
+                </article>
+                {{else}}
+                <!-- Data Mockup Cadangan jika belum ada berita dinamis -->
+                <article class="news-card">
+                    <div class="news-img" style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span>📅 30 Juni 2026</span>
+                            <span>🏷️ Pengumuman</span>
+                        </div>
+                        <h3 class="news-title"><a href="#">Pendaftaran Mahasiswa Baru Gelombang 2 Resmi Dibuka</a></h3>
+                        <p class="news-excerpt">Pendaftaran mahasiswa baru Akademi Keuangan dan Perbankan YAPIS Jayapura TA 2026/2027 diperpanjang hingga akhir Agustus.</p>
+                    </div>
+                </article>
+                
+                <article class="news-card">
+                    <div class="news-img" style="background-image: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span>📅 28 Juni 2026</span>
+                            <span>🏷️ Akademik</span>
+                        </div>
+                        <h3 class="news-title"><a href="#">Workshop Perbankan Digital bersama Praktisi Bank Indonesia</a></h3>
+                        <p class="news-excerpt">Membekali mahasiswa dengan wawasan transformasi perbankan digital, mobile banking, dan keamanan transaksi keuangan terkini.</p>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-img" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span>📅 25 Juni 2026</span>
+                            <span>🏷️ Mahasiswa</span>
+                        </div>
+                        <h3 class="news-title"><a href="#">Kunjungan Industri Mahasiswa Akubank YAPIS Jayapura ke OJK</a></h3>
+                        <p class="news-excerpt">Dalam rangka memperdalam pemahaman tentang pengawasan dan perlindungan industri jasa keuangan konsumen di wilayah Papua.</p>
+                    </div>
+                </article>
+                {{end}}
+            </div>
+        </div>
+    </section>
+
+    <!-- Campus Gallery Section -->
+    <section id="gallery">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Kehidupan Kampus</span>
+                <h2 class="section-title">Galeri Kegiatan & Fasilitas</h2>
+                <p class="section-desc">Sekilas gambaran lingkungan belajar yang nyaman, religius, modern, dan kondusif untuk studi Anda.</p>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-img" style="background-image: url('https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-title">Perpustakaan Digital</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-img" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-title">Gedung Rektorat YAPIS</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-img" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-title">Lab Simulasi Mini Bank</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-img" style="background-image: url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-title">Kegiatan Mahasiswa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Admission -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-grid">
+                <div>
+                    <h2 class="cta-title">Siap Menjadi Bankir Profesional Selanjutnya?</h2>
+                    <p class="cta-desc">Daftar sekarang untuk tahun ajaran baru 2026/2027. Kuota terbatas untuk kelas reguler perkantoran dan perbankan digital.</p>
+                </div>
+                <div class="cta-btn-area">
+                    <a href="https://pmb.abankyapis.ac.id" class="btn-primary" style="background-color: var(--accent); padding: 18px 36px; font-size: 16px;">Daftar Sekarang &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer" id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Col 1: About -->
+                <div class="footer-col-info">
+                    <div class="logo-container" style="margin-bottom: 20px;">
+                        {{if index .Settings "site_favicon"}}
+                        <img src="{{index .Settings "site_favicon"}}" alt="Logo" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;">
+                        {{else}}
+                        <div class="logo-symbol" style="background: var(--accent);">Y</div>
+                        {{end}}
+                        <span class="logo-title" style="color: var(--white); font-size: 20px;">{{if index .Settings "site_title"}}{{index .Settings "site_title"}}{{else}}AKUBANK YAPIS{{end}}</span>
+                    </div>
+                    <p class="footer-about">
+                        Akademi Keuangan dan Perbankan (Akubank) YAPIS Jayapura didirikan oleh Yayasan Pendidikan Islam di Tanah Papua dengan komitmen melahirkan lulusan vokasi yang siap kerja, beretika mulia, dan berdaya saing global.
+                    </p>
+                </div>
+                
+                <!-- Col 2: Navigation -->
+                <div>
+                    <h3 class="footer-col-title">Peta Situs</h3>
+                    <ul class="footer-links">
+                        <li><a href="/">Beranda</a></li>
+                        <li><a href="/about-us">Profil Kampus</a></li>
+                        <li><a href="/subpage">Program Studi</a></li>
+                        <li><a href="/portal">Portal Berita</a></li>
+                        <li><a href="https://pmb.abankyapis.ac.id">PMB Online</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Col 3: Programs -->
+                <div>
+                    <h3 class="footer-col-title">Program Studi</h3>
+                    <ul class="footer-links">
+                        <li><a href="/subpage">D3 Keuangan & Perbankan</a></li>
+                        <li><a href="/subpage#certifications">Sertifikasi BSMR</a></li>
+                        <li><a href="/subpage#curriculum">Kurikulum Kompetensi</a></li>
+                        <li><a href="/about-us#partners">Program Magang Kerja</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Col 4: Contact -->
+                <div>
+                    <h3 class="footer-col-title">Hubungi Kami</h3>
+                    <ul class="contact-info">
+                        <li>
+                            <span class="contact-icon">📍</span>
+                            <span>Jl. Pendidikan Islam No. 7, Tanjung Ria, Jayapura Utara, Kota Jayapura, Papua</span>
+                        </li>
+                        <li>
+                            <span class="contact-icon">📞</span>
+                            <span>(0967) 532107 / 0812-3456-7890</span>
+                        </li>
+                        <li>
+                            <span class="contact-icon">✉️</span>
+                            <span>info@abankyapis.ac.id</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year">2026</span> Akademi Keuangan dan Perbankan YAPIS Jayapura. Hak Cipta Dilindungi.</p>
+                <p>Di bawah Naungan Yayasan Pendidikan Islam (YAPIS) di Tanah Papua.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

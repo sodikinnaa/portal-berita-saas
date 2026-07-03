@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Auto-Post Bluesky - NewsPaper CMS</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+        <style>
+            .bsky-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 30px;
+                max-width: 1000px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .card-panel {
+                background: #ffffff;
+                border-radius: 12px;
+                border: 1px solid #eef2f5;
+                padding: 24px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            }
+            .card-panel h2 {
+                margin-top: 0;
+                margin-bottom: 20px;
+                font-family: 'Playfair Display', serif;
+                font-weight: 700;
+                font-size: 20px;
+                color: #1a1a1a;
+                border-bottom: 2px solid #f4f6f8;
+                padding-bottom: 12px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #333;
+            }
+            .form-group select,
+            .form-group input,
+            .form-group textarea {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid #dcdfe6;
+                border-radius: 8px;
+                font-family: inherit;
+                font-size: 14px;
+                color: #303133;
+                background-color: #fff;
+                transition: border-color 0.2s;
+            }
+            .form-group select:focus,
+            .form-group input:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: #0284c7;
+            }
+            .form-group .help-text {
+                font-size: 12px;
+                color: #909399;
+                margin-top: 6px;
+            }
+        </style>
+    </head>
+    <body class="dashboard-page">
+        <div class="dashboard-shell">
+            {{template "sidebar" .}}
+
+            <main class="dashboard-main">
+                <header class="dashboard-header compact">
+                    <div>
+                        <p class="eyebrow">Otomatisasi</p>
+                        <h1>Auto-Post Bluesky</h1>
+                        <p>
+                            Gunakan AI untuk membuat caption dalam Bahasa Inggris secara natural dan mempublikasikan tautan artikel berita Anda secara otomatis ke akun Bluesky.
+                        </p>
+                    </div>
+                </header>
+
+                {{if .Error}}
+                <div class="alert alert-error">{{.Error}}</div>
+                {{end}} {{if .Success}}
+                <div class="alert alert-success">{{.Success}}</div>
+                {{end}}
+
+                <div class="bsky-grid">
+                    <!-- Config Form -->
+                    <div class="card-panel">
+                        <h2>Konfigurasi Akun Bluesky</h2>
+                        <form method="post" action="/dashboard/bluesky/settings">
+                            <div class="form-group">
+                                <label for="site_url">URL Website Publik (Base URL)</label>
+                                <input
+                                    type="text"
+                                    name="site_url"
+                                    id="site_url"
+                                    value="{{index .Settings "site_url"}}"
+                                    placeholder="Contoh: https://jatimaktual.com atau http://localhost:8080"
+                                />
+                                <p class="help-text">URL dasar website Anda yang akan disertakan dalam postingan Bluesky.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bsky_auto_post_enabled">Status Auto-Post Bluesky</label>
+                                <select name="bsky_auto_post_enabled" id="bsky_auto_post_enabled">
+                                    <option value="false" {{if ne (index .Settings "bsky_auto_post_enabled") "true"}}selected{{end}}>Nonaktif</option>
+                                    <option value="true" {{if eq (index .Settings "bsky_auto_post_enabled") "true"}}selected{{end}}>Aktif</option>
+                                </select>
+                                <p class="help-text">Jika aktif, setiap kali cron job berjalan, sistem akan mendeteksi artikel baru dan mempostingnya ke Bluesky.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bsky_cron_interval">Interval Auto-Post Bluesky</label>
+                                <select name="bsky_cron_interval" id="bsky_cron_interval">
+                                    <option value="5" {{if eq (index .Settings "bsky_cron_interval") "5"}}selected{{end}}>Setiap 5 Menit</option>
+                                    <option value="15" {{if eq (index .Settings "bsky_cron_interval") "15"}}selected{{end}}>Setiap 15 Menit</option>
+                                    <option value="30" {{if eq (index .Settings "bsky_cron_interval") "30"}}selected{{end}}>Setiap 30 Menit</option>
+                                    <option value="60" {{if or (eq (index .Settings "bsky_cron_interval") "60") (eq (index .Settings "bsky_cron_interval") "")}}selected{{end}}>Setiap 1 Jam</option>
+                                    <option value="180" {{if eq (index .Settings "bsky_cron_interval") "180"}}selected{{end}}>Setiap 3 Jam</option>
+                                    <option value="360" {{if eq (index .Settings "bsky_cron_interval") "360"}}selected{{end}}>Setiap 6 Jam</option>
+                                    <option value="720" {{if eq (index .Settings "bsky_cron_interval") "720"}}selected{{end}}>Setiap 12 Jam</option>
+                                    <option value="1440" {{if eq (index .Settings "bsky_cron_interval") "1440"}}selected{{end}}>Setiap 24 Jam</option>
+                                </select>
+                                <p class="help-text">Seberapa sering sistem akan memeriksa dan memposting artikel baru ke Bluesky.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bsky_handle">Username / Handle Bluesky</label>
+                                <input
+                                    type="text"
+                                    name="bsky_handle"
+                                    id="bsky_handle"
+                                    value="{{index .Settings "bsky_handle"}}"
+                                    placeholder="Contoh: username.bsky.social"
+                                />
+                                <p class="help-text">Nama pengguna unik atau handle dari profil Bluesky Anda.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bsky_app_password">Kata Sandi Aplikasi (App Password)</label>
+                                <input
+                                    type="text"
+                                    name="bsky_app_password"
+                                    id="bsky_app_password"
+                                    value="{{index .Settings "bsky_app_password"}}"
+                                    placeholder="Masukkan App Password Bluesky (xxxx-xxxx-xxxx-xxxx)"
+                                />
+                                <p class="help-text">Kata sandi aplikasi khusus yang dibuat dari menu Settings > App Passwords di Bluesky.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bsky_custom_prompt">Panduan Kustom Caption AI (Promt)</label>
+                                <textarea name="bsky_custom_prompt" id="bsky_custom_prompt" rows="5" placeholder="Misal: Make it sound professional, add emojis, focus on tech trends... (kosongkan untuk default)">{{index .Settings "bsky_custom_prompt"}}</textarea>
+                                <p class="help-text">Panduan tambahan untuk modifikasi gaya tulisan/caption Bahasa Inggris oleh AI.</p>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; background-color: #0284c7; border-color: #0284c7;">
+                                Simpan Konfigurasi 💾
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Log Panel -->
+                    <div class="card-panel" style="border: 1px solid #eef2f5;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f4f6f8; padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                            <h2 style="margin: 0; border: none; padding: 0;">Log Aktivitas Bluesky Auto-Post</h2>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button id="btn-run-bsky" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px; background-color: #0284c7; color: white; border: none;">
+                                    Posting Sekarang ⚡
+                                </button>
+                                <button id="btn-refresh-bsky-logs" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px;">
+                                    Perbarui Log 🔄
+                                </button>
+                                <button id="btn-clear-bsky-logs" class="btn btn-secondary" style="margin: 0; padding: 8px 16px; font-size: 13px; background-color: #fff0f6; border-color: #ffadd2; color: #eb2f96;">
+                                    Bersihkan Log 🗑️
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="carbon-wrapper">
+                            <div class="ios-console">
+                                <div class="ios-console-header">
+                                    <div class="ios-console-dots">
+                                        <div class="ios-console-dot red"></div>
+                                        <div class="ios-console-dot yellow"></div>
+                                        <div class="ios-console-dot green"></div>
+                                    </div>
+                                    <div class="ios-console-title">bluesky_autopost.log</div>
+                                </div>
+                                <div class="ios-console-body" id="bsky-logs-container" style="height: 400px;">
+                                    <div style="color: #8e8e93; font-style: italic;">Memuat log aktivitas...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            function fetchBSkyLogs() {
+                const container = document.getElementById('bsky-logs-container');
+                fetch('/dashboard/bluesky/logs')
+                    .then(res => res.json())
+                    .then(logs => {
+                        container.innerHTML = '';
+                        if (!logs || logs.length === 0) {
+                            container.innerHTML = '<div style="color: #8e8e93; font-style: italic; text-align: center; padding: 20px 0;">Belum ada log aktivitas.</div>';
+                            return;
+                        }
+                        
+                        logs.forEach(log => {
+                            const date = new Date(log.timestamp).toLocaleString('id-ID');
+                            const div = document.createElement('div');
+                            div.style.marginBottom = '6px';
+                            div.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                            div.style.paddingBottom = '4px';
+                            div.style.display = 'flex';
+                            div.style.gap = '8px';
+                            div.style.alignItems = 'flex-start';
+                            
+                            let levelColor = '#8e8e93'; // iOS Gray
+                            if (log.level === 'ERROR') levelColor = '#ff453a'; // iOS Red
+                            else if (log.level === 'WARN') levelColor = '#ff9f0a'; // iOS Orange
+                            else if (log.level === 'INFO') levelColor = '#0a84ff'; // iOS Blue
+                            
+                            div.innerHTML = `<span style="color: #8e8e93; white-space: nowrap; font-size: 12px;">[${date}]</span> <span style="color: ${levelColor}; font-weight: bold; white-space: nowrap; font-size: 12px;">[${log.level}]</span> <span style="color: #f2f2f7; word-break: break-all;">${log.message}</span>`;
+                            container.appendChild(div);
+                        });
+                        container.scrollTop = container.scrollHeight;
+                    })
+                    .catch(err => {
+                        container.innerHTML = `<div style="color: #f87171;">Gagal memuat log: ${err.message}</div>`;
+                    });
+            }
+
+            document.getElementById('btn-refresh-bsky-logs').addEventListener('click', fetchBSkyLogs);
+
+            document.getElementById('btn-clear-bsky-logs').addEventListener('click', function() {
+                if (confirm('Bersihkan semua log Bluesky?')) {
+                    fetch('/dashboard/bluesky/logs/clear', { method: 'POST' })
+                        .then(() => fetchBSkyLogs());
+                }
+            });
+
+            document.getElementById('btn-run-bsky').addEventListener('click', function() {
+                const btn = this;
+                btn.disabled = true;
+                btn.textContent = 'Memproses... ⏳';
+                
+                fetch('/dashboard/bluesky/run', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message || 'Auto-post Bluesky dimulai di latar belakang');
+                        setTimeout(fetchBSkyLogs, 1000);
+                    })
+                    .catch(err => {
+                        alert('Gagal: ' + err.message);
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.textContent = 'Posting Sekarang ⚡';
+                    });
+            });
+
+            fetchBSkyLogs();
+        </script>
+    </body>
+</html>

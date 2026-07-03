@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login Member - NewsPaper App</title>
+        <meta
+            name="description"
+            content="Masuk ke portal member NewsPaper untuk menyinkronkan bookmark, artikel favorit, dan preferensi membaca Anda."
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/assets/global.css" />
+        <style>
+            .auth-page {
+                background: #090b11;
+                position: relative;
+                overflow-x: hidden;
+            }
+            .auth-page::before {
+                content: '';
+                position: absolute;
+                width: 500px;
+                height: 500px;
+                background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+                top: -150px;
+                left: -150px;
+                pointer-events: none;
+            }
+            .auth-page::after {
+                content: '';
+                position: absolute;
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+                bottom: -200px;
+                right: -150px;
+                pointer-events: none;
+            }
+
+            .auth-shell {
+                animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+
+            .auth-brand h1 {
+                font-family: 'Playfair Display', serif;
+                font-weight: 900;
+                line-height: 1.15;
+                letter-spacing: -1.5px;
+                background: linear-gradient(to right, #ffffff, #a5f3fc);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .auth-card {
+                background: rgba(15, 23, 42, 0.7);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 24px;
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                padding: 40px;
+                color: #ffffff;
+                transition: transform 0.3s ease, border-color 0.3s ease;
+            }
+            .auth-card:hover {
+                border-color: rgba(99, 102, 241, 0.25);
+            }
+
+            .auth-card-header h2 {
+                color: #ffffff;
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }
+            .auth-card-header p:not(.eyebrow) {
+                color: rgba(255, 255, 255, 0.6);
+            }
+
+            .auth-form label {
+                color: rgba(255, 255, 255, 0.8);
+                font-weight: 600;
+                margin-bottom: 4px;
+                font-size: 13.5px;
+            }
+
+            .auth-form input {
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                color: #ffffff;
+                border-radius: 14px;
+                padding: 14px 16px;
+                transition: all 0.3s ease;
+                font-size: 15px;
+            }
+            .auth-form input:focus {
+                background: rgba(255, 255, 255, 0.07);
+                border-color: rgba(99, 102, 241, 0.8);
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            }
+
+            .password-field-container {
+                position: relative;
+                display: flex;
+                align-items: center;
+                width: 100%;
+            }
+            .password-field-container input {
+                padding-right: 50px;
+                width: 100%;
+            }
+            .password-toggle-btn {
+                position: absolute;
+                right: 12px;
+                background: none;
+                border: none;
+                color: rgba(255, 255, 255, 0.55);
+                cursor: pointer;
+                padding: 6px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                user-select: none;
+            }
+            .password-toggle-btn:hover {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.08);
+            }
+            .password-toggle-btn:focus {
+                outline: none;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
+                color: #ffffff;
+                border-radius: 14px;
+                padding: 15px;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+                position: relative;
+                overflow: hidden;
+                margin-top: 14px;
+            }
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45);
+            }
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+
+            .btn-primary.is-submitting {
+                color: transparent !important;
+                pointer-events: none;
+            }
+            .btn-primary.is-submitting::after {
+                content: "";
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                top: calc(50% - 10px);
+                left: calc(50% - 10px);
+                border: 3px solid rgba(255, 255, 255, 0.25);
+                border-radius: 50%;
+                border-top-color: #ffffff;
+                animation: btnSpin 0.7s linear infinite;
+            }
+
+            @keyframes btnSpin {
+                to { transform: rotate(360deg); }
+            }
+
+            .auth-footnote a {
+                color: rgba(255, 255, 255, 0.4);
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+            .auth-footnote a:hover {
+                color: #ffffff;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body class="auth-page">
+        <main class="auth-shell">
+            <section class="auth-brand">
+                <a href="/" class="brand-logo">News<span>Paper</span></a>
+                <p class="brand-kicker">Portal Member & Android</p>
+                <h1>Nikmati pengalaman membaca yang personal.</h1>
+                <p class="brand-copy">
+                    Masuk menggunakan akun aplikasi Android Anda untuk mensinkronisasi bookmark, artikel favorit, dan preferensi membaca Anda di seluruh perangkat.
+                </p>
+                <div class="auth-feature-list">
+                    <span>Sync Bookmark</span>
+                    <span>Offline Reading</span>
+                    <span>Rekomendasi Pintar</span>
+                </div>
+            </section>
+
+            <section class="auth-card" aria-labelledby="login-title">
+                <div class="auth-card-header">
+                    <p class="eyebrow">Aplikasi Mobile</p>
+                    <h2 id="login-title">Login Member</h2>
+                    <p>Masukkan email & password akun Android Anda.</p>
+                </div>
+
+                {{if .Error}}
+                <div class="alert alert-error" role="alert">{{.Error}}</div>
+                {{end}} 
+                
+                {{if .LoggedOut}}
+                <div class="alert alert-success" role="status">
+                    Anda berhasil keluar dari sesi member.
+                </div>
+                {{end}}
+
+                <form class="auth-form" id="loginForm" method="post" action="/app/login">
+                    <input type="hidden" name="next" value="{{.Next}}" />
+                    
+                    <label for="email">Email Member</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value="{{.Email}}"
+                        placeholder="nama@member.com"
+                        autocomplete="email"
+                        required
+                    />
+
+                    <label for="password">Password</label>
+                    <div class="password-field-container">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Masukkan password"
+                            autocomplete="current-password"
+                            required
+                        />
+                        <button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="Tampilkan password">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-primary" type="submit" id="submitBtn">
+                        Masuk Ke Portal
+                    </button>
+                </form>
+
+                <p class="auth-footnote">
+                    <a href="/">← Kembali ke beranda</a>
+                </p>
+            </section>
+        </main>
+
+        <script>
+            // Password Show/Hide Toggle
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.getElementById('passwordToggleBtn');
+            const eyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+            const eyeOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+            toggleBtn.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleBtn.innerHTML = eyeOffIcon;
+                    toggleBtn.setAttribute('aria-label', 'Sembunyikan password');
+                } else {
+                    passwordInput.type = 'password';
+                    toggleBtn.innerHTML = eyeIcon;
+                    toggleBtn.setAttribute('aria-label', 'Tampilkan password');
+                }
+            });
+
+            // Form Submit Loading Effect
+            const form = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', function() {
+                submitBtn.classList.add('is-submitting');
+                submitBtn.disabled = true;
+            });
+        </script>
+    </body>
+</html>

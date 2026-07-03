@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domain Kustom - NewsPaper CMS</title>
+<link rel="stylesheet" href="/assets/global.css">
+<style>
+    .dns-info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        font-size: 13px;
+    }
+    .dns-info-table th, .dns-info-table td {
+        padding: 10px;
+        border: 1px solid var(--border-color, #e5e5e5);
+        text-align: left;
+    }
+    .dns-info-table th {
+        background: rgba(0, 0, 0, 0.02);
+        font-weight: 600;
+    }
+    .dns-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+    .badge-success {
+        background: rgba(49, 151, 149, 0.1);
+        color: #319795;
+        border: 1px solid rgba(49, 151, 149, 0.2);
+    }
+    .badge-warning {
+        background: rgba(221, 107, 32, 0.1);
+        color: #dd6b20;
+        border: 1px solid rgba(221, 107, 32, 0.2);
+    }
+</style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">Sistem &amp; Gateway</p>
+<h1>Domain Kustom</h1>
+<p>Hubungkan website portal berita ini ke nama domain pribadi Anda (custom domain) secara aman dengan SSL gratis.</p>
+</div>
+</header>
+{{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
+{{if .Success}}<div class="alert alert-success">{{.Success}}</div>{{end}}
+
+<div class="settings-grid">
+<section class="dashboard-panel">
+<div class="panel-heading">
+    <div>
+        <p class="eyebrow">Pengaturan Domain</p>
+        <h2>Hubungkan Domain Baru</h2>
+    </div>
+</div>
+<div class="settings-panel-body">
+<form class="form-grid" method="post" action="/dashboard/custom-domain">
+<div class="form-field">
+<label for="custom_domain">Nama Domain Kustom</label>
+<input id="custom_domain" name="custom_domain" value="{{index .Settings "custom_domain"}}" placeholder="Contoh: berita-aktual.com" required>
+<small>Masukkan domain utama tanpa protokol (tanpa http:// atau https://). Contoh: <code>beritaku.com</code> atau <code>news.beritaku.com</code>.</small>
+</div>
+
+<button class="btn btn-primary" type="submit" style="background: #e63329; color: white; border: none; padding: 12px 24px; font-weight: 600; cursor: pointer; border-radius: 6px;">Simpan &amp; Verifikasi</button>
+</form>
+</div>
+</section>
+
+<aside class="settings-stack">
+<section class="dashboard-panel">
+<div class="panel-heading">
+    <div>
+        <p class="eyebrow">Konfigurasi DNS</p>
+        <h2>Panduan Pointing DNS</h2>
+    </div>
+</div>
+<div class="settings-panel-body settings-stack" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+<p>Sebelum menghubungkan domain, Anda wajib menambahkan DNS Record berikut di panel registrar tempat Anda membeli domain (seperti Niagahoster, Namecheap, dll):</p>
+
+<table class="dns-info-table">
+    <thead>
+        <tr>
+            <th>Tipe</th>
+            <th>Nama/Host</th>
+            <th>Value/Target</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>A</strong></td>
+            <td><code>@</code> (atau kosong)</td>
+            <td><code>{{.IPAddress}}</code></td>
+        </tr>
+        <tr>
+            <td><strong>CNAME</strong></td>
+            <td><code>www</code></td>
+            <td><code>@</code> (atau domain Anda)</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="settings-card info-card-sidebar" style="border-left-color: #319795; margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.01); border-radius: 4px;">
+    <h3 style="margin-top: 0; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary);">🔒 Masa Aktif &amp; Perpanjangan SSL</h3>
+    <p style="margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+        Sertifikat SSL Let's Encrypt / ZeroSSL aktif selama <strong>90 hari</strong>. Namun, sistem (Caddy) akan <strong>otomatis memperbarui (renew)</strong> sertifikat tersebut 30 hari sebelum kedaluwarsa secara berkala di latar belakang tanpa downtime.
+    </p>
+</div>
+
+<div class="settings-card info-card-sidebar" style="border-left-color: #e63329; margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.01); border-radius: 4px;">
+    <h3 style="margin-top: 0; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary);">⚠️ Bagaimana Jika SSL Mati/Error?</h3>
+    <p style="margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px;">
+        Jika SSL terdeteksi tidak aktif atau menampilkan peringatan tidak aman, periksa hal berikut:
+    </p>
+    <ol style="margin: 0; padding-left: 16px; font-size: 11px; color: var(--text-secondary); line-height: 1.6;">
+        <li style="margin-bottom: 4px;"><strong>DNS Record Terputus</strong>: Pastikan Anda tidak menghapus A Record di panel DNS domain Anda. DNS wajib selalu mengarah ke IP <code>{{.IPAddress}}</code> agar perpanjangan otomatis berhasil.</li>
+        <li style="margin-bottom: 4px;"><strong>Fitur Proxy Cloudflare Aktif</strong>: Jika menggunakan Cloudflare, pastikan status proxy diubah ke "DNS Only" (awan abu-abu) atau atur enkripsi SSL/TLS Cloudflare ke mode <strong>"Full (Strict)"</strong>.</li>
+        <li style="margin-bottom: 4px;"><strong>Masa Aktif Domain Habis</strong>: Pastikan domain Anda tidak kedaluwarsa di registrar tempat Anda membelinya.</li>
+    </ol>
+</div>
+</div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</body>
+</html>

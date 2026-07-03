@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Android - NewsPaper CMS</title>
+<link rel="stylesheet" href="/assets/global.css">
+<style>
+/* Password Field with Show/Hide Toggle */
+.password-field-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.password-field-container input {
+    padding-right: 44px;
+    width: 100%;
+}
+.password-toggle-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+.password-toggle-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+.password-toggle-btn:focus {
+    outline: none;
+}
+</style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-shell">
+{{template "sidebar" .}}
+<main class="dashboard-main">
+<header class="dashboard-header compact">
+<div>
+<p class="eyebrow">Admin / Editor</p>
+<h1>Manajemen User Android</h1>
+<p>Tambah user Android baru, atur status awal, dan nonaktifkan akses user dari satu halaman yang konsisten.</p>
+</div>
+</header>
+{{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
+<div class="settings-grid">
+<section class="dashboard-panel">
+<div class="panel-heading"><div><p class="eyebrow">Tambah</p><h2>User Android Baru</h2></div></div>
+<div class="settings-panel-body">
+<form class="form-grid" method="post" action="/dashboard/app-users">
+<div class="form-field">
+<label for="appuser-name">Nama Lengkap</label>
+<input id="appuser-name" name="name" placeholder="Nama lengkap user" required>
+<small>Minimal 2 karakter.</small>
+</div>
+<div class="form-field">
+<label for="appuser-email">Email</label>
+<input id="appuser-email" name="email" type="email" placeholder="user@gmail.com" required>
+</div>
+<div class="form-field">
+<label for="appuser-password">Password awal</label>
+<div class="password-field-container">
+<input id="appuser-password" name="password" type="password" placeholder="Minimal 6 karakter" required>
+<button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="Tampilkan password">
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+</div>
+<div class="form-field">
+<label for="appuser-status">Status</label>
+<select id="appuser-status" name="status">
+<option value="active">Active</option>
+<option value="inactive">Inactive</option>
+</select>
+<small>User inactive tidak akan bisa masuk ke aplikasi Android.</small>
+</div>
+<button class="btn btn-primary" type="submit">Tambah User Android</button>
+</form>
+</div>
+</section>
+<section class="dashboard-panel">
+<div class="panel-heading"><div><p class="eyebrow">Daftar</p><h2>{{len .AppUsers}} user Android</h2></div></div>
+<div class="entity-list">
+{{range .AppUsers}}
+<article class="entity-card">
+<div class="entity-card-main">
+<div class="entity-title-row">
+<h3>{{.Name}}</h3>
+{{if eq .Status "active"}}<span class="badge badge-success">{{.Status}}</span>{{else}}<span class="badge badge-danger">{{.Status}}</span>{{end}}
+</div>
+<div class="entity-meta-row"><p>{{.Email}}</p><p>Terdaftar: {{.CreatedAt.Format "02 Jan 2006 15:04"}}</p></div>
+</div>
+<div class="entity-actions">
+<form method="post" action="/dashboard/app-users/{{.ID}}/delete">
+<button class="btn btn-danger" type="submit">Nonaktifkan</button>
+</form>
+</div>
+</article>
+{{else}}
+<div class="empty-state table-empty"><h3>Belum ada user Android</h3><p>Tambahkan user Android pertama untuk mulai pengujian.</p></div>
+{{end}}
+</div>
+</section>
+</div>
+</main>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('appuser-password');
+    const toggleBtn = document.getElementById('passwordToggleBtn');
+    if (passwordInput && toggleBtn) {
+        const eyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        const eyeOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+        toggleBtn.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.innerHTML = eyeOffIcon;
+                toggleBtn.setAttribute('aria-label', 'Sembunyikan password');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.innerHTML = eyeIcon;
+                toggleBtn.setAttribute('aria-label', 'Tampilkan password');
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Article.Title}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }}</title>
+    <meta name="description" content="{{.Article.Excerpt}}" />
+    <meta name="keywords" content="{{.Article.Category}}, berita {{.Article.Category}}, {{.Article.Title}}" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="{{.Article.Title}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }}" />
+    <meta property="og:description" content="{{.Article.Excerpt}}" />
+    <meta property="og:image" content="{{if .Article.HeroImageURL}}{{if hasPrefix .Article.HeroImageURL "http"}}{{.Article.HeroImageURL}}{{else}}{{.BaseURL}}{{.Article.HeroImageURL}}{{end}}{{else}}{{.BaseURL}}/assets/placeholder-og.jpg{{end}}" />
+    <meta property="og:url" content="{{.BaseURL}}/artikel/{{.Article.Slug}}" />
+    <meta property="og:site_name" content="{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }}" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{.Article.Title}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }}" />
+    <meta name="twitter:description" content="{{.Article.Excerpt}}" />
+    <meta name="twitter:image" content="{{if .Article.HeroImageURL}}{{if hasPrefix .Article.HeroImageURL "http"}}{{.Article.HeroImageURL}}{{else}}{{.BaseURL}}{{.Article.HeroImageURL}}{{end}}{{else}}{{.BaseURL}}/assets/placeholder-og.jpg{{end}}" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/yapis.css">
+    {{if index .Settings "seo_google_verification"}}
+    <meta name="google-site-verification" content="{{index .Settings "seo_google_verification"}}" />
+    {{end}}
+    {{if index .Settings "seo_bing_verification"}}
+    <meta name="msvalidate.01" content="{{index .Settings "seo_bing_verification"}}" />
+    {{end}}
+    
+    <!-- JSON-LD Structured Data for AI Crawlers and Search Engines -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": "{{.Article.Title}}",
+        "description": "{{.Article.Excerpt}}",
+        "image": [
+            "{{if .Article.HeroImageURL}}{{if hasPrefix .Article.HeroImageURL "http"}}{{.Article.HeroImageURL}}{{else}}{{.BaseURL}}{{.Article.HeroImageURL}}{{end}}{{else}}{{.BaseURL}}/assets/placeholder-og.jpg{{end}}"
+        ],
+        "datePublished": "{{isoDate .Article.PublishedAt}}",
+        "dateModified": "{{isoDateTime .Article.UpdatedAt}}",
+        "author": [{
+            "@type": "Person",
+            "name": "{{if .AuthorName}}{{.AuthorName}}{{else}}Redaksi{{end}}"
+        }],
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}YAPIS Portal{{ end }}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{.BaseURL}}/favicon.ico"
+            }
+        }
+    }
+    </script>
+    
+    <style>
+        .article-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+            margin-bottom: 80px;
+        }
+        
+        .article-main {
+            background: #fff;
+            padding: 40px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+        
+        .article-meta-info {
+            display: flex;
+            gap: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        
+        .article-meta-info span i {
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+        .article-body-text {
+            font-size: var(--article-font-size, 17px);
+            line-height: 1.8;
+            color: var(--text-main);
+        }
+        
+        .article-body-text p {
+            margin-bottom: 20px;
+        }
+
+        .article-body-text h2, .article-body-text h3 {
+            color: var(--primary-dark);
+            margin: 35px 0 15px;
+            font-weight: 700;
+        }
+
+        .article-hero-img {
+            width: 100%;
+            height: auto;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .sidebar-widget {
+            background: #fff;
+            padding: 30px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+        }
+        
+        .widget-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .recent-list-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .recent-list-item:last-child {
+            border: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .recent-thumb {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            flex-shrink: 0;
+        }
+
+        .recent-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin: 0 0 5px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .recent-info span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .disclaimer-box {
+            background: rgba(var(--primary-rgb), 0.04);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin-top: 40px;
+            font-size: 0.95rem;
+        }
+
+        /* Related Articles styling */
+        .related-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 50px 0 20px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .related-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .related-thumb-img {
+            height: 130px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .related-card-title {
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--primary-dark);
+            flex-grow: 1;
+        }
+
+        /* Author Box */
+        .author-box {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin-top: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .author-avatar {
+            width: 64px;
+            height: 64px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        @media (max-width: 992px) {
+            .article-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        /* ── Floating Mobile Resizer Styles ── */
+        .mobile-resizer-container {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-resizer-container {
+                display: block;
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                z-index: 1000;
+                font-family: inherit;
+            }
+
+            .resizer-toggle-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background-color: var(--primary-dark);
+                color: #ffffff;
+                border: none;
+                padding: 12px 18px;
+                border-radius: 50px;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .resizer-toggle-btn:active {
+                transform: scale(0.95);
+                background-color: var(--accent);
+            }
+
+            .resizer-toggle-btn svg {
+                stroke-width: 2.5;
+            }
+
+            .resizer-panel {
+                position: absolute;
+                bottom: 70px;
+                right: 0;
+                width: 280px;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(15px) scale(0.95);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .resizer-panel.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0) scale(1);
+            }
+
+            .resizer-panel-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+
+            .resizer-panel-header h3 {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--primary-dark);
+                margin: 0;
+            }
+
+            #fontSizeDisplay {
+                font-size: 13px;
+                font-weight: 600;
+                background-color: var(--bg-light);
+                color: var(--accent);
+                padding: 2px 8px;
+                border-radius: 6px;
+            }
+
+            .resizer-controls {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .resizer-btn {
+                flex-shrink: 0;
+                width: 36px;
+                height: 36px;
+                background-color: var(--bg-light);
+                color: var(--primary-dark);
+                border: 1px solid var(--border);
+                border-radius: 50%;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+
+            .resizer-btn:active {
+                background-color: var(--accent);
+                color: #ffffff;
+                transform: scale(0.9);
+            }
+
+            .slider-wrapper {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            #fontSizeSlider {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 6px;
+                border-radius: 3px;
+                background: var(--bg-light);
+                outline: none;
+            }
+
+            #fontSizeSlider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--accent);
+                cursor: pointer;
+                box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+                transition: transform 0.1s ease;
+            }
+
+            #fontSizeSlider::-webkit-slider-thumb:active {
+                transform: scale(1.2);
+            }
+
+            #fontSizeSlider::-moz-range-thumb {
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--accent);
+                cursor: pointer;
+                box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+                border: none;
+            }
+
+            .slider-ticks {
+                display: flex;
+                justify-content: space-between;
+                font-size: 10px;
+                color: var(--text-muted);
+                padding: 0 2px;
+            }
+        }
+
+        /* ── Table of Contents Styles ── */
+        .toc-container {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2.5rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        .toc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toc-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin: 0 !important;
+        }
+        .toc-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+        .toc-toggle-btn:hover {
+            color: var(--accent);
+        }
+        .toc-toggle-icon {
+            transition: transform 0.2s ease;
+        }
+        .toc-container.collapsed .toc-toggle-icon {
+            transform: rotate(-90deg);
+        }
+        .toc-list {
+            list-style: decimal;
+            padding-left: 20px;
+            margin: 1rem 0 0 0;
+            border-top: 1px solid var(--border);
+            padding-top: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        .toc-container.collapsed .toc-list {
+            display: none;
+        }
+        .toc-item {
+            margin-bottom: 0.6rem;
+            line-height: 1.4;
+        }
+        .toc-item.level-h1,
+        .toc-item.level-h2 {
+            margin-left: 0;
+            font-weight: 600;
+        }
+        .toc-item.level-h3 {
+            margin-left: 1.25rem;
+            font-size: 0.95rem;
+        }
+        .toc-item.level-h4 {
+            margin-left: 2.5rem;
+            font-size: 0.9rem;
+        }
+        .toc-link {
+            color: var(--text-main);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            display: inline-block;
+        }
+        .toc-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+        
+        .article-body h1,
+        .article-body h2, 
+        .article-body h3, 
+        .article-body h4 {
+            scroll-margin-top: 40px;
+        }
+
+        /* ── BACA JUGA Box Styles ── */
+        .baca-juga-box {
+            background: #fff5f5;
+            border-left: 4px solid var(--accent);
+            padding: 14px 18px;
+            margin: 24px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-radius: 0 6px 6px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+        @media (min-width: 640px) {
+            .baca-juga-box {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+        }
+        .baca-juga-label {
+            font-weight: 800;
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .baca-juga-link {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--primary-dark);
+            text-decoration: none;
+            line-height: 1.4;
+            transition: color 0.2s ease;
+        }
+        .baca-juga-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="main-header">
+        <div class="container nav-container">
+            <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="{{if index .Settings "site_favicon"}}{{index .Settings "site_favicon"}}{{else}}/assets/logo.jpg{{end}}" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;">
+                <span class="logo-bold">{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Jatim Aktual{{ end }}</span>
+            </a>
+            
+            <nav class="nav-menu" id="navMenu">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="nav-link">Beranda</a>
+                {{range .Categories}}
+                {{if .ShowInNavbar}}
+                <a href="/artikel?category={{urlquery .Name}}" class="nav-link {{if eq $.Article.Category .Name}}active{{end}}">{{.Name}}</a>
+                {{end}}
+                {{end}}
+                <a href="/login" class="btn btn-primary btn-mobile-only">Masuk</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/login" class="btn btn-primary btn-desktop-only">Masuk</a>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="article-container">
+            
+            <!-- Main Content Area -->
+            <main class="article-main">
+                <span class="badge" style="margin-bottom: 15px; display: inline-block;">{{.Article.Category}}</span>
+                <h1 style="font-size: 2.2rem; color: var(--primary-dark); margin-bottom: 15px; font-weight: 800; line-height: 1.2;">{{.Article.Title}}</h1>
+                <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; font-style: italic;">{{.Article.Excerpt}}</p>
+                
+                <div class="article-meta-info">
+                    <span><i class="fa-regular fa-user"></i> Oleh: <strong>{{if .AuthorName}}{{.AuthorName}}{{else}}Redaksi{{end}}</strong></span>
+                    <span><i class="fa-regular fa-calendar"></i> {{formatDate .Article.PublishedAt}}</span>
+                    <span><i class="fa-regular fa-clock"></i> {{readTime .Article.Content}}</span>
+                </div>
+
+                {{if .Article.HeroImageURL}}
+                <img src="{{proxyURL .Article.HeroImageURL}}" alt="{{.Article.Title}}" class="article-hero-img">
+                {{end}}
+
+                <div class="article-body article-body-text">
+                    {{articleHTML .Article.Content}}
+                </div>
+
+                {{if .Article.SourceURL}}
+                <div class="disclaimer-box">
+                    <p style="margin: 0; line-height: 1.5;">
+                        <i class="fa-solid fa-link" style="color: var(--accent); margin-right: 8px;"></i>
+                        <strong>Sumber Rujukan Asli:</strong> Artikel ini dipublikasikan kembali dari sumber aslinya. Anda dapat membaca versi aslinya di sini: 
+                        <a href="{{.Article.SourceURL}}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 600; text-decoration: underline;">{{.Article.SourceURL}}</a>.
+                    </p>
+                </div>
+                {{end}}
+
+                <!-- Author Box -->
+                <section class="author-box">
+                    <div class="author-avatar">
+                        {{if .AuthorName}}{{printf "%.1s" .AuthorName}}{{else}}R{{end}}
+                    </div>
+                    <div>
+                        <h3 style="margin: 0 0 5px; font-size: 1.1rem; color: var(--primary-dark);">{{if .AuthorName}}{{.AuthorName}}{{else}}Redaksi{{end}}</h3>
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Penulis resmi {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Yapis{{ end }} yang menyajikan berita terkini, edukatif, dan kredibel.</p>
+                    </div>
+                </section>
+
+                <!-- Related Articles Section -->
+                {{if .Related}}
+                <section>
+                    <h3 class="related-title">Artikel Terkait</h3>
+                    <div class="related-grid">
+                        {{range .Related}}
+                        <div class="related-card">
+                            <a href="{{articleURL . $.Settings}}">
+                                {{if .HeroImageURL}}
+                                <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" class="related-thumb-img" loading="lazy">
+                                {{else}}
+                                <img src="/assets/hero.jpg" alt="{{.Title}}" class="related-thumb-img" loading="lazy">
+                                {{end}}
+                            </a>
+                            <a href="{{articleURL . $.Settings}}" class="related-card-title">{{.Title}}</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </section>
+                {{end}}
+            </main>
+
+            <!-- Sidebar Widgets -->
+            <aside class="article-sidebar">
+                
+                <!-- Widget: Berita Populer -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Berita Utama</h3>
+                    <div class="recent-list">
+                        {{range .Popular}}
+                        <div class="recent-list-item">
+                            {{if .HeroImageURL}}
+                            <img src="{{proxyURL .HeroImageURL}}" alt="{{.Title}}" class="recent-thumb">
+                            {{else}}
+                            <img src="/assets/hero.jpg" alt="{{.Title}}" class="recent-thumb">
+                            {{end}}
+                            <div class="recent-info">
+                                <h4><a href="{{articleURL . $.Settings}}" style="color: var(--primary-dark); font-weight: 600;">{{.Title}}</a></h4>
+                                <span><i class="fa-regular fa-calendar"></i> {{formatDate .PublishedAt}}</span>
+                            </div>
+                        </div>
+                        {{else}}
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada berita utama.</p>
+                        {{end}}
+                    </div>
+                </div>
+
+                <!-- Widget: Hubungi Kami -->
+                <div class="sidebar-widget" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff;">
+                    <h3 class="widget-title" style="color: #fff; border-bottom-color: var(--accent);">Layanan Portal</h3>
+                    <p style="font-size: 0.9rem; line-height: 1.5; opacity: 0.9; margin-bottom: 20px;">
+                        Mempunyai pertanyaan seputar administrasi, program pengajaran, atau agenda kegiatan? Hubungi layanan kami.
+                    </p>
+                    <a href="mailto:info@abankyapis.ac.id" class="btn btn-primary" style="width: 100%; border-radius: var(--radius-sm);">Kirim Email</a>
+                </div>
+
+            </aside>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer" id="contact">
+        <div class="container footer-grid">
+            <div class="footer-info-col">
+                <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}" class="logo footer-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 20px;">
+                    <img src="{{if index .Settings "site_favicon"}}{{index .Settings "site_favicon"}}{{else}}/assets/logo.jpg{{end}}" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;">
+                    <span class="logo-bold">{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}Jatim Aktual{{ end }}</span>
+                </a>
+                <p class="footer-about-text">
+                    {{ if index .Settings "site_description" }}{{ index .Settings "site_description" }}{{ else }}Yayasan Pendidikan Islam (YAPIS) berkomitmen tinggi menyelenggarakan pelayanan pendidikan jenjang menengah yang bermutu, inklusif, dan berkarakter akhlak mulia.{{ end }}
+                </p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links-col">
+                <h3 class="footer-title">Navigasi Cepat</h3>
+                <div class="footer-links-list">
+                    <a href="{{if eq (index .Settings "enable_landing_page") "true"}}/portal{{else}}/{{end}}">Beranda</a>
+                    {{range .Categories}}
+                    {{if .ShowInNavbar}}
+                    <a href="/artikel?category={{urlquery .Name}}">{{.Name}}</a>
+                    {{end}}
+                    {{end}}
+                </div>
+            </div>
+
+            <div class="footer-contact-col">
+                <h3 class="footer-title">Hubungi Kami</h3>
+                <ul class="contact-info-list">
+                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Jl. Pendidikan Islam No. 7, Kec. Jayapura Utara, Kota Jayapura, Papua</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-phone"></i>
+                        <span>(0967) 532107 / 0812-3456-7890</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>info@abankyapis.ac.id</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container footer-bottom-content">
+                <p>&copy; 2026 Yayasan Pendidikan Islam (YAPIS). Hak Cipta Dilindungi Undang-Undang.</p>
+                <p>Designed with <i class="fa-solid fa-heart text-accent"></i> for Yapis Community</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Text Resizer (Khusus Android/Mobile) -->
+    <div class="mobile-resizer-container" id="mobileResizer">
+        <button class="resizer-toggle-btn" id="resizerToggle" aria-label="Pengaturan Teks">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+            <span>Aa</span>
+        </button>
+        <div class="resizer-panel" id="resizerPanel">
+            <div class="resizer-panel-header">
+                <h3>Ukuran Tulisan</h3>
+                <span id="fontSizeDisplay">17px</span>
+            </div>
+            <div class="resizer-controls">
+                <button class="resizer-btn" id="decFont" aria-label="Perkecil Ukuran">A-</button>
+                <div class="slider-wrapper">
+                    <input type="range" id="fontSizeSlider" min="14" max="26" value="17" step="1" aria-label="Slider Ukuran Font">
+                    <div class="slider-ticks">
+                        <span>14px</span>
+                        <span>|</span>
+                        <span>20px</span>
+                        <span>|</span>
+                        <span>26px</span>
+                    </div>
+                </div>
+                <button class="resizer-btn" id="incFont" aria-label="Perbesar Ukuran">A+</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu & resizer scripts -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                } else {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+    </script>
+    <script>
+        window.popularArticles = [
+            {{range .Popular}}
+            { title: {{.Title}}, slug: {{.Slug}} },
+            {{end}}
+        ];
+    </script>
+    <script src="/assets/article.js" defer></script>
+</body>
+</html>

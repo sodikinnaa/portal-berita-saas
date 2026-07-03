@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kotak Masuk - NewsPaper CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/global.css" />
+    <style>
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-inbound { background-color: #ebf8ff; color: #2b6cb0; }
+        .badge-outbound { background-color: #f0fff4; color: #2f855a; }
+        .badge-sent { background-color: #c6f6d5; color: #22543d; }
+        .badge-failed { background-color: #fed7d7; color: #742a2a; }
+        .badge-unread { background-color: #feebc8; color: #7b341e; }
+        .badge-read { background-color: #edf2f7; color: #4a5568; }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">Email &amp; Komunikasi</p>
+                    <h1>📥 Kotak Masuk ({{.InboxType}})</h1>
+                    <p>Kelola email yang masuk dan terkirim melalui domain kustom Anda.</p>
+                </div>
+                <div>
+                    <a href="/dashboard/mail/compose" class="btn btn-primary" style="background: #e63329; color: white;">+ Tulis Email Baru</a>
+                </div>
+            </header>
+            
+            {{if .Success}}
+            <div class="alert alert-success" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px;">
+                {{.Success}}
+            </div>
+            {{end}}
+
+            {{if .Error}}
+            <div class="alert alert-error" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(230, 51, 41, 0.1); color: #e63329; border: 1px solid rgba(230, 51, 41, 0.2); border-radius: 6px;">
+                {{.Error}}
+            </div>
+            {{end}}
+
+            <div class="dashboard-panel">
+                {{if .Emails}}
+                <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #eee;">
+                            <th style="text-align: left; padding: 12px 16px;">Tipe</th>
+                            <th style="text-align: left; padding: 12px 16px;">Kontak</th>
+                            <th style="text-align: left; padding: 12px 16px;">Subjek</th>
+                            <th style="text-align: left; padding: 12px 16px;">Status</th>
+                            <th style="text-align: left; padding: 12px 16px;">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range $index, $email := .Emails}}
+                        <tr onclick="toggleEmailDetail('{{$index}}')" style="border-bottom: 1px solid #f0f0f0; cursor: pointer;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 12px 16px;">
+                                {{if eq .Direction "inbound"}}
+                                <span class="badge badge-inbound">Masuk</span>
+                                {{else}}
+                                <span class="badge badge-outbound">Keluar</span>
+                                {{end}}
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                {{if eq .Direction "inbound"}}
+                                <strong>{{.SenderName}}</strong><br><small style="color:#718096;">{{.Sender}}</small>
+                                {{else}}
+                                <small style="color:#718096;">Ke: </small><strong>{{.Recipient}}</strong>
+                                {{end}}
+                            </td>
+                            <td style="padding: 12px 16px; font-weight: 500;">
+                                {{.Subject}}
+                                {{if .ErrorMessage}}
+                                <br><small style="color: #e63329; font-weight: normal;">Detail Error: {{.ErrorMessage}}</small>
+                                {{end}}
+                            </td>
+                            <td style="padding: 12px 16px;">
+                                {{if eq .Status "sent"}}
+                                <span class="badge badge-sent">Terkirim</span>
+                                {{else if eq .Status "failed"}}
+                                <span class="badge badge-failed">Gagal</span>
+                                {{else if eq .Status "unread"}}
+                                <span class="badge badge-unread">Belum Dibaca</span>
+                                {{else}}
+                                <span class="badge badge-read">Dibaca</span>
+                                {{end}}
+                            </td>
+                            <td style="padding: 12px 16px; font-size: 13px; color: #718096;">
+                                {{.CreatedAt.Format "02 Jan 2006 15:04"}}
+                            </td>
+                        </tr>
+                        <tr id="detail-{{$index}}" style="display: none; background: #fafafa; border-bottom: 1px solid #e2e8f0;">
+                            <td colspan="5" style="padding: 20px 30px;">
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div>
+                                        <h3 style="margin-top: 0; margin-bottom: 8px; color: var(--text-primary);">{{.Subject}}</h3>
+                                        <p style="margin: 0; font-size: 13px; color: #718096;">
+                                            <strong>Dari:</strong> {{.SenderName}} &lt;{{.Sender}}&gt; | 
+                                            <strong>Ke:</strong> {{.Recipient}} | 
+                                            <strong>Tanggal:</strong> {{.CreatedAt.Format "02 Jan 2006 15:04:05"}}
+                                        </p>
+                                    </div>
+                                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 0;">
+                                    <div class="email-body" style="background: white; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; font-family: sans-serif; line-height: 1.6; color: #2d3748; max-height: 400px; overflow-y: auto;">
+                                        {{if .BodyHTML}}
+                                        <iframe srcdoc="{{.BodyHTML}}" style="width: 100%; border: none; min-height: 250px;" sandbox="allow-same-origin"></iframe>
+                                        {{else}}
+                                        <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">{{.BodyText}}</pre>
+                                        {{end}}
+                                    </div>
+                                    
+                                    <div class="email-attachments-container" id="attachments-{{$index}}" data-metadata="{{.Metadata}}" style="display: none; flex-direction: column; gap: 8px;">
+                                        <h4 style="margin: 0; font-size: 14px; color: var(--text-primary);">📎 Lampiran:</h4>
+                                        <div class="attachments-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                            <!-- populated by JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+                {{else}}
+                <div style="text-align: center; padding: 50px 20px;">
+                    <h2 style="color: #8e8e93; font-weight: normal; margin-bottom: 15px;">Belum ada riwayat email</h2>
+                    <p style="color: #8e8e93;">Segera tulis email atau konfigurasi domain kustom Anda untuk menerima pesan.</p>
+                </div>
+                {{end}}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleEmailDetail(index) {
+            var detailRow = document.getElementById('detail-' + index);
+            if (detailRow.style.display === 'none') {
+                detailRow.style.display = 'table-row';
+                
+                // Parse and render attachments if any
+                var container = document.getElementById('attachments-' + index);
+                if (container) {
+                    var metadataStr = container.getAttribute('data-metadata');
+                    if (metadataStr) {
+                        try {
+                            var metadata = JSON.parse(metadataStr);
+                            if (metadata.attachments && metadata.attachments.length > 0) {
+                                var list = container.querySelector('.attachments-list');
+                                list.innerHTML = '';
+                                metadata.attachments.forEach(function(path) {
+                                    var filename = path.substring(path.lastIndexOf('/') + 1);
+                                    // Strip unique prefixes like mail_timestamp_id_
+                                    var cleanName = filename.replace(/^mail_\d+_[a-zA-Z0-9]+_/, '');
+                                    
+                                    var a = document.createElement('a');
+                                    a.href = path;
+                                    a.target = '_blank';
+                                    a.style.display = 'inline-flex';
+                                    a.style.alignItems = 'center';
+                                    a.style.gap = '6px';
+                                    a.style.padding = '8px 12px';
+                                    a.style.background = '#edf2f7';
+                                    a.style.borderRadius = '6px';
+                                    a.style.textDecoration = 'none';
+                                    a.style.fontSize = '13px';
+                                    a.style.color = '#2b6cb0';
+                                    a.style.fontWeight = '500';
+                                    a.style.border = '1px solid #cbd5e0';
+                                    
+                                    // Show image preview icon or generic doc icon
+                                    var isImg = /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(filename);
+                                    a.innerHTML = (isImg ? '🖼️ ' : '📄 ') + cleanName;
+                                    
+                                    list.appendChild(a);
+                                });
+                                container.style.display = 'flex';
+                            }
+                        } catch(e) {
+                            console.error("Failed to parse metadata", e);
+                        }
+                    }
+                }
+            } else {
+                detailRow.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

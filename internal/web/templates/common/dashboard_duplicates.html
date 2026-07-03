@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deteksi Duplikat - NewsPaper CMS</title>
+    <link rel="stylesheet" href="/assets/global.css">
+    <style>
+        .tabs-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 8px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 18px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .tab-btn:hover {
+            color: var(--color-dark);
+            background: rgba(0, 0, 0, 0.04);
+        }
+        .tab-btn.active {
+            color: #fff;
+            background: var(--color-red);
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        .duplicate-group-card {
+            margin-bottom: 24px;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+        }
+        .duplicate-group-header {
+            background: #fafbfc;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .duplicate-group-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-dark);
+            word-break: break-all;
+        }
+        .duplicate-group-badge {
+            background: rgba(230, 51, 41, 0.1);
+            color: var(--color-red);
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .duplicate-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .duplicate-table th, .duplicate-table td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+            vertical-align: middle;
+        }
+        .duplicate-table th {
+            background: #fdfdfe;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-muted);
+            font-weight: 700;
+        }
+        .duplicate-table tr:last-child td {
+            border-bottom: none;
+        }
+        .article-title-cell {
+            font-weight: 600;
+            font-size: 14.5px;
+            color: var(--color-dark);
+        }
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            border: 1px solid var(--color-border);
+            background: #fff;
+            color: var(--color-mid);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-sm:hover {
+            border-color: var(--color-dark);
+            color: var(--color-dark);
+        }
+        .btn-sm.btn-danger {
+            background: transparent;
+            color: #ff4d4f;
+            border-color: rgba(255, 77, 79, 0.2);
+        }
+        .btn-sm.btn-danger:hover {
+            background: #fff2f0;
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+        }
+        .empty-state-card {
+            border: 2px dashed var(--color-border);
+            border-radius: 16px;
+            padding: 48px;
+            text-align: center;
+            background: #fafafa;
+        }
+        .empty-state-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            color: var(--color-dark);
+        }
+        .empty-state-card p {
+            margin: 0;
+            color: var(--color-muted);
+            font-size: 14.5px;
+        }
+        .tab-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            background: #fafafa;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+        .article-select-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        {{template "sidebar" .}}
+
+        <main class="dashboard-main">
+            <header class="dashboard-header compact">
+                <div>
+                    <p class="eyebrow">Alat Redaksi</p>
+                    <h1>Deteksi Duplicate Content</h1>
+                    <p>Deteksi kemungkinan artikel ganda berdasarkan URL sumber, kesamaan judul, atau kemiripan kata kunci konten.</p>
+                </div>
+            </header>
+
+            <div class="tabs-header">
+                <button type="button" class="tab-btn active" onclick="switchTab('url-tab', this)">
+                    🔗 Duplikat URL ({{len .UrlGroups}})
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('title-tab', this)">
+                    📝 Judul Identik ({{len .TitleGroups}})
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('similar-tab', this)">
+                    🔍 Judul Mirip ({{len .SimilarGroups}})
+                </button>
+            </div>
+
+            <!-- TAB PANE: URL DUPLICATES -->
+            <div id="url-tab" class="tab-pane active">
+                {{if eq (len .UrlGroups) 0}}
+                <div class="empty-state-card">
+                    <h3>Tidak Ada Duplikat URL</h3>
+                    <p>Hebat! Tidak ditemukan artikel dengan URL sumber asal (Scraped Source URL) yang sama.</p>
+                </div>
+                {{else}}
+                    <div class="tab-controls">
+                        <button type="button" class="btn-sm" onclick="selectDuplicates('url-tab', 'oldest')">⚡ Pilih Duplikat (Sisakan Tertua)</button>
+                        <button type="button" class="btn-sm" onclick="selectDuplicates('url-tab', 'newest')">⚡ Pilih Duplikat (Sisakan Terbaru)</button>
+                        <button type="button" class="btn-sm" onclick="clearSelection('url-tab')">Batal Pilih</button>
+                        <div style="flex-grow: 1;"></div>
+                        <button type="button" class="btn-sm btn-danger btn-bulk-delete" disabled onclick="bulkDelete('url-tab')">🗑️ Hapus Terpilih (<span class="selected-count">0</span>)</button>
+                    </div>
+
+                    {{range .UrlGroups}}
+                    <div class="duplicate-group-card">
+                        <div class="duplicate-group-header">
+                            <div class="duplicate-group-title">
+                                <strong>URL Sumber:</strong> <a href="{{.Key}}" target="_blank" rel="noopener">{{.Key}}</a>
+                            </div>
+                            <span class="duplicate-group-badge">{{len .Articles}} Artikel</span>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="duplicate-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; text-align: center;">Pilih</th>
+                                        <th>Judul Artikel</th>
+                                        <th>Kategori</th>
+                                        <th>Status</th>
+                                        <th>Tanggal Dibuat</th>
+                                        <th style="width: 180px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .Articles}}
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" class="article-select-checkbox article-select" value="{{.ID}}" data-created="{{.CreatedAt.Unix}}" onchange="updateSelection('url-tab')">
+                                        </td>
+                                        <td>
+                                            <div class="article-title-cell">{{.Title}}</div>
+                                            <small style="color: var(--color-muted); font-size: 11px;">ID: {{.ID}}</small>
+                                        </td>
+                                        <td><span class="status-pill" style="background:#e6f7ff; color:#1890ff; font-weight:700;">{{.Category}}</span></td>
+                                        <td>
+                                            {{if eq .Status "published"}}
+                                            <span class="status-pill status-published">Published</span>
+                                            {{else if eq .Status "draft"}}
+                                            <span class="status-pill status-draft">Draft</span>
+                                            {{else if eq .Status "submitted"}}
+                                            <span class="status-pill status-submitted">Review</span>
+                                            {{else}}
+                                            <span class="status-pill">{{.Status}}</span>
+                                            {{end}}
+                                        </td>
+                                        <td><small>{{.CreatedAt.Format "02 Jan 2006 15:04"}}</small></td>
+                                        <td>
+                                            <div class="actions-cell">
+                                                <a class="btn-sm" href="/artikel/{{.Slug}}" target="_blank">Lihat</a>
+                                                <a class="btn-sm" href="/dashboard/articles/{{.ID}}/edit">Edit</a>
+                                                <form method="post" action="/dashboard/articles/{{.ID}}/delete" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
+                                                    <button class="btn-sm btn-danger" type="submit">Hapus</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {{end}}
+                {{end}}
+            </div>
+
+            <!-- TAB PANE: EXACT TITLE DUPLICATES -->
+            <div id="title-tab" class="tab-pane">
+                {{if eq (len .TitleGroups) 0}}
+                <div class="empty-state-card">
+                    <h3>Tidak Ada Judul Identik</h3>
+                    <p>Hebat! Tidak ditemukan artikel dengan judul yang sama persis (setelah dinormalisasi).</p>
+                </div>
+                {{else}}
+                    <div class="tab-controls">
+                        <button type="button" class="btn-sm" onclick="selectDuplicates('title-tab', 'oldest')">⚡ Pilih Duplikat (Sisakan Tertua)</button>
+                        <button type="button" class="btn-sm" onclick="selectDuplicates('title-tab', 'newest')">⚡ Pilih Duplikat (Sisakan Terbaru)</button>
+                        <button type="button" class="btn-sm" onclick="clearSelection('title-tab')">Batal Pilih</button>
+                        <div style="flex-grow: 1;"></div>
+                        <button type="button" class="btn-sm btn-danger btn-bulk-delete" disabled onclick="bulkDelete('title-tab')">🗑️ Hapus Terpilih (<span class="selected-count">0</span>)</button>
+                    </div>
+
+                    {{range .TitleGroups}}
+                    <div class="duplicate-group-card">
+                        <div class="duplicate-group-header">
+                            <div class="duplicate-group-title">
+                                <strong>Judul:</strong> "{{.Key}}"
+                            </div>
+                            <span class="duplicate-group-badge">{{len .Articles}} Artikel</span>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="duplicate-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; text-align: center;">Pilih</th>
+                                        <th>Judul Artikel</th>
+                                        <th>Kategori</th>
+                                        <th>Status</th>
+                                        <th>Tanggal Dibuat</th>
+                                        <th style="width: 180px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .Articles}}
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" class="article-select-checkbox article-select" value="{{.ID}}" data-created="{{.CreatedAt.Unix}}" onchange="updateSelection('title-tab')">
+                                        </td>
+                                        <td>
+                                            <div class="article-title-cell">{{.Title}}</div>
+                                            <small style="color: var(--color-muted); font-size: 11px;">ID: {{.ID}}</small>
+                                        </td>
+                                        <td><span class="status-pill" style="background:#e6f7ff; color:#1890ff; font-weight:700;">{{.Category}}</span></td>
+                                        <td>
+                                            {{if eq .Status "published"}}
+                                            <span class="status-pill status-published">Published</span>
+                                            {{else if eq .Status "draft"}}
+                                            <span class="status-pill status-draft">Draft</span>
+                                            {{else if eq .Status "submitted"}}
+                                            <span class="status-pill status-submitted">Review</span>
+                                            {{else}}
+                                            <span class="status-pill">{{.Status}}</span>
+                                            {{end}}
+                                        </td>
+                                        <td><small>{{.CreatedAt.Format "02 Jan 2006 15:04"}}</small></td>
+                                        <td>
+                                            <div class="actions-cell">
+                                                <a class="btn-sm" href="/artikel/{{.Slug}}" target="_blank">Lihat</a>
+                                                <a class="btn-sm" href="/dashboard/articles/{{.ID}}/edit">Edit</a>
+                                                <form method="post" action="/dashboard/articles/{{.ID}}/delete" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
+                                                    <button class="btn-sm btn-danger" type="submit">Hapus</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {{end}}
+                {{end}}
+            </div>
+
+            <!-- TAB PANE: SIMILAR TITLES -->
+            <div id="similar-tab" class="tab-pane">
+                {{if eq (len .SimilarGroups) 0}}
+                <div class="empty-state-card">
+                    <h3>Tidak Ada Judul Mirip</h3>
+                    <p>Hebat! Tidak ditemukan artikel dengan tingkat kemiripan judul di atas 75%.</p>
+                </div>
+                {{else}}
+                    <div class="tab-controls">
+                        <button type="button" class="btn-sm" onclick="selectDuplicates('similar-tab', 'oldest')">⚡ Pilih Duplikat (Sisakan Tertua)</button>
+                        <button type="button" class="btn-sm" onclick="selectDuplicates('similar-tab', 'newest')">⚡ Pilih Duplikat (Sisakan Terbaru)</button>
+                        <button type="button" class="btn-sm" onclick="clearSelection('similar-tab')">Batal Pilih</button>
+                        <div style="flex-grow: 1;"></div>
+                        <button type="button" class="btn-sm btn-danger btn-bulk-delete" disabled onclick="bulkDelete('similar-tab')">🗑️ Hapus Terpilih (<span class="selected-count">0</span>)</button>
+                    </div>
+
+                    {{range .SimilarGroups}}
+                    <div class="duplicate-group-card">
+                        <div class="duplicate-group-header">
+                            <div class="duplicate-group-title">
+                                <strong>Tingkat Kemiripan: ~{{.Similarity}}%</strong>
+                            </div>
+                            <span class="duplicate-group-badge">{{len .Articles}} Artikel</span>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="duplicate-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; text-align: center;">Pilih</th>
+                                        <th>Judul Artikel</th>
+                                        <th>Kategori</th>
+                                        <th>Status</th>
+                                        <th>Tanggal Dibuat</th>
+                                        <th style="width: 180px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .Articles}}
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" class="article-select-checkbox article-select" value="{{.ID}}" data-created="{{.CreatedAt.Unix}}" onchange="updateSelection('similar-tab')">
+                                        </td>
+                                        <td>
+                                            <div class="article-title-cell">{{.Title}}</div>
+                                            <small style="color: var(--color-muted); font-size: 11px;">ID: {{.ID}}</small>
+                                        </td>
+                                        <td><span class="status-pill" style="background:#e6f7ff; color:#1890ff; font-weight:700;">{{.Category}}</span></td>
+                                        <td>
+                                            {{if eq .Status "published"}}
+                                            <span class="status-pill status-published">Published</span>
+                                            {{else if eq .Status "draft"}}
+                                            <span class="status-pill status-draft">Draft</span>
+                                            {{else if eq .Status "submitted"}}
+                                            <span class="status-pill status-submitted">Review</span>
+                                            {{else}}
+                                            <span class="status-pill">{{.Status}}</span>
+                                            {{end}}
+                                        </td>
+                                        <td><small>{{.CreatedAt.Format "02 Jan 2006 15:04"}}</small></td>
+                                        <td>
+                                            <div class="actions-cell">
+                                                <a class="btn-sm" href="/artikel/{{.Slug}}" target="_blank">Lihat</a>
+                                                <a class="btn-sm" href="/dashboard/articles/{{.ID}}/edit">Edit</a>
+                                                <form method="post" action="/dashboard/articles/{{.ID}}/delete" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
+                                                    <button class="btn-sm btn-danger" type="submit">Hapus</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {{end}}
+                {{end}}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function switchTab(tabId, btn) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            // Show target tab pane
+            document.getElementById(tabId).classList.add('active');
+
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            // Activate current tab button
+            btn.classList.add('active');
+        }
+
+        function selectDuplicates(tabId, mode) {
+            const pane = document.getElementById(tabId);
+            const groups = pane.querySelectorAll('.duplicate-group-card');
+            
+            groups.forEach(group => {
+                const checkboxes = Array.from(group.querySelectorAll('.article-select'));
+                if (checkboxes.length <= 1) return;
+                
+                // Find the one to keep
+                let keepIndex = 0;
+                let keepTime = parseInt(checkboxes[0].getAttribute('data-created'));
+                
+                for (let i = 1; i < checkboxes.length; i++) {
+                    const time = parseInt(checkboxes[i].getAttribute('data-created'));
+                    if (mode === 'oldest') {
+                        // Keep the oldest (smallest Unix timestamp)
+                        if (time < keepTime) {
+                            keepTime = time;
+                            keepIndex = i;
+                        }
+                    } else {
+                        // Keep the newest (largest Unix timestamp)
+                        if (time > keepTime) {
+                            keepTime = time;
+                            keepIndex = i;
+                        }
+                    }
+                }
+                
+                // Tick all except the keepIndex
+                checkboxes.forEach((cb, idx) => {
+                    cb.checked = (idx !== keepIndex);
+                });
+            });
+            
+            updateSelection(tabId);
+        }
+
+        function clearSelection(tabId) {
+            const pane = document.getElementById(tabId);
+            pane.querySelectorAll('.article-select').forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelection(tabId);
+        }
+
+        function updateSelection(tabId) {
+            const pane = document.getElementById(tabId);
+            const checked = pane.querySelectorAll('.article-select:checked');
+            const btn = pane.querySelector('.btn-bulk-delete');
+            const countSpan = pane.querySelector('.selected-count');
+            
+            if (countSpan) {
+                countSpan.textContent = checked.length;
+            }
+            
+            if (btn) {
+                if (checked.length > 0) {
+                    btn.removeAttribute('disabled');
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                } else {
+                    btn.setAttribute('disabled', 'true');
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                }
+            }
+        }
+
+        async function bulkDelete(tabId) {
+            const pane = document.getElementById(tabId);
+            const checked = pane.querySelectorAll('.article-select:checked');
+            const ids = Array.from(checked).map(cb => cb.value);
+            
+            if (ids.length === 0) return;
+            
+            if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length} artikel terpilih?`)) {
+                return;
+            }
+            
+            const btn = pane.querySelector('.btn-bulk-delete');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.textContent = 'Menghapus...';
+            
+            try {
+                const response = await fetch('/dashboard/articles/delete-bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ids: ids })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Artikel berhasil dihapus!');
+                    window.location.reload();
+                } else {
+                    alert('Gagal menghapus artikel: ' + (result.error || 'Terjadi kesalahan'));
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (err) {
+                alert('Gagal melakukan permintaan: ' + err.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+    </script>
+</body>
+</html>

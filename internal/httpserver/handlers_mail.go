@@ -311,6 +311,7 @@ func (s *Server) updateMailSettingsHandler(w http.ResponseWriter, r *http.Reques
 	settings["mail_api_key"] = r.FormValue("mail_api_key")
 	settings["cloudflare_api_token"] = r.FormValue("cloudflare_api_token")
 	settings["cloudflare_account_id"] = r.FormValue("cloudflare_account_id")
+	settings["mail_cloudflare_subdomain"] = r.FormValue("mail_cloudflare_subdomain")
 	if r.FormValue("cloudflare_enable_proxy") == "true" {
 		settings["cloudflare_enable_proxy"] = "true"
 	} else {
@@ -1056,6 +1057,13 @@ export default {
 		}
 	}
 
+	if subdomainName == "" {
+		subdomainName = settings["mail_cloudflare_subdomain"]
+		if subdomainName != "" {
+			logs = append(logs, fmt.Sprintf("[%s] [INFO] Menggunakan subdomain Workers manual: %s.workers.dev", time.Now().Format("15:04:05"), subdomainName))
+		}
+	}
+
 	if subdomainName != "" {
 		subBody := `{"enabled":true}`
 		enableReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/client/v4/accounts/%s/workers/scripts/%s/subdomain", cfBaseURL, cfAccountID, workerName), strings.NewReader(subBody))
@@ -1076,6 +1084,8 @@ export default {
 		dbSettings["mail_cloudflare_subdomain"] = subdomainName
 		dbSettings["mail_cloudflare_worker_name"] = workerName
 		_ = s.store.UpdateSettings(user, dbSettings)
+	} else {
+		logs = append(logs, fmt.Sprintf("[%s] [PERINGATAN] Gagal mendeteksi subdomain Workers (API Token kurang izin 'Workers Subdomains: Read'). Silakan isi manual di kolom bawah di halaman pengaturan email lek!", time.Now().Format("15:04:05")))
 	}
 
 	// ── Automatically configure Cloudflare Catch-All Routing to route to this Worker ──

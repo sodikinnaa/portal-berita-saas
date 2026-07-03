@@ -223,6 +223,11 @@
                                 <input type="password" id="cloudflare_api_token" name="cloudflare_api_token" value="{{index .Settings "cloudflare_api_token"}}" placeholder="cfat_..." autocomplete="new-password">
                                 <small style="color: var(--text-secondary);">Masukkan API Token Cloudflare Anda (pastikan memiliki izin akses Worker: Edit).</small>
                             </div>
+                            <div class="form-field" style="margin-top: 15px;">
+                                <label for="mail_cloudflare_subdomain">Workers Subdomain (Opsional)</label>
+                                <input type="text" id="mail_cloudflare_subdomain" name="mail_cloudflare_subdomain" value="{{index .Settings "mail_cloudflare_subdomain"}}" placeholder="sodikinnaa">
+                                <small style="color: var(--text-secondary);">Isi jika deteksi otomatis gagal. Ini adalah nama subdomain akun Workers Anda (dari username.workers.dev).</small>
+                            </div>
                             <div class="form-field" style="display: flex; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 15px;">
                                 <input type="checkbox" id="cloudflare_enable_proxy" name="cloudflare_enable_proxy" value="true" {{if eq (index .Settings "cloudflare_enable_proxy") "true"}}checked{{end}} style="width: auto; margin: 0; cursor: pointer;">
                                 <label for="cloudflare_enable_proxy" style="font-weight: 500; cursor: pointer; color: var(--text-primary); margin-bottom: 0;">Aktifkan Proxy untuk Koneksi Cloudflare</label>

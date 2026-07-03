@@ -1378,18 +1378,52 @@ func (s *Server) verifyCloudflareTokenHandler(w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	// 6. Test Workers Subdomain access on the first account
+	workersSubdomainOK := false
+	workersSubdomainMsg := "Tidak Ada Akses"
+	if firstAccountID != "" {
+		reqUrl := fmt.Sprintf("https://api.cloudflare.com/client/v4/accounts/%s/workers/subdomain", firstAccountID)
+		sReq, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
+		if err == nil {
+			sReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
+			resp, err := client.Do(sReq)
+			if err == nil {
+				defer resp.Body.Close()
+				if resp.StatusCode == http.StatusOK {
+					workersSubdomainOK = true
+					workersSubdomainMsg = "Akses Aktif (Read/Edit)"
+				} else {
+					body, _ := io.ReadAll(resp.Body)
+					var errResp struct {
+						Errors []struct {
+							Message string `json:"message"`
+						} `json:"errors"`
+					}
+					_ = json.Unmarshal(body, &errResp)
+					if len(errResp.Errors) > 0 {
+						workersSubdomainMsg = fmt.Sprintf("Ditolak: %s", errResp.Errors[0].Message)
+					} else {
+						workersSubdomainMsg = fmt.Sprintf("Ditolak (%d)", resp.StatusCode)
+					}
+				}
+			}
+		}
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
-		"configured":       true,
-		"valid":            true,
-		"status":           tokenMsg,
-		"accounts":         accounts,
-		"zones":            zones,
-		"workers":          workersMsg,
-		"workers_ok":       workersOK,
-		"email_routing":    emailRoutingMsg,
-		"email_routing_ok": emailRoutingOK,
-		"zone_read":        zoneReadMsg,
-		"zone_read_ok":     zoneReadOK,
+		"configured":           true,
+		"valid":                true,
+		"status":               tokenMsg,
+		"accounts":             accounts,
+		"zones":                zones,
+		"workers":              workersMsg,
+		"workers_ok":           workersOK,
+		"email_routing":        emailRoutingMsg,
+		"email_routing_ok":     emailRoutingOK,
+		"zone_read":            zoneReadMsg,
+		"zone_read_ok":         zoneReadOK,
+		"workers_subdomain":    workersSubdomainMsg,
+		"workers_subdomain_ok": workersSubdomainOK,
 	})
 }
 

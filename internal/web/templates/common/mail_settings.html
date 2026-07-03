@@ -431,6 +431,10 @@ export default {
                                     <span>Izin Baca Domain (Zone):</span>
                                     <span id="cf-token-zone-read" style="font-weight: bold; color: #a0aec0;">Mengecek...</span>
                                 </div>
+                                <div style="margin-bottom: 8px; display: flex; justify-content: space-between;">
+                                    <span>Izin Subdomain Workers:</span>
+                                    <span id="cf-token-workers-subdomain" style="font-weight: bold; color: #a0aec0;">Mengecek...</span>
+                                </div>
                                 <div style="margin-bottom: 8px; border-top: 1px dashed #2d3748; padding-top: 8px;">
                                     <span style="color: #718096; display: block; margin-bottom: 4px;">Akun Terhubung:</span>
                                     <ul id="cf-token-accounts" style="margin: 0; padding-left: 18px; list-style-type: square;">
@@ -664,6 +668,8 @@ export default {
             document.getElementById('cf-token-email-routing').style.color = '#a0aec0';
             document.getElementById('cf-token-zone-read').innerText = 'Mengecek...';
             document.getElementById('cf-token-zone-read').style.color = '#a0aec0';
+            document.getElementById('cf-token-workers-subdomain').innerText = 'Mengecek...';
+            document.getElementById('cf-token-workers-subdomain').style.color = '#a0aec0';
             document.getElementById('cf-token-accounts').innerHTML = '<li>Mengecek...</li>';
             document.getElementById('cf-token-zones').innerHTML = '<li>Mengecek...</li>';
 
@@ -691,6 +697,8 @@ export default {
                     document.getElementById('cf-token-email-routing').style.color = '#f56565';
                     document.getElementById('cf-token-zone-read').innerText = 'Tidak Punya Akses';
                     document.getElementById('cf-token-zone-read').style.color = '#f56565';
+                    document.getElementById('cf-token-workers-subdomain').innerText = 'Tidak Punya Akses';
+                    document.getElementById('cf-token-workers-subdomain').style.color = '#f56565';
                     document.getElementById('cf-token-accounts').innerHTML = '<li style="color: #f56565;">Token tidak valid / expired</li>';
                     document.getElementById('cf-token-zones').innerHTML = '<li style="color: #f56565;">Token tidak valid / expired</li>';
                     return;
@@ -718,6 +726,14 @@ export default {
                     zoneReadSpan.style.color = '#48bb78';
                 } else {
                     zoneReadSpan.style.color = '#f56565';
+                }
+
+                var workersSubdomainSpan = document.getElementById('cf-token-workers-subdomain');
+                workersSubdomainSpan.innerText = data.workers_subdomain;
+                if (data.workers_subdomain_ok) {
+                    workersSubdomainSpan.style.color = '#48bb78';
+                } else {
+                    workersSubdomainSpan.style.color = '#f56565';
                 }
 
                 var accList = document.getElementById('cf-token-accounts');

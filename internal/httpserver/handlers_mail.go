@@ -191,6 +191,13 @@ func (s *Server) sendMailHandler(w http.ResponseWriter, r *http.Request) {
 		APIKey:      settings["mail_api_key"],
 	}
 
+	if provider == "cloudflare" {
+		mailCfg.CloudflareToken = settings["mail_webhook_token"]
+		if settings["mail_cloudflare_worker_name"] != "" && settings["mail_cloudflare_subdomain"] != "" {
+			mailCfg.CloudflareWorkerURL = fmt.Sprintf("https://%s.%s.workers.dev/send", settings["mail_cloudflare_worker_name"], settings["mail_cloudflare_subdomain"])
+		}
+	}
+
 	client := mail.NewClient(mailCfg)
 
 	msg := mail.Message{
@@ -880,8 +887,46 @@ export default {
     } catch (err) {
       console.error("Webhook error: " + err.message);
     }
+  },
+
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    if (request.method === "POST" && (url.pathname === "/send" || url.pathname === "/send/")) {
+      const token = url.searchParams.get("token");
+      const expectedToken = "%s";
+      if (token !== expectedToken) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+
+      try {
+        const body = await request.json();
+        
+        if (!env.SEND_EMAIL) {
+          return new Response("Cloudflare send_email binding not configured on this Worker", { status: 500 });
+        }
+
+        await env.SEND_EMAIL.send({
+          to: body.to,
+          from: body.from,
+          subject: body.subject,
+          text: body.text,
+          html: body.html
+        });
+
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+    return new Response("Not Found", { status: 404 });
   }
-}`, webhookURL)
+}`, webhookURL, webhookToken)
 
 	// Prepare multipart form data body
 	var body bytes.Buffer
@@ -897,7 +942,7 @@ export default {
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "logs": logs})
 		return
 	}
-	_, _ = pMetadata.Write([]byte(`{"main_module": "index.js", "observability": {"enabled": true, "head_sampling_rate": 1, "logs": {"enabled": true, "head_sampling_rate": 1, "persist": true, "invocation_logs": true}}}`))
+	_, _ = pMetadata.Write([]byte(`{"main_module": "index.js", "bindings": [{"type": "send_email", "name": "SEND_EMAIL"}], "observability": {"enabled": true, "head_sampling_rate": 1, "logs": {"enabled": true, "head_sampling_rate": 1, "persist": true, "invocation_logs": true}}}`))
 
 	// Part 2: index.js
 	hIndex := make(textproto.MIMEHeader)
@@ -987,6 +1032,51 @@ export default {
 	}
 
 	logs = append(logs, fmt.Sprintf("[%s] [SUKSES] Worker '%s' berhasil diunggah dan aktif di Cloudflare!", time.Now().Format("15:04:05"), workerName))
+
+	// ── Configure and Enable workers.dev Subdomain ──
+	subdomainName := ""
+	subReq, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/client/v4/accounts/%s/workers/subdomain", cfBaseURL, cfAccountID), nil)
+	if err == nil {
+		subReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
+		subRespObj, errSub := client.Do(subReq)
+		if errSub == nil {
+			defer subRespObj.Body.Close()
+			var subResp struct {
+				Success bool `json:"success"`
+				Result  struct {
+					Name string `json:"name"`
+				} `json:"result"`
+			}
+			subBodyBytes, _ := io.ReadAll(subRespObj.Body)
+			_ = json.Unmarshal(subBodyBytes, &subResp)
+			if subResp.Success && subResp.Result.Name != "" {
+				subdomainName = subResp.Result.Name
+				logs = append(logs, fmt.Sprintf("[%s] [SUKSES] Menemukan subdomain Workers: %s.workers.dev", time.Now().Format("15:04:05"), subdomainName))
+			}
+		}
+	}
+
+	if subdomainName != "" {
+		subBody := `{"enabled":true}`
+		enableReq, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/client/v4/accounts/%s/workers/scripts/%s/subdomain", cfBaseURL, cfAccountID, workerName), strings.NewReader(subBody))
+		if err == nil {
+			enableReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
+			enableReq.Header.Set("Content-Type", "application/json")
+			enableRespObj, errEnable := client.Do(enableReq)
+			if errEnable == nil {
+				defer enableRespObj.Body.Close()
+				logs = append(logs, fmt.Sprintf("[%s] [SUKSES] Mengaktifkan rute workers.dev untuk Worker '%s'", time.Now().Format("15:04:05"), workerName))
+			}
+		}
+
+		// Update database settings with subdomain info
+		for k, v := range settings {
+			dbSettings[k] = v
+		}
+		dbSettings["mail_cloudflare_subdomain"] = subdomainName
+		dbSettings["mail_cloudflare_worker_name"] = workerName
+		_ = s.store.UpdateSettings(user, dbSettings)
+	}
 
 	// ── Automatically configure Cloudflare Catch-All Routing to route to this Worker ──
 	logs = append(logs, fmt.Sprintf("[%s] [INFO] Mendeteksi Zone ID Cloudflare untuk domain '%s'...", time.Now().Format("15:04:05"), hostName))

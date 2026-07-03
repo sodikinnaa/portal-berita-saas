@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/smtp"
@@ -14,13 +15,15 @@ import (
 )
 
 type Config struct {
-	Provider   string // "smtp", "mailgun", "resend"
-	SMTPHost   string
-	SMTPPort   string
-	SMTPUser   string
-	SMTPPass   string
-	SMTPEncrypt string // "tls", "ssl", "none"
-	APIKey     string
+	Provider            string // "smtp", "mailgun", "resend", "cloudflare"
+	SMTPHost            string
+	SMTPPort            string
+	SMTPUser            string
+	SMTPPass            string
+	SMTPEncrypt         string // "tls", "ssl", "none"
+	APIKey              string
+	CloudflareToken     string
+	CloudflareWorkerURL string
 }
 
 type Message struct {
@@ -46,7 +49,9 @@ func (c *Client) Send(ctx context.Context, msg Message) error {
 		return c.sendResend(ctx, msg)
 	case "mailgun":
 		return c.sendMailgun(ctx, msg)
-	case "direct", "cloudflare":
+	case "cloudflare":
+		return c.sendCloudflare(ctx, msg)
+	case "direct":
 		return c.sendDirect(ctx, msg)
 	default:
 		return c.sendSMTP(ctx, msg)
@@ -374,5 +379,67 @@ func (c *Client) sendDirect(ctx context.Context, msg Message) error {
 		return fmt.Errorf("failed to send directly via MX servers: %w", lastErr)
 	}
 	return fmt.Errorf("no MX servers available for %s", domain)
+}
+
+func (c *Client) sendCloudflare(ctx context.Context, msg Message) error {
+	type cloudflareEmailAddress struct {
+		Email string `json:"email"`
+		Name  string `json:"name,omitempty"`
+	}
+	type cloudflarePayload struct {
+		To      []cloudflareEmailAddress `json:"to"`
+		From    cloudflareEmailAddress   `json:"from"`
+		Subject string                   `json:"subject"`
+		HTML    string                   `json:"html"`
+		Text    string                   `json:"text"`
+	}
+
+	targetURL := c.cfg.CloudflareWorkerURL
+	if c.cfg.CloudflareToken != "" {
+		if strings.Contains(targetURL, "?") {
+			targetURL += "&token=" + c.cfg.CloudflareToken
+		} else {
+			targetURL += "?token=" + c.cfg.CloudflareToken
+		}
+	}
+
+	payload := cloudflarePayload{
+		To: []cloudflareEmailAddress{
+			{Email: msg.To},
+		},
+		From: cloudflareEmailAddress{
+			Email: msg.FromEmail,
+			Name:  msg.FromName,
+		},
+		Subject: msg.Subject,
+		HTML:    msg.BodyHTML,
+		Text:    msg.BodyText,
+	}
+
+	jsonBytes, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to serialize Cloudflare payload: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", targetURL, bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		return fmt.Errorf("failed to create Cloudflare proxy request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	httpClient := http.Client{Timeout: 15 * time.Second}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to make HTTP call to Cloudflare Worker: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("cloudflare Worker returned status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	return nil
 }
 

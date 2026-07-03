@@ -356,7 +356,7 @@
                         <div style="font-size: 13.5px; font-weight: 700; color: #2d3748; margin-bottom: 6px;">1. Salin Kode Cloudflare Worker:</div>
                         <div class="code-container">
                             <button class="btn-copy-code" id="btn-copy-worker" onclick="copyWorkerCode()">Salin Kode Worker 📋</button>
-                            <code class="code-block" id="worker-code" style="max-height: 180px; overflow-y: auto;">import PostalMime from "https://esm.sh/postal-mime@2.2.0";
+                            <code class="code-block" id="worker-code" style="max-height: 180px; overflow-y: auto;">import PostalMime from "./postal-mime.js";
 
 export default {
   async email(message, env, ctx) {
@@ -438,11 +438,13 @@ export default {
 }</code>
                         </div>
 
-                        <div style="font-size: 13.5px; font-weight: 700; color: #2d3748; margin-top: 20px; margin-bottom: 8px;">2. Petunjuk Pemasangan di Cloudflare:</div>
+                        <div style="font-size: 13.5px; font-weight: 700; color: #2d3748; margin-top: 20px; margin-bottom: 8px;">2. Petunjuk Pemasangan Manual di Cloudflare:</div>
                         <ol class="instruction-list" style="font-size: 12.5px; line-height: 1.6; padding-left: 18px;">
-                            <li>Buka <a href="https://dash.cloudflare.com" target="_blank" style="color: #e63329; font-weight: 600; text-decoration: underline;">Cloudflare</a> Anda.</li>
+                            <li>Buka <a href="https://dash.cloudflare.com" target="_blank" style="color: #e63329; font-weight: 600; text-decoration: underline;">Cloudflare Dashboard</a> Anda.</li>
                             <li>Pilih menu <b>Workers &amp; Pages</b> -> klik <b>Create Application</b> -> <b>Create Worker</b> -> klik <b>Deploy</b>.</li>
-                            <li>Klik <b>Edit Code</b>, paste kode di atas ke editor, lalu klik <b>Save and Deploy</b>.</li>
+                            <li>Klik <b>Edit Code</b>. Di file default <code>index.js</code> (atau <code>worker.js</code>), hapus semua kode bawaan lalu paste Kode Worker di atas.</li>
+                            <li>Klik tombol <b>+ (Add file)</b> di pojok kiri atas editor Cloudflare, beri nama file baru tersebut <b><code>postal-mime.js</code></b>.</li>
+                            <li>Buka link <a href="https://esm.sh/postal-mime@2.2.0/es2022/postal-mime.mjs" target="_blank" style="color: #e63329; font-weight: 600; text-decoration: underline;">postal-mime.js source</a>, salin semua isinya (Ctrl+A lalu Ctrl+C), lalu paste ke file <code>postal-mime.js</code> yang baru Anda buat di Cloudflare.</li>
                             <li>Buka domain Anda -> <b>Email Routing</b> -> tab <b>Email Workers</b> -> klik <b>Add Destination Worker</b> -> pilih Worker Anda.</li>
                             <li>Buka tab <b>Routes</b> -> di bagian <b>Catch-all address</b>, klik <b>Edit</b> -> ubah Destination menjadi <b>Send to Worker</b> -> pilih Worker Anda -> Klik <b>Save</b>.</li>
                         </ol>

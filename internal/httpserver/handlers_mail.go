@@ -1183,6 +1183,9 @@ func (s *Server) verifyCloudflareTokenHandler(w http.ResponseWriter, r *http.Req
 
 	// 3. Fetch accessible Zones/Domains
 	var zones []string
+	var firstZoneID string
+	zoneReadOK := false
+	zoneReadMsg := "Tidak Ada Akses"
 	zoneReq, err := http.NewRequestWithContext(ctx, "GET", "https://api.cloudflare.com/client/v4/zones", nil)
 	if err == nil {
 		zoneReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
@@ -1192,14 +1195,20 @@ func (s *Server) verifyCloudflareTokenHandler(w http.ResponseWriter, r *http.Req
 			var zoneResponse struct {
 				Success bool `json:"success"`
 				Result  []struct {
+					ID   string `json:"id"`
 					Name string `json:"name"`
 				} `json:"result"`
 			}
 			body, _ := io.ReadAll(resp.Body)
 			_ = json.Unmarshal(body, &zoneResponse)
 			if zoneResponse.Success {
+				zoneReadOK = true
+				zoneReadMsg = "Akses Aktif (Read)"
 				for _, z := range zoneResponse.Result {
 					zones = append(zones, z.Name)
+					if firstZoneID == "" {
+						firstZoneID = z.ID
+					}
 				}
 			}
 		}
@@ -1237,14 +1246,50 @@ func (s *Server) verifyCloudflareTokenHandler(w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	// 5. Test Email Routing Rules access on the first zone
+	emailRoutingOK := false
+	emailRoutingMsg := "Tidak Ada Akses"
+	if firstZoneID != "" {
+		reqUrl := fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/email/routing/rules", firstZoneID)
+		eReq, err := http.NewRequestWithContext(ctx, "GET", reqUrl, nil)
+		if err == nil {
+			eReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
+			resp, err := client.Do(eReq)
+			if err == nil {
+				defer resp.Body.Close()
+				if resp.StatusCode == http.StatusOK {
+					emailRoutingOK = true
+					emailRoutingMsg = "Akses Aktif (Read/Edit)"
+				} else {
+					body, _ := io.ReadAll(resp.Body)
+					var errResp struct {
+						Errors []struct {
+							Message string `json:"message"`
+						} `json:"errors"`
+					}
+					_ = json.Unmarshal(body, &errResp)
+					if len(errResp.Errors) > 0 {
+						emailRoutingMsg = fmt.Sprintf("Ditolak: %s", errResp.Errors[0].Message)
+					} else {
+						emailRoutingMsg = fmt.Sprintf("Ditolak (%d)", resp.StatusCode)
+					}
+				}
+			}
+		}
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
-		"configured": true,
-		"valid":      true,
-		"status":     tokenMsg,
-		"accounts":   accounts,
-		"zones":      zones,
-		"workers":    workersMsg,
-		"workers_ok": workersOK,
+		"configured":       true,
+		"valid":            true,
+		"status":           tokenMsg,
+		"accounts":         accounts,
+		"zones":            zones,
+		"workers":          workersMsg,
+		"workers_ok":       workersOK,
+		"email_routing":    emailRoutingMsg,
+		"email_routing_ok": emailRoutingOK,
+		"zone_read":        zoneReadMsg,
+		"zone_read_ok":     zoneReadOK,
 	})
 }
 

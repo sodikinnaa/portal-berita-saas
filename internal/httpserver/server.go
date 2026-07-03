@@ -245,6 +245,8 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("POST /dashboard/mail/verify-dns", s.requireAuth(s.verifyDNSHandler))
 	mux.HandleFunc("POST /dashboard/mail/cloudflare/deploy-worker", s.requireAuth(s.deployCloudflareWorkerHandler))
 	mux.HandleFunc("GET /dashboard/mail/cloudflare/verify-token", s.requireAuth(s.verifyCloudflareTokenHandler))
+	mux.HandleFunc("POST /dashboard/mail/ai/draft", s.requireAuth(s.mailAIDraftHandler))
+	mux.HandleFunc("POST /dashboard/mail/ai/summary", s.requireAuth(s.mailAISummaryHandler))
 
 	mux.HandleFunc("GET /dashboard/settings", s.requireAuth(s.dashboardSettings))
 	mux.HandleFunc("POST /dashboard/settings", s.requireAuth(s.updateSettings))

@@ -120,6 +120,26 @@
                                         {{end}}
                                     </div>
                                     
+                                    <!-- Hidden raw body text for AI usage -->
+                                    <textarea id="raw-body-{{$index}}" style="display: none;">{{.BodyText}}</textarea>
+
+                                    <!-- AI Assistant Panel -->
+                                    <div style="background: #edf2f7; border: 1px solid #cbd5e0; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px;">
+                                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                            <strong style="color: #2d3748; font-size: 13.5px; display: flex; align-items: center; gap: 4px;">🤖 AI Assistant:</strong>
+                                            <button type="button" class="btn" onclick="summarizeEmail('{{$index}}', '{{.Sender}}', '{{.Subject}}')" style="background: #2b6cb0; color: white; padding: 6px 12px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">Ringkas Email 📋</button>
+                                            <button type="button" class="btn" onclick="openAIDraft('{{$index}}')" style="background: #319795; color: white; padding: 6px 12px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">Balas dengan AI ✏️</button>
+                                        </div>
+                                        <div id="ai-result-{{$index}}" style="display: none; background: white; border: 1px dashed #cbd5e0; padding: 12px; border-radius: 6px; font-size: 13px; color: #4a5568; line-height: 1.5; white-space: pre-wrap;"></div>
+                                        
+                                        <!-- AI Draft Input box (shown only when clicked reply with AI) -->
+                                        <div id="ai-draft-input-{{$index}}" style="display: none; flex-direction: column; gap: 8px; border-top: 1px solid #cbd5e0; padding-top: 10px;">
+                                            <label style="font-size: 12.5px; font-weight: bold; color: #4a5568;">Instruksi Balasan:</label>
+                                            <input type="text" id="ai-instruction-{{$index}}" placeholder="Contoh: 'tolak dengan sopan karena jadwal penuh' atau 'terima tawaran'" style="padding: 8px; font-size: 13px; border: 1px solid #cbd5e0; border-radius: 4px; width: 100%;">
+                                            <button type="button" class="btn" onclick="generateAIDraft('{{$index}}', '{{.Sender}}', '{{.Subject}}')" style="background: #2f855a; color: white; padding: 6px 12px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; align-self: flex-start;">Buat Draft Balasan</button>
+                                        </div>
+                                    </div>
+
                                     <div class="email-attachments-container" id="attachments-{{$index}}" data-metadata="{{.Metadata}}" style="display: none; flex-direction: column; gap: 8px;">
                                         <h4 style="margin: 0; font-size: 14px; color: var(--text-primary);">📎 Lampiran:</h4>
                                         <div class="attachments-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
@@ -194,6 +214,74 @@
             } else {
                 detailRow.style.display = 'none';
             }
+        }
+
+        function summarizeEmail(index, sender, subject) {
+            var bodyText = document.getElementById('raw-body-' + index).value;
+            var resultDiv = document.getElementById('ai-result-' + index);
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerText = '🤖 AI sedang meringkas email Anda...';
+            resultDiv.style.color = '#718096';
+
+            fetch('/dashboard/mail/ai/summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ from: sender, subject: subject, body: bodyText })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    resultDiv.innerText = data.summary;
+                    resultDiv.style.color = '#2d3748';
+                } else {
+                    resultDiv.innerText = '❌ Gagal: ' + (data.error || 'Terjadi kesalahan');
+                    resultDiv.style.color = '#e63329';
+                }
+            })
+            .catch(function(err) {
+                resultDiv.innerText = '❌ Gagal menghubungi server: ' + err.message;
+                resultDiv.style.color = '#e63329';
+            });
+        }
+
+        function openAIDraft(index) {
+            var draftInput = document.getElementById('ai-draft-input-' + index);
+            if (draftInput.style.display === 'none') {
+                draftInput.style.display = 'flex';
+            } else {
+                draftInput.style.display = 'none';
+            }
+        }
+
+        function generateAIDraft(index, sender, subject) {
+            var bodyText = document.getElementById('raw-body-' + index).value;
+            var instruction = document.getElementById('ai-instruction-' + index).value;
+            var resultDiv = document.getElementById('ai-result-' + index);
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerText = '🤖 AI sedang menyusun draft balasan email...';
+            resultDiv.style.color = '#718096';
+
+            fetch('/dashboard/mail/ai/draft', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ from: sender, subject: subject, body: bodyText, instruction: instruction })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    resultDiv.innerHTML = '<strong>Draft Balasan AI:</strong>\n\n' + data.draft + '\n\n<a href="/dashboard/mail/compose?to=' + encodeURIComponent(sender) + '&subject=' + encodeURIComponent('Re: ' + subject) + '&body=' + encodeURIComponent(data.draft) + '" class="btn btn-primary" style="background: #2f855a; color: white; text-decoration: none; padding: 6px 12px; font-size: 12px; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 10px;">Gunakan Draft Ini untuk Membalas 📨</a>';
+                    resultDiv.style.color = '#2d3748';
+                } else {
+                    resultDiv.innerText = '❌ Gagal: ' + (data.error || 'Terjadi kesalahan');
+                    resultDiv.style.color = '#e63329';
+                }
+            })
+            .catch(function(err) {
+                resultDiv.innerText = '❌ Gagal menghubungi server: ' + err.message;
+                resultDiv.style.color = '#e63329';
+            });
         }
     </script>
 </body>

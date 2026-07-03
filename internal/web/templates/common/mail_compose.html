@@ -151,6 +151,18 @@
                 prefix = rawEmail.split("@")[0];
             }
             document.getElementById('sender_prefix').value = prefix;
+            
+            // Populate inputs from URL query params
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('to')) {
+                document.getElementById('to').value = params.get('to');
+            }
+            if (params.has('subject')) {
+                document.getElementById('subject').value = params.get('subject');
+            }
+            if (params.has('body')) {
+                document.getElementById('body').value = params.get('body');
+            }
         })();
 
         function prepareSubmitForm() {

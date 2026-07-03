@@ -892,13 +892,13 @@ export default {
 
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (request.method === "POST" && (url.pathname === "/send" || url.pathname === "/send/")) {
-      const token = url.searchParams.get("token");
-      const expectedToken = "%s";
-      if (token !== expectedToken) {
-        return new Response("Unauthorized", { status: 401 });
-      }
+    const token = url.searchParams.get("token");
+    const expectedToken = "%s";
+    if (token !== expectedToken) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
+    if (request.method === "POST" && (url.pathname === "/send" || url.pathname === "/send/")) {
       try {
         const body = await request.json();
         
@@ -925,6 +925,55 @@ export default {
         });
       }
     }
+
+    if (request.method === "POST" && (url.pathname === "/ai/draft" || url.pathname === "/ai/draft/")) {
+      try {
+        const body = await request.json();
+        if (!env.AI) {
+          return new Response("Cloudflare AI binding not configured", { status: 500 });
+        }
+        const response = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+          messages: [
+            { role: "system", content: "You are an AI email assistant. Draft a professional response to the email. Reply in the same language. Output only the email body text." },
+            { role: "user", content: "Email Received: From: " + body.from + ", Subject: " + body.subject + ", Body: " + body.body + "\\n\\nUser Instructions: " + body.instruction }
+          ]
+        });
+        return new Response(JSON.stringify(response), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    if (request.method === "POST" && (url.pathname === "/ai/summary" || url.pathname === "/ai/summary/")) {
+      try {
+        const body = await request.json();
+        if (!env.AI) {
+          return new Response("Cloudflare AI binding not configured", { status: 500 });
+        }
+        const response = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+          messages: [
+            { role: "system", content: "You are an AI email assistant. Summarize the following email in 1-2 clear, professional sentences in Indonesian." },
+            { role: "user", content: "Email Received: From: " + body.from + ", Subject: " + body.subject + ", Body: " + body.body }
+          ]
+        });
+        return new Response(JSON.stringify(response), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+
     return new Response("Not Found", { status: 404 });
   }
 }`, webhookURL, webhookToken)
@@ -943,7 +992,7 @@ export default {
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "logs": logs})
 		return
 	}
-	_, _ = pMetadata.Write([]byte(`{"main_module": "index.js", "bindings": [{"type": "send_email", "name": "SEND_EMAIL"}], "observability": {"enabled": true, "head_sampling_rate": 1, "logs": {"enabled": true, "head_sampling_rate": 1, "persist": true, "invocation_logs": true}}}`))
+	_, _ = pMetadata.Write([]byte(`{"main_module": "index.js", "bindings": [{"type": "send_email", "name": "SEND_EMAIL"}, {"type": "ai", "name": "AI"}], "observability": {"enabled": true, "head_sampling_rate": 1, "logs": {"enabled": true, "head_sampling_rate": 1, "persist": true, "invocation_logs": true}}}`))
 
 	// Part 2: index.js
 	hIndex := make(textproto.MIMEHeader)
@@ -1425,5 +1474,160 @@ func (s *Server) verifyCloudflareTokenHandler(w http.ResponseWriter, r *http.Req
 		"workers_subdomain":    workersSubdomainMsg,
 		"workers_subdomain_ok": workersSubdomainOK,
 	})
+}
+
+func buildWorkerURL(workerName, subdomain, path, token string) string {
+	var targetURL string
+	if strings.Contains(subdomain, "/") {
+		// If it already has route pattern (Option B)
+		// e.g. "siapdigital.id/api/v1/mail/outbound"
+		targetURL = "https://" + subdomain
+		if strings.HasSuffix(targetURL, "/outbound") {
+			targetURL = strings.TrimSuffix(targetURL, "/outbound") + path
+		} else {
+			targetURL = targetURL + path
+		}
+	} else {
+		// Standard workers.dev subdomain (Option A)
+		targetURL = fmt.Sprintf("https://%s.%s.workers.dev%s", workerName, subdomain, path)
+	}
+
+	if token != "" {
+		if strings.Contains(targetURL, "?") {
+			targetURL += "&token=" + token
+		} else {
+			targetURL += "?token=" + token
+		}
+	}
+	return targetURL
+}
+
+// POST /dashboard/mail/ai/draft
+func (s *Server) mailAIDraftHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	settings := s.store.GetSettings()
+	cfToken := settings["mail_webhook_token"]
+	workerName := settings["mail_cloudflare_worker_name"]
+	subdomain := settings["mail_cloudflare_subdomain"]
+
+	if settings["mail_provider"] != "cloudflare" || workerName == "" || subdomain == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "Cloudflare Email Worker tidak dikonfigurasi aktif lek!"})
+		return
+	}
+
+	var reqBody struct {
+		From        string `json:"from"`
+		Subject     string `json:"subject"`
+		Body        string `json:"body"`
+		Instruction string `json:"instruction"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "Invalid request body"})
+		return
+	}
+
+	targetURL := buildWorkerURL(workerName, subdomain, "/ai/draft", cfToken)
+	
+	payloadBytes, _ := json.Marshal(reqBody)
+	cfReq, err := http.NewRequestWithContext(ctx, "POST", targetURL, bytes.NewReader(payloadBytes))
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	cfReq.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(cfReq)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Gagal menghubungi AI Worker lek: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	respBytes, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		writeJSON(w, resp.StatusCode, map[string]any{"success": false, "error": "Cloudflare AI error: " + string(respBytes)})
+		return
+	}
+
+	var cfAIResponse struct {
+		Result struct {
+			Response string `json:"response"`
+		} `json:"result"`
+		Success bool `json:"success"`
+		Errors  []any `json:"errors"`
+	}
+	_ = json.Unmarshal(respBytes, &cfAIResponse)
+
+	if !cfAIResponse.Success && len(cfAIResponse.Errors) > 0 {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "AI failed"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"success": true, "draft": cfAIResponse.Result.Response})
+}
+
+// POST /dashboard/mail/ai/summary
+func (s *Server) mailAISummaryHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	settings := s.store.GetSettings()
+	cfToken := settings["mail_webhook_token"]
+	workerName := settings["mail_cloudflare_worker_name"]
+	subdomain := settings["mail_cloudflare_subdomain"]
+
+	if settings["mail_provider"] != "cloudflare" || workerName == "" || subdomain == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "Cloudflare Email Worker tidak dikonfigurasi aktif lek!"})
+		return
+	}
+
+	var reqBody struct {
+		From    string `json:"from"`
+		Subject string `json:"subject"`
+		Body    string `json:"body"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "Invalid request body"})
+		return
+	}
+
+	targetURL := buildWorkerURL(workerName, subdomain, "/ai/summary", cfToken)
+	
+	payloadBytes, _ := json.Marshal(reqBody)
+	cfReq, err := http.NewRequestWithContext(ctx, "POST", targetURL, bytes.NewReader(payloadBytes))
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": err.Error()})
+		return
+	}
+	cfReq.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(cfReq)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Gagal menghubungi AI Worker lek: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	respBytes, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		writeJSON(w, resp.StatusCode, map[string]any{"success": false, "error": "Cloudflare AI error: " + string(respBytes)})
+		return
+	}
+
+	var cfAIResponse struct {
+		Result struct {
+			Response string `json:"response"`
+		} `json:"result"`
+		Success bool `json:"success"`
+		Errors  []any `json:"errors"`
+	}
+	_ = json.Unmarshal(respBytes, &cfAIResponse)
+
+	if !cfAIResponse.Success && len(cfAIResponse.Errors) > 0 {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "AI failed"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"success": true, "summary": cfAIResponse.Result.Response})
 }
 

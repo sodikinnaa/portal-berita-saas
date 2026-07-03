@@ -987,7 +987,98 @@ export default {
 	}
 
 	logs = append(logs, fmt.Sprintf("[%s] [SUKSES] Worker '%s' berhasil diunggah dan aktif di Cloudflare!", time.Now().Format("15:04:05"), workerName))
-	logs = append(logs, "[SUKSES] Silakan lanjutkan ke Langkah 2: Buka tab Routes di Cloudflare Email Routing lalu arahkan Catch-all ke Worker ini lek!")
+
+	// ── Automatically configure Cloudflare Catch-All Routing to route to this Worker ──
+	logs = append(logs, fmt.Sprintf("[%s] [INFO] Mendeteksi Zone ID Cloudflare untuk domain '%s'...", time.Now().Format("15:04:05"), hostName))
+	
+	zoneID := ""
+	zoneQueryDomain := hostName
+	for {
+		zoneReqUrl := fmt.Sprintf("%s/client/v4/zones?name=%s", cfBaseURL, url.QueryEscape(zoneQueryDomain))
+		zoneReq, err := http.NewRequestWithContext(ctx, "GET", zoneReqUrl, nil)
+		if err != nil {
+			break
+		}
+		zoneReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
+		
+		zoneResp, err := client.Do(zoneReq)
+		if err != nil {
+			break
+		}
+		
+		zoneBodyBytes, _ := io.ReadAll(zoneResp.Body)
+		zoneResp.Body.Close()
+		
+		var zoneResponse struct {
+			Success bool `json:"success"`
+			Result  []struct {
+				ID string `json:"id"`
+			} `json:"result"`
+		}
+		_ = json.Unmarshal(zoneBodyBytes, &zoneResponse)
+		if zoneResponse.Success && len(zoneResponse.Result) > 0 {
+			zoneID = zoneResponse.Result[0].ID
+			break
+		}
+		
+		// Fallback: try apex domain if subdomain
+		parts := strings.Split(zoneQueryDomain, ".")
+		if len(parts) > 2 {
+			zoneQueryDomain = strings.Join(parts[len(parts)-2:], ".")
+		} else {
+			break
+		}
+	}
+	
+	if zoneID != "" {
+		logs = append(logs, fmt.Sprintf("[SUKSES] Menemukan Zone ID Cloudflare: %s", zoneID))
+		logs = append(logs, fmt.Sprintf("[%s] [INFO] Mengonfigurasi Catch-All Email Routing ke Worker '%s'...", time.Now().Format("15:04:05"), workerName))
+		
+		catchAllUrl := fmt.Sprintf("%s/client/v4/zones/%s/email/routing/rules/catch_all", cfBaseURL, zoneID)
+		
+		type cfAction struct {
+			Type  string   `json:"type"`
+			Value []string `json:"value"`
+		}
+		type catchAllPayload struct {
+			Enabled bool       `json:"enabled"`
+			Actions []cfAction `json:"actions"`
+		}
+		
+		payload := catchAllPayload{
+			Enabled: true,
+			Actions: []cfAction{
+				{
+					Type:  "worker",
+					Value: []string{workerName},
+				},
+			},
+		}
+		payloadBytes, _ := json.Marshal(payload)
+		
+		caReq, err := http.NewRequestWithContext(ctx, "PUT", catchAllUrl, bytes.NewReader(payloadBytes))
+		if err == nil {
+			caReq.Header.Set("Authorization", "Bearer "+cfAPIToken)
+			caReq.Header.Set("Content-Type", "application/json")
+			
+			caResp, err := client.Do(caReq)
+			if err == nil {
+				caBodyBytes, _ := io.ReadAll(caResp.Body)
+				caResp.Body.Close()
+				if caResp.StatusCode == http.StatusOK {
+					logs = append(logs, fmt.Sprintf("[%s] [SUKSES] Catch-All Email Routing berhasil dikonfigurasi otomatis ke Worker '%s'!", time.Now().Format("15:04:05"), workerName))
+				} else {
+					logs = append(logs, fmt.Sprintf("[PERINGATAN] Gagal setting Catch-All otomatis (HTTP %d): %s. Silakan setting manual di dashboard Cloudflare.", caResp.StatusCode, string(caBodyBytes)))
+				}
+			} else {
+				logs = append(logs, fmt.Sprintf("[PERINGATAN] Gagal menghubungi API Catch-All Cloudflare: %v", err))
+			}
+		} else {
+			logs = append(logs, fmt.Sprintf("[PERINGATAN] Gagal menyusun request Catch-All: %v", err))
+		}
+	} else {
+		logs = append(logs, fmt.Sprintf("[PERINGATAN] Gagal mendeteksi Zone ID Cloudflare untuk '%s'. Silakan arahkan Catch-all ke Worker '%s' secara manual di dashboard Cloudflare lek!", hostName, workerName))
+	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"success": true,

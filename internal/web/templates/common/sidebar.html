@@ -296,6 +296,19 @@ function closeGlobalModal() {
     setTimeout(() => { modal.style.display = 'none'; }, 300);
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".sidebar-link").forEach(link => {
+        link.addEventListener("click", function() {
+            const sidebar = document.getElementById("dashboard-sidebar");
+            const overlay = document.getElementById("sidebar-overlay");
+            if (sidebar && sidebar.classList.contains("mobile-open")) {
+                sidebar.classList.remove("mobile-open");
+                if (overlay) overlay.style.display = "none";
+            }
+        });
+    });
+});
+
 function toggleMobileSidebar() {
     const sidebar = document.getElementById("dashboard-sidebar");
     const overlay = document.getElementById("sidebar-overlay");

@@ -29,6 +29,11 @@ func (s *Server) home(w http.ResponseWriter, r *http.Request) {
 func (s *Server) renderNewsPortal(w http.ResponseWriter, r *http.Request, settings map[string]string) {
 	articles := s.store.ListPublishedArticles(24)
 	categories := s.store.ListCategories()
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	baseURL := scheme + "://" + r.Host
 	data := homeViewData{
 		Articles:         limitArticles(articles, 10),
 		Categories:       categories,
@@ -36,6 +41,7 @@ func (s *Server) renderNewsPortal(w http.ResponseWriter, r *http.Request, settin
 		Popular:          limitArticles(articles, 4),
 		EditorPicks:      limitArticles(articles, 4),
 		Settings:         settings,
+		BaseURL:          baseURL,
 		AppUser:          s.getLoggedInAppUser(r),
 	}
 	if len(articles) > 0 {
@@ -94,6 +100,11 @@ func (s *Server) articleIndex(w http.ResponseWriter, r *http.Request) {
 
 	pages := getPaginationPages(page, totalPages)
 
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	baseURL := scheme + "://" + r.Host
 	data := articleIndexViewData{
 		Articles:       s.articleListItems(articles),
 		Total:          total,
@@ -111,6 +122,7 @@ func (s *Server) articleIndex(w http.ResponseWriter, r *http.Request) {
 		CategoryFilter: category,
 		SearchQuery:    query,
 		Settings:       s.store.GetSettings(),
+		BaseURL:        baseURL,
 		AppUser:        s.getLoggedInAppUser(r),
 	}
 	s.renderTemplate(w, "article_index.html", data)

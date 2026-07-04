@@ -80,6 +80,7 @@ type homeViewData struct {
 	Popular          []cms.Article
 	EditorPicks      []cms.Article
 	Settings         map[string]string
+	BaseURL          string
 	AppUser          *cms.AppUser
 }
 
@@ -113,6 +114,7 @@ type articleIndexViewData struct {
 	CategoryFilter string
 	SearchQuery    string
 	Settings       map[string]string
+	BaseURL        string
 	AppUser        *cms.AppUser
 }
 

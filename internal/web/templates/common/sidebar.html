@@ -25,6 +25,7 @@
     <a href="/" class="dashboard-logo">News<span>Paper</span></a>
     <p class="dashboard-role">{{.User.Role}}</p>
 
+    <div class="sidebar-content" style="flex: 1; overflow-y: auto; padding-right: 4px; margin-bottom: 16px; display: flex; flex-direction: column;">
     <nav class="dashboard-nav" aria-label="Navigasi dashboard">
         <!-- Overview -->
         <a href="/dashboard">Overview</a>
@@ -142,6 +143,7 @@
         <a href="/dashboard/profile">Profile</a>
         <a href="/artikel">Lihat Situs</a>
     </nav>
+    </div><!-- end sidebar-content -->
 
     <form method="post" action="/logout">
         <button class="sidebar-logout" type="submit">Logout</button>

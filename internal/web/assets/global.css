@@ -3050,3 +3050,24 @@ select:focus {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* Sidebar Scrollbar Premium Styling */
+.sidebar-content::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Ensure logout form stays at the bottom and doesn't shrink */
+.dashboard-sidebar form {
+    margin-top: auto;
+    flex-shrink: 0;
+}

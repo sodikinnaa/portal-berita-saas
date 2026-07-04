@@ -1,6 +1,8 @@
 {{define "sidebar"}}
 <div class="wp-admin-bar">
     <div class="wp-admin-bar-left">
+        <!-- Burger menu button (visible on mobile only) -->
+        <button type="button" class="sidebar-burger" id="sidebar-burger-toggle" onclick="toggleMobileSidebar()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; display: none; align-items: center; justify-content: center; padding: 0 10px; margin-right: 8px;">☰</button>
         <a href="/portal" class="wp-bar-logo">W</a>
         <a href="/portal" class="wp-bar-site">NewsPaper</a>
         <a href="/dashboard/articles/new" class="wp-bar-new">+ Baru</a>
@@ -13,7 +15,13 @@
     </div>
 </div>
 
-<aside class="dashboard-sidebar">
+<!-- Overlay background when sidebar is open on mobile -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileSidebar()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 9990;"></div>
+
+<aside class="dashboard-sidebar" id="dashboard-sidebar">
+    <!-- Close button for mobile sidebar -->
+    <button type="button" class="sidebar-close-btn" onclick="toggleMobileSidebar()" style="display: none; position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: #a0aec0; font-size: 24px; cursor: pointer; z-index: 10000;">✕</button>
+    
     <a href="/" class="dashboard-logo">News<span>Paper</span></a>
     <p class="dashboard-role">{{.User.Role}}</p>
 
@@ -286,6 +294,21 @@ function closeGlobalModal() {
     const modal = document.getElementById('global-loading-modal');
     modal.style.opacity = '0';
     setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById("dashboard-sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    if (!sidebar) return;
+    
+    const isOpen = sidebar.classList.contains("mobile-open");
+    if (isOpen) {
+        sidebar.classList.remove("mobile-open");
+        if (overlay) overlay.style.display = "none";
+    } else {
+        sidebar.classList.add("mobile-open");
+        if (overlay) overlay.style.display = "block";
+    }
 }
 </script>
 {{end}}

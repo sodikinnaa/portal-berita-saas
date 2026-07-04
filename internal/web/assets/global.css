@@ -3017,8 +3017,36 @@ select:focus {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
 }
+/* Mobile Sidebar Toggle styling */
+@media (max-width: 980px) {
+    .sidebar-burger {
+        display: flex !important;
+    }
+    
+    .sidebar-close-btn {
+        display: block !important;
+    }
 
+    .dashboard-sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 9995;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
+        background: #1a202c !important;
+        display: flex !important;
+        flex-direction: column;
+    }
 
+    .dashboard-sidebar.mobile-open {
+        transform: translateX(0) !important;
+    }
 
-
-
+    .dashboard-shell {
+        grid-template-columns: 1fr !important;
+    }
+}

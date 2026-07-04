@@ -11,6 +11,7 @@
         <meta property="og:title" content="{{.Title}} - {{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}" />
         <meta property="og:description" content="{{.Title}} - {{ if index .Settings "site_tagline" }}{{ index .Settings "site_tagline" }}{{ else }}Portal Berita{{ end }}" />
         <meta property="og:url" content="{{.BaseURL}}/{{.ActivePage}}" />
+        <link rel="canonical" href="{{.BaseURL}}/{{.ActivePage}}" />
         
         {{template "cdn_styles" .}}
         <style>

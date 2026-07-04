@@ -13,6 +13,7 @@
         <meta property="og:description" content="{{.Article.Excerpt}}" />
         <meta property="og:image" content="{{if .Article.HeroImageURL}}{{if hasPrefix .Article.HeroImageURL "http"}}{{.Article.HeroImageURL}}{{else}}{{.BaseURL}}{{.Article.HeroImageURL}}{{end}}{{else}}{{.BaseURL}}/assets/placeholder-og.jpg{{end}}" />
         <meta property="og:url" content="{{.BaseURL}}/artikel/{{.Article.Slug}}" />
+        <link rel="canonical" href="{{.BaseURL}}/artikel/{{.Article.Slug}}" />
         <meta property="og:site_name" content="{{ if index .Settings "site_title" }}{{ index .Settings "site_title" }}{{ else }}NewsPaper{{ end }}" />
         
         <!-- Twitter -->

@@ -135,8 +135,8 @@ body {
     transition: var(--transition);
 }
 
-.theme-btn:hover {
-    transform: scale(1.1);
+.nav-toggle, .nav-toggle-btn {
+    display: none;
 }
 
 /* Hero Section */
@@ -324,25 +324,89 @@ body {
 /* Responsive Styles */
 @media (max-width: 768px) {
     .site-header .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 5px 16px;
+    }
+    
+    .nav-toggle-btn {
+        display: flex;
+        cursor: pointer;
         flex-direction: column;
-        gap: 15px;
-        text-align: center;
+        justify-content: space-between;
+        width: 22px;
+        height: 16px;
+        z-index: 10;
+    }
+    
+    .nav-toggle-btn span {
+        display: block;
+        height: 2px;
+        width: 100%;
+        background-color: var(--text-color);
+        border-radius: 2px;
+        transition: var(--transition);
+    }
+    
+    .nav-toggle:checked ~ .nav-toggle-btn span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+    
+    .nav-toggle:checked ~ .nav-toggle-btn span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .nav-toggle:checked ~ .nav-toggle-btn span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
     }
     
     .main-nav {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
+        display: none;
+        flex-direction: column;
         width: 100%;
+        gap: 10px;
+        padding: 15px 0 10px 0;
+        border-top: 1px solid var(--border);
+        margin-top: 15px;
+    }
+    
+    .nav-toggle:checked ~ .main-nav {
+        display: flex;
+    }
+    
+    .main-nav a {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+    }
+    
+    .main-nav a.portal-link {
+        background: var(--primary) !important;
+        color: #000 !important;
+        font-weight: bold;
+        border-color: var(--primary);
+    }
+    
+    .theme-btn {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
     .nav-separator {
         display: none !important;
-    }
-    
-    .main-nav a {
-        font-size: 13px;
-        padding: 6px 10px;
     }
     
     .hero-section {
@@ -740,6 +804,12 @@ body {
                     <p class="logo-tagline" style="margin-top: 2px; font-size: 9px; letter-spacing: 1px; font-weight: bold; color: var(--primary);">JASA SEWA SISTEM PORTAL BERITA ALL-IN-ONE</p>
                 </div>
             </div>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" style="display: none;">
+            <label for="nav-toggle" class="nav-toggle-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
             <nav class="main-nav">
                 <a href="#features">Fitur Utama</a>
                 <a href="#pricing">Paket Harga</a>

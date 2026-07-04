@@ -9,6 +9,7 @@
 
         {{template "cdn_styles" .}}
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="canonical" href="{{.BaseURL}}/" />
         {{if index .Settings "seo_google_verification"}}
         <meta name="google-site-verification" content="{{index .Settings "seo_google_verification"}}" />
         {{end}}

@@ -45,8 +45,10 @@ func (s *Server) initializeDefaultCustomHomepage() {
 	if endpointURL == "" {
 		endpointURL = "https://meowcing.my.id" // default production fallback
 	}
-	// Ensure no trailing slash
+	// Ensure no trailing slash or duplicate api routes
 	endpointURL = strings.TrimSuffix(endpointURL, "/")
+	endpointURL = strings.TrimSuffix(endpointURL, "/api/v1")
+	endpointURL = strings.TrimSuffix(endpointURL, "/api")
 
 	// Download ZIP from SaaS backend
 	url := endpointURL + "/api/public/default-landing-page"

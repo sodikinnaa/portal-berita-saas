@@ -440,16 +440,32 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 30px;
-    opacity: 0.6;
 }
 .ticker-logo {
-    font-weight: 800;
-    font-size: 16px;
-    letter-spacing: -0.5px;
+    font-weight: 700;
+    font-size: 14.5px;
+    letter-spacing: -0.2px;
     color: var(--text-muted);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    opacity: 0.65;
+    transition: var(--transition);
+    cursor: default;
+}
+.ticker-logo svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+.ticker-logo:hover {
+    opacity: 1;
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+.ticker-logo:hover svg {
+    color: var(--primary);
 }
 
 /* Testimonials Section */
@@ -866,11 +882,26 @@ body {
             <div class="container">
                 <div class="logo-ticker-title">Terintegrasi dengan Layanan &amp; Teknologi Kelas Dunia</div>
                 <div class="logo-ticker-inner">
-                    <div class="ticker-logo">📰 Google News API</div>
-                    <div class="ticker-logo">📘 Facebook Graph</div>
-                    <div class="ticker-logo">🤖 OpenAI Gemini</div>
-                    <div class="ticker-logo">📱 Android Native</div>
-                    <div class="ticker-logo">🛡️ Cloudflare</div>
+                    <div class="ticker-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"></path><path d="M12 11H7"></path><path d="M12 15H7"></path><path d="M17 7H7"></path></svg>
+                        <span>Google News API</span>
+                    </div>
+                    <div class="ticker-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        <span>Facebook Graph</span>
+                    </div>
+                    <div class="ticker-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-1.92 5.76C8.83 9.4 6 10.08 6 12s2.83 2.6 4.08 4.24c.76 1 .92 3.76 1.92 5.76.76-2 .92-4.76 1.92-5.76C15.17 14.6 18 13.92 18 12s-2.83-2.6-4.08-4.24c-.76-1-.92-3.76-1.92-5.76z"></path></svg>
+                        <span>OpenAI Gemini</span>
+                    </div>
+                    <div class="ticker-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                        <span>Android Native</span>
+                    </div>
+                    <div class="ticker-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Cloudflare</span>
+                    </div>
                 </div>
             </div>
         </div>
